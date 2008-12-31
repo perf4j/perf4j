@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="Perf4J ${project.version}">
+
+    <version position="left"/>
+    <publishDate position="right" format="yyyy-MM-dd"/>
+
+    <bannerLeft>
+        <src>images/homeaway_logo.png</src>
+        <href>http://www.homeaway.com</href>
+    </bannerLeft>
+
+    <bannerRight>
+        <name>Perf4J ${project.version}</name>
+        <href>index.html</href>
+    </bannerRight>
+
+
+    <body>
+        <head>
+            <script type="text/javascript">
+                var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+                var gaS = "%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"; document.write(unescape(gaS));
+            </script>
+            <script type="text/javascript">
+                var pageTracker = _gat._getTracker("UA-5277776-1");
+                pageTracker._initData();
+                pageTracker._trackPageview();
+            </script>
+            <meta name="verify-v1" content="sRQSq4VA5FRMhwzFB4U3I9AtgLMtIWTdpVVO6jg1az4="/>
+        </head>
+
+        <links>
+            <item name="Home" href="index.html"/>
+            <item name="Release Notes" href="releases.html"/>
+        </links>
+
+        <menu name="Main">
+            <item name="Home" href="index.html"/>
+            <item name="Release Notes" href="releases.html"/>
+            <item name="Downloads" href="downloads.html"/>
+        </menu>
+
+        <menu name="Documentation">
+            <item name="Developer Guide" href="devguide.html"/>
+            <item name="Javadoc" href="apidocs/index.html"/>
+        </menu>
+
+        ${reports}
+    </body>
+
+    <poweredBy>
+        <logo name="Maven" href="http://maven.apache.org/"
+              img="http://maven.apache.org/images/logos/maven-feather.png"/>
+        <logo name="Homeaway" href="http://www.homeaway.com"
+              img="images/homeaway_logo.png"/>
+    </poweredBy>
+
+</project>
+
+        

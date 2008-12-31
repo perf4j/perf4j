@@ -1,0 +1,832 @@
+  ---------------
+  Developer Guide
+  ---------------
+
+Perf4J Developer Guide
+
+  This guide describes how to incorporate Perf4J timing statements into your code, and how to use and enable various
+  Perf4J tools to analyze and visualize the generated performance data. To run the examples you'll need to
+  {{{./downloads.html}download}} the Perf4J jar file and place it in your classpath. Some of the the Perf4J tools
+  require additional dependencies (for example, the custom log4j appenders require the log4j jar to also be in
+  your classpath). The examples shown will specify these additional dependencies when necessary.
+
+%{toc|section=1|fromDepth=1}
+
+* {Adding Timing Statements}
+
+  The {{{./apidocs/org/perf4j/StopWatch.html}org.perf4j.StopWatch}} class is used to calculate execution times as shown:
+
++-----------------------------------------------------------------------------+
+// Create the StopWatch to start timing. This constructor takes the tag name,
+// which identifies the code block being timed.
+StopWatch stopWatch = new StopWatch("codeBlock1");
+
+// Execute the code block - this is just a dummy call to pause execution for
+// 0-1 second.
+Thread.sleep((long)(Math.random() * 1000L));
+
+// Stop the StopWatch and log it. The code line assumes a log4j or
+// java.util.logging Logger has been created. Alternatively you could just
+// output the StopWatch timing statement to System.out or some other stream.
+logger.info(stopWatch.stop());
++-----------------------------------------------------------------------------+
+
+  The above block results in the following output to a log file when the block is executed multiple times:
+
++-----------------------------------------------------------------------------+
+INFO: start[1230448905165] time[704] tag[codeBlock1]
+INFO: start[1230448905898] time[564] tag[codeBlock1]
+INFO: start[1230448906462] time[367] tag[codeBlock1]
+INFO: start[1230448906830] time[153] tag[codeBlock1]
+INFO: start[1230448906983] time[830] tag[codeBlock1]
+INFO: start[1230448907813] time[834] tag[codeBlock1]
+INFO: start[1230448908648] time[229] tag[codeBlock1]
+INFO: start[1230448908877] time[93] tag[codeBlock1]
+INFO: start[1230448908970] time[748] tag[codeBlock1]
+INFO: start[1230448909720] time[559] tag[codeBlock1]
++-----------------------------------------------------------------------------+
+
+  In addition to the stop watch tag, you can also specify an optional message. The tag and message can be specified
+  either in the StopWatch constructor or in the call to stop(), which allows you to change the tag depending on the
+  code being timed like so:
+
++-----------------------------------------------------------------------------+
+StopWatch stopWatch = new StopWatch();
+
+try {
+    // the code block being timed - this is just a dummy example
+    long sleepTime = (long)(Math.random() * 1000L);
+    Thread.sleep(sleepTime);
+    if (sleepTime > 500L) {
+        throw new Exception("Throwing exception");
+    }
+
+    logger.info(stopWatch.stop("codeBlock2.success", "Sleep time was < 500 ms"));
+} catch (Exception e) {
+    logger.info(stopWatch.stop("codeBlock2.failure", "Exception was: " + e));
+}
++-----------------------------------------------------------------------------+
+
+  The above code creates the sample following output when run in a loop:
+
++-----------------------------------------------------------------------------+
+INFO: start[1230493236109] time[447] tag[codeBlock2.success] message[Sleep time was < 500 ms]
+INFO: start[1230493236719] time[567] tag[codeBlock2.failure] message[Exception was: java.lang.Exception: Throwing exception]
+INFO: start[1230493237286] time[986] tag[codeBlock2.failure] message[Exception was: java.lang.Exception: Throwing exception]
+INFO: start[1230493238273] time[194] tag[codeBlock2.success] message[Sleep time was < 500 ms]
+INFO: start[1230493238467] time[463] tag[codeBlock2.success] message[Sleep time was < 500 ms]
+INFO: start[1230493238930] time[310] tag[codeBlock2.success] message[Sleep time was < 500 ms]
+INFO: start[1230493239241] time[610] tag[codeBlock2.failure] message[Exception was: java.lang.Exception: Throwing exception]
+INFO: start[1230493239852] time[84] tag[codeBlock2.success] message[Sleep time was < 500 ms]
+INFO: start[1230493239937] time[30] tag[codeBlock2.success] message[Sleep time was < 500 ms]
+INFO: start[1230493239968] time[852] tag[codeBlock2.failure] message[Exception was: java.lang.Exception: Throwing exception]
++-----------------------------------------------------------------------------+
+
+  Note that in addition to explicitly creating StopWatches in code, you can also use the
+  {{{./apidocs/org/perf4j/aop/Profiled.html}org.perf4j.aop.Profiled}} annotation to mark methods that should be timed.
+  The use of the @Profiled annotation together with an aspect-oriented programming framework like AspectJ or
+  Spring AOP is {{{Unobtrusive_Logging_with_Profiled_and_AOP}described below}}.
+  
+* {Parsing Log Files to Generate Performance Statistics}
+
+  Once you have set up the logging in your application to log execution times, you will want to parse those log files
+  to generate aggregated performance statistics such as mean, min and max times. Here is an example using the
+  log parser. Note that {{{./apidocs/org/perf4j/LogParser.html}org.perf4j.LogParser}} is configured as the main class
+  to run in the perf4j jar file, so the parser can be run as follows:
+
++-----------------------------------------------------------------------------+
+java -jar perf4j-0.9.4.jar times.log
++-----------------------------------------------------------------------------+
+
+  Sample output from the log parser looks like this:
+
++-----------------------------------------------------------------------------+
+Performance Statistics   20:32:00 - 20:32:30
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+codeBlock1                                             249.4           2         487       151.3          37
+codeBlock2.failure                                     782.9         612         975       130.8          17
+codeBlock2.success                                     260.7           6         500       159.5          20
+
+Performance Statistics   20:32:30 - 20:33:00
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+codeBlock1                                             244.0           7         494       150.6          41
+codeBlock2.failure                                     747.9         531         943       125.3          21
+codeBlock2.success                                     224.1          26         398       106.8          21
+
+Performance Statistics   20:33:00 - 20:33:30
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+codeBlock1                                             289.3          10         464       141.1          22
+codeBlock2.failure                                     781.1         599         947       135.1           8
+codeBlock2.success                                     316.2         115         490       112.6          13
++-----------------------------------------------------------------------------+
+
+  Note that if no log file is specified the Perf4J log parser by default reads from standard input. Thus, one way to
+  get real-time performance statistics from a live application is to use the Unix <<<tail>>> command to pipe the raw
+  log file to the log parser. The following example assumes a live application is writing StopWatch log messages to
+  a times.log file. The performance statistics will be written to the console as new data is written to times.log:
+
++-----------------------------------------------------------------------------+
+tail -f times.log | java -jar perf4j-0.9.4.jar
++-----------------------------------------------------------------------------+
+
+  In addition to generating performance statistics, the Perf4J log parser can also generate graphs. Here is an example:
+
++-----------------------------------------------------------------------------+
+java -jar perf4j-0.9.4.jar --graph perfGraphs.out times.log
++-----------------------------------------------------------------------------+
+
+  This command writes performance graphs to the perfGraphs.out file using the Google Chart API. Here are some example
+  {{{http://chart.apis.google.com/chart?cht=lxy&chtt=Mean&chs=750x400&chxt=x,x,y&chd=t:0.0,50.0,100.0|31.1,40.3,24.1|0.0,50.0,100.0|40.9,27.9,33.0|0.0,50.0,100.0|99.1,100.0,90.9&chco=ff0000,00ff00,0000ff&chm=d,ff0000,0,-1,5.0|d,00ff00,1,-1,5.0|d,0000ff,2,-1,5.0&chdl=codeBlock2.success|codeBlock1|codeBlock2.failure&chxr=2,0,767.4&chxl=0:|20:38:00|20:38:30|20:39:00|1:|Time&chxp=0,0.0,50.0,100.0|1,50&chg=50.0,10}Mean Time}}
+  and
+  {{{http://chart.apis.google.com/chart?cht=lxy&chtt=TPS&chs=750x400&chxt=x,x,y&chd=t:0.0,50.0,100.0|42.5,50.0,32.5|0.0,50.0,100.0|77.5,100.0,72.5|0.0,50.0,100.0|35.0,50.0,40.0&chco=ff0000,00ff00,0000ff&chm=d,ff0000,0,-1,5.0|d,00ff00,1,-1,5.0|d,0000ff,2,-1,5.0&chdl=codeBlock2.success|codeBlock1|codeBlock2.failure&chxr=2,0,1.3&chxl=0:|20:38:00|20:38:30|20:39:00|1:|Time&chxp=0,0.0,50.0,100.0|1,50&chg=50.0,10}Transactions Per Second}}
+  graphs.
+
+  The Perf4J log parser contains a number of other options; use the <<<--help>>> flag to get more usage information.
+
+* {Using the log4j Appenders to Generate Real-Time Performance Information}
+
+  One of the main benefits of Perf4J is that it allows performance analysis and monitoring on live production
+  applications through extensions to common logging frameworks like log4j (java.util.logging support coming soon). These
+  custom log4j appenders can be configured through the standard configuration mechanisms to add functionality without
+  requiring changes to code. Note that all of the examples given below assume that you have the
+  {{{http://repo1.maven.org/maven2/log4j/log4j/1.2.14/log4j-1.2.14.jar}log4j jar}}, version 1.2.14 or higher,
+  in your classpath.
+
+  The most important Perf4J appender is the
+  {{{./apidocs/org/perf4j/log4j/AsyncCoalescingStatisticsAppender.html}AsyncCoalescingStatisticsAppender}}. This
+  appender takes all of the logged StopWatch messages within a specified timespan, aggregates them to a single
+  <<<GroupedTimingStatistics>>> log message, and then sends this single message to any downstream appenders (such as
+  FileAppenders or one of the other custom Perf4J appenders, described below).
+
+  Here is a sample log4j.xml file that is used to configure an AsyncCoalescingStatisticsAppender to log statistics
+  data to a file. <<IMPORTANT>> Due to the fact that you must attach downstream appenders to an
+  AsyncCoalescingStatisticsAppender for it to be useful, you cannot configure an AsyncCoalescingStatisticsAppender
+  instance in a log4j.properties file, but instead must use the log4j XML config file format (this is also required
+  when using a standard org.apache.log4j.AsyncAppender, for example).
+
++-----------------------------------------------------------------------------+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <!--
+      This default ConsoleAppender is used to log all NON perf4j messages
+      to System.out
+    -->
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/>
+        </layout>
+    </appender> 
+
+    <!-- Perf4J appenders -->
+    <!--
+       This AsyncCoalescingStatisticsAppender groups StopWatch log messages
+       into GroupedTimingStatistics messages which it sends on the
+       file appender defined below
+    -->
+    <appender name="CoalescingStatistics"
+              class="org.perf4j.log4j.AsyncCoalescingStatisticsAppender">
+        <!--
+          The TimeSlice option is used to determine the time window for which
+          all received StopWatch logs are aggregated to create a single
+          GroupedTimingStatistics log. Here we set it to 10 seconds, overriding
+          the default of 30000 ms
+        -->
+        <param name="TimeSlice" value="10000"/>
+        <appender-ref ref="fileAppender"/>
+    </appender>
+
+    <!-- This file appender is used to output aggregated performance statistics -->
+    <appender name="fileAppender" class="org.apache.log4j.FileAppender">
+        <param name="File" value="perfStats.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n"/>
+        </layout>
+    </appender>
+
+    <!-- Loggers -->
+    <!--
+      The Perf4J logger. Note that org.perf4j.TimingLogger is the value of the
+      org.perf4j.StopWatch.DEFAULT_LOGGER_NAME constant. Also, note that
+      additivity is set to false, which is usually what is desired - this means
+      that timing statements will only be sent to this logger and NOT to
+      upstream loggers.
+    -->
+    <logger name="org.perf4j.TimingLogger" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="CoalescingStatistics"/>
+    </logger>
+
+    <!--
+      The root logger sends all log statements EXCEPT those sent to the perf4j
+      logger to System.out.
+    -->
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </root>
+</log4j:configuration>
++-----------------------------------------------------------------------------+
+
+  The following simple example class makes use of the above configuration file to write the performance logs:
+
++-----------------------------------------------------------------------------+
+import org.apache.log4j.*;
+import org.perf4j.*;
+
+public class Perf4JAppenderExample {
+    public static void main (String[] args) throws Exception {
+        // note that the log4j framework will automatically load the log4j.xml
+        // file if it is in a root directory on the classpath
+
+        Logger perf4jLogger = Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME);
+        Logger rootLogger = Logger.getRootLogger();
+
+        for (int i = 0; i < 50; i++) {
+            StopWatch stopWatch = new StopWatch("firstBlock");
+
+            // for demo purposes just sleep
+            Thread.sleep((long) (Math.random() * 1000L));
+
+            rootLogger.info("Normal logging messages only go to the console");
+            perf4jLogger.info(stopWatch.stop());
+
+            // the StopWatch instance can be reused
+            stopWatch.start("secondBlock");
+
+            Thread.sleep((long) (Math.random() * 2000L));
+
+            perf4jLogger.info(stopWatch.stop());
+        }
+
+    }
+}
++-----------------------------------------------------------------------------+
+
+  Note that only the messages logged with the rootLogger ("Normal logging messages only go to the console") are
+  displayed on the console - this is because the additivity flag is set to false on the org.perf4j.TimingLogger in
+  the log4j.xml config. Here is some sample output written to perfStats.log:
+  
++-----------------------------------------------------------------------------+
+Performance Statistics   17:05:40 - 17:05:50
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+firstBlock                                             434.2         128         869       309.7           6
+secondBlock                                            968.4         196        1996       675.5           5
+
+Performance Statistics   17:05:50 - 17:06:00
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+firstBlock                                             523.0         178         793       225.8           6
+secondBlock                                           1126.3         332        1560       377.6           7
+
+Performance Statistics   17:06:00 - 17:06:10
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+firstBlock                                             806.0         583         930       114.8           6
+secondBlock                                            713.8         308        1045       282.1           6
+
+Performance Statistics   17:06:10 - 17:06:20
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+firstBlock                                             516.8         164         950       239.0           8
+secondBlock                                            771.3         149        1853       491.0           8
+
+Performance Statistics   17:06:20 - 17:06:30
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+firstBlock                                             447.3         108         852       223.2           7
+secondBlock                                           1102.2         406        1906       503.1           6
+
+Performance Statistics   17:06:30 - 17:06:40
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+firstBlock                                             511.3          30         892       254.7           6
+secondBlock                                           1043.9         237        1350       368.2           7
+
+Performance Statistics   17:06:40 - 17:06:50
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+firstBlock                                             290.7         152         511       114.5           7
+secondBlock                                           1128.0         598        1891       421.1           7
+
+Performance Statistics   17:06:50 - 17:07:00
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+firstBlock                                             530.5         138         902       278.7           4
+secondBlock                                           1140.3         516        1649       447.5           4
++-----------------------------------------------------------------------------+
+
+** {Writing Graphs with the GraphingStatisticsAppender}
+
+  One of the main benefits of using the AsyncCoalescingStatisticsAppender is that other custom Perf4J appenders that
+  handle GroupedTimingStatistics messages can be attached to an AsyncCoalescingStatisticsAppender in order to display
+  or analyze the statistics in other useful ways. The
+  {{{./apidocs/org/perf4j/log4j/GraphingStatisticsAppender.html}GraphingStatisticsAppender}} uses the
+  GroupedTimingStatistics to generate performance graphs. These graphs, which are implemented as URLs using the
+  {{{http://code.google.com/apis/chart/}Google Chart API}} to create the actual graph images, can then be displayed
+  in a browser, or {{{Exposing_Performance_Graphs_in_a_Web_Application}exposed in a running web server}}.
+
+  The log4j.xml shown below extends the log4j.xml previously shown with the new GraphingStatisticsAppenders:
+
++-----------------------------------------------------------------------------+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <!--
+      This default ConsoleAppender is used to log all NON perf4j messages
+      to System.out
+    -->
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/>
+        </layout>
+    </appender>
+
+    <!-- Perf4J appenders -->
+    <!--
+      This AsyncCoalescingStatisticsAppender groups StopWatch log messages
+      into GroupedTimingStatistics messages which it sends on the
+      file appender defined below
+    -->
+    <appender name="CoalescingStatistics"
+              class="org.perf4j.log4j.AsyncCoalescingStatisticsAppender">
+        <!--
+          The TimeSlice option is used to determine the time window for which
+          all received StopWatch logs are aggregated to create a single
+          GroupedTimingStatistics log. Here we set it to 10 seconds, overriding
+          the default of 30000 ms
+        -->
+        <param name="TimeSlice" value="10000"/>
+        <appender-ref ref="fileAppender"/>
+        <!--
+          Note how the GraphingStatisticsAppenders have been attached to the
+          CoalescingStatistics here.
+        -->
+        <appender-ref ref="graphExecutionTimes"/>
+        <appender-ref ref="graphExecutionTPS"/>
+    </appender>
+
+    <!-- This file appender is used to output aggregated performance statistics -->
+    <appender name="fileAppender" class="org.apache.log4j.FileAppender">
+        <param name="File" value="perfStats.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n"/>
+        </layout>
+    </appender>
+
+    <!--
+      This first GraphingStatisticsAppender graphs Mean execution times for the
+      firstBlock and secondBlock tags
+    -->
+    <appender name="graphExecutionTimes"
+              class="org.perf4j.log4j.GraphingStatisticsAppender">
+        <!-- Possible GraphTypes are Mean, Min, Max, StdDev, Count and TPS -->
+        <param name="GraphType" value="Mean"/>
+        <!-- The tags of the timed execution blocks to graph are specified here -->
+        <param name="TagNamesToGraph" value="firstBlock,secondBlock"/>
+        <appender-ref ref="graphsFileAppender"/>
+    </appender>
+
+    <!--
+      This second GraphingStatisticsAppender graphs transactions per second
+      for the firstBlock and secondBlock tags
+    -->
+    <appender name="graphExecutionTPS"
+              class="org.perf4j.log4j.GraphingStatisticsAppender">
+        <param name="GraphType" value="TPS"/>
+        <param name="TagNamesToGraph" value="firstBlock,secondBlock"/>
+        <appender-ref ref="graphsFileAppender"/>
+    </appender>
+
+    <!--
+      This file appender is used to output the graph URLs generated
+      by the GraphingStatisticsAppenders
+    -->
+    <appender name="graphsFileAppender" class="org.apache.log4j.FileAppender">
+        <param name="File" value="perfGraphs.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n"/>
+        </layout>
+    </appender>
+
+    <!-- Loggers -->
+    <!--
+      The Perf4J logger. Note that org.perf4j.TimingLogger is the value of the
+      org.perf4j.StopWatch.DEFAULT_LOGGER_NAME constant. Also, note that
+      additivity is set to false, which is usually what is desired - this means
+      that timing statements will only be sent to this logger and NOT to
+      upstream loggers.
+    -->
+    <logger name="org.perf4j.TimingLogger" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="CoalescingStatistics"/>
+    </logger>
+
+    <!--
+      The root logger sends all log statements EXCEPT those sent to the perf4j
+      logger to System.out.
+    -->
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </root>
+</log4j:configuration>
++-----------------------------------------------------------------------------+
+
+  Here are some sample Google Chart API URLs that are written to the perfGraphs.log file together with the rendered
+  graphs:
+
+  {{{http://chart.apis.google.com/chart?cht=lxy&chtt=Mean&chs=750x400&chxt=x,x,y&chd=t:0.0,5.3,10.5,15.8,21.1,26.3,31.6,36.8,42.1,47.4,52.6,57.9,63.2,68.4,73.7,78.9,84.2,89.5,94.7,100.0|51.6,67.0,78.0,82.6,48.9,66.8,54.9,60.2,79.8,56.5,49.4,53.2,91.4,66.3,55.0,80.1,74.4,100.0,81.8,50.1|0.0,5.3,10.5,15.8,21.1,26.3,31.6,36.8,42.1,47.4,52.6,57.9,63.2,68.4,73.7,78.9,84.2,89.5,94.7,100.0|32.1,31.9,23.6,27.7,33.5,34.3,43.1,30.0,24.1,37.3,29.4,31.3,41.5,28.7,41.0,37.3,29.0,33.5,40.4,20.7&chco=ff0000,00ff00&chm=d,ff0000,0,-1,5.0|d,00ff00,1,-1,5.0&chdl=secondBlock|firstBlock&chxr=2,0,1545.8&chxl=0:|14:29:00|14:29:30|14:30:00|14:30:30|14:31:00|14:31:30|14:32:00|1:|Time&chxp=0,0.0,15.8,31.6,47.4,63.2,78.9,94.7|1,50&chg=5.3,10}Mean Execution Times}}
+
+[images/meanChart.png] Mean Execution Times
+
+  {{{http://chart.apis.google.com/chart?cht=lxy&chtt=TPS&chs=750x400&chxt=x,x,y&chd=t:0.0,5.3,10.5,15.8,21.1,26.3,31.6,36.8,42.1,47.4,52.6,57.9,63.2,68.4,73.7,78.9,84.2,89.5,94.7,100.0|33.3,77.8,77.8,66.7,77.8,66.7,77.8,88.9,66.7,77.8,77.8,88.9,55.6,77.8,77.8,55.6,77.8,44.4,66.7,88.9|0.0,5.3,10.5,15.8,21.1,26.3,31.6,36.8,42.1,47.4,52.6,57.9,63.2,68.4,73.7,78.9,84.2,89.5,94.7,100.0|44.4,66.7,77.8,66.7,88.9,66.7,66.7,88.9,66.7,77.8,88.9,88.9,55.6,66.7,77.8,66.7,66.7,55.6,55.6,100.0&chco=ff0000,00ff00&chm=d,ff0000,0,-1,5.0|d,00ff00,1,-1,5.0&chdl=secondBlock|firstBlock&chxr=2,0,0.9&chxl=0:|14:29:00|14:29:30|14:30:00|14:30:30|14:31:00|14:31:30|14:32:00|1:|Time&chxp=0,0.0,15.8,31.6,47.4,63.2,78.9,94.7|1,50&chg=5.3,10}Transactions Per Second}}
+
+[images/tpsChart.png] Transactions Per Second
+
+** {Exposing Performance Statistics as JMX Attributes}
+
+  Another useful custom Perf4J appender is the
+  {{{./apidocs/org/perf4j/log4j/JmxAttributeStatisticsAppender.html}JmxAttributeStatisticsAppender}}. This appender
+  exposes performance statistics as attributes on a JMX MBean. There are many third party tools that are designed to
+  interact with and monitor applications through JMX. Thus, exposing performance statistics through JMX opens a whole
+  suite of additional functionality, such as sending notifications when execution times are outside an acceptable range.
+
+  Again, extending the log4j.xml shown previously, the example file below adds a JmxAttributeStatisticsAppender to
+  the CoalescingStatistics appender:
+
++-----------------------------------------------------------------------------+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <!--
+      This default ConsoleAppender is used to log all NON perf4j messages
+      to System.out
+    -->
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/>
+        </layout>
+    </appender>
+
+    <!-- Perf4J appenders -->
+    <!--
+      This AsyncCoalescingStatisticsAppender groups StopWatch log messages
+      into GroupedTimingStatistics messages which it sends on the
+      file appender defined below
+    -->
+    <appender name="CoalescingStatistics"
+              class="org.perf4j.log4j.AsyncCoalescingStatisticsAppender">
+        <!--
+          The TimeSlice option is used to determine the time window for which
+          all received StopWatch logs are aggregated to create a single
+          GroupedTimingStatistics log. Here we set it to 10 seconds, overriding
+          the default of 30000 ms
+        -->
+        <param name="TimeSlice" value="10000"/>
+        <appender-ref ref="fileAppender"/>
+        <appender-ref ref="graphExecutionTimes"/>
+        <appender-ref ref="graphExecutionTPS"/>
+        <!-- We add the JMX Appender reference onto the CoalescingStatistics -->
+        <appender-ref ref="perf4jJmxAppender"/>
+    </appender>
+
+    <!-- This file appender is used to output aggregated performance statistics -->
+    <appender name="fileAppender" class="org.apache.log4j.FileAppender">
+        <param name="File" value="perfStats.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n"/>
+        </layout>
+    </appender>
+
+    <!--
+      This first GraphingStatisticsAppender graphs Mean execution times for the
+      firstBlock and secondBlock tags
+    -->
+    <appender name="graphExecutionTimes"
+              class="org.perf4j.log4j.GraphingStatisticsAppender">
+        <!-- Possible GraphTypes are Mean, Min, Max, StdDev, Count and TPS -->
+        <param name="GraphType" value="Mean"/>
+        <!-- The tags of the timed execution blocks to graph are specified here -->
+        <param name="TagNamesToGraph" value="firstBlock,secondBlock"/>
+        <appender-ref ref="graphsFileAppender"/>
+    </appender>
+
+    <!--
+      This second GraphingStatisticsAppender graphs transactions per second
+      for the firstBlock and secondBlock tags
+    -->
+    <appender name="graphExecutionTPS"
+              class="org.perf4j.log4j.GraphingStatisticsAppender">
+        <param name="GraphType" value="TPS"/>
+        <param name="TagNamesToGraph" value="firstBlock,secondBlock"/>
+        <appender-ref ref="graphsFileAppender"/>
+    </appender>
+
+    <!--
+      This file appender is used to output the graph URLs generated
+      by the GraphingStatisticsAppenders
+    -->
+    <appender name="graphsFileAppender" class="org.apache.log4j.FileAppender">
+        <param name="File" value="perfGraphs.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n"/>
+        </layout>
+    </appender>
+
+    <!--
+      This JMX appender creates an MBean and publishes it to the platform MBean server by
+      default.
+    -->
+    <appender name="perf4jJmxAppender" class="org.perf4j.log4j.JmxAttributeStatisticsAppender">
+        <!--
+          You must specify the tag names whose statistics should be exposed as
+          MBean attributes.
+        -->
+        <param name="TagNamesToExpose" value="firstBlock,secondBlock"/>
+        <!--
+          You can also specify an optional MBeanName param, which overrides
+          the default MBean name of org.perf4j:type=StatisticsExposingMBean,name=Perf4J
+        -->
+    </appender>
+
+    <!-- Loggers -->
+    <!--
+      The Perf4J logger. Note that org.perf4j.TimingLogger is the value of the
+      org.perf4j.StopWatch.DEFAULT_LOGGER_NAME constant. Also, note that
+      additivity is set to false, which is usually what is desired - this means
+      that timing statements will only be sent to this logger and NOT to
+      upstream loggers.
+    -->
+    <logger name="org.perf4j.TimingLogger" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="CoalescingStatistics"/>
+    </logger>
+
+    <!--
+      The root logger sends all log statements EXCEPT those sent to the perf4j
+      logger to System.out.
+    -->
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </root>
+</log4j:configuration>
++-----------------------------------------------------------------------------+
+
+  When running an application locally you can enable JMX by passing the system property
+  com.sun.management.jmxremote on the command line, e.g.:
+
++-----------------------------------------------------------------------------+
+java -Dcom.sun.management.jmxremote -cp .:./perf4j-0.9.4.jar:./log4j-1.2.14.jar Perf4JAppenderExample
++-----------------------------------------------------------------------------+
+
+  Once the application is running, you can view the MBeans using the jconsole tool provided with the Sun JDK. Here
+  is a screenshot showing the Perf4J MBean:
+
+[images/jconsoleJmx.png] JConsole showing Perf4J MBean
+
+  For more information on JMX see
+  {{{http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement}Sun's JMX website}}.
+
+* {Exposing Performance Graphs in a Web Application}
+
+  One of the most common application types that require good performance monitoring are web applications. If you have
+  previously configured a GraphingStatisticsAppender
+  {{{Writing_Graphs_with_the_GraphingStatisticsAppender}as described above}}, you can load a
+  {{{./apidocs/org/perf4j/log4j/servlet/GraphingServlet.html}GraphingServlet}} in your web.xml file to expose
+  performance graphs through a browser front end. Here is an example web.xml file:
+
++-----------------------------------------------------------------------------+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app version="2.4"
+         xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+                             http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    <servlet>
+        <servlet-name>perf4j</servlet-name>
+        <servlet-class>org.perf4j.log4j.servlet.GraphingServlet</servlet-class>
+        <!--
+          The graphNames parameter determines which graphs to expose. The
+          param-value should be a comma-separated list of the
+          appender NAMES as defined in the log4j.xml file.
+        -->
+        <init-param>
+            <param-name>graphNames</param-name>
+            <param-value>graphExecutionTimes,graphExecutionTPS</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>perf4j</servlet-name>
+        <url-pattern>/perf4j</url-pattern>
+    </servlet-mapping>
+</web-app>
++-----------------------------------------------------------------------------+
+
+  The GraphingServlet accesses the in-memory graph representations from the GraphingStatisticsAppenders when displaying
+  the graphs, and thus it always displays the most up-to-date data. Also, you may find with the GraphingServlet that
+  you no longer have a need for the GraphingStatisticsAppenders to write to a file. In that case you can remove any
+  file appenders attached to the GraphingStatisticsAppenders in the log4j.xml file. 
+
+* {Unobtrusive Logging with @Profiled and AOP}
+
+  One of the downsides to adding StopWatch timing statements to code is that they can clutter the business logic of
+  a method, reducing the "signal-to-noise ratio" of the code. The
+  {{{./apidocs/org/perf4j/aop/Profiled.html}Profiled}} annotation provided by Perf4J provides a very clean way
+  to time method calls while keeping the executable statements free from distracting StopWatch calls. Note that the
+  Profiled annotation by itself just marks a method for profiling - it does not actually add any timing code.
+  Instead, you must use an aspect-oriented programming framework, such as
+  {{{http://www.eclipse.org/aspectj/}AspectJ}} or
+  {{{http://static.springframework.org/spring/docs/2.5.x/reference/aop.html}Spring AOP}} to inject timing aspects
+  into your code.
+
+** {Adding the Profiled Annotation to Method Declarations}
+
+  Adding the Profiled annotation to Java methods is a very simple and straightforward process. The following class
+  displays a number of sample methods and usages of the Profiled annotation:
+
++-----------------------------------------------------------------------------+
+import org.perf4j.aop.*;
+
+public class ProfiledExample {
+    public static void main (String[] args) throws Exception {
+        // run all of the examples
+        for (int i = 0; i < 50; i++) {
+            simpleExample();
+            simpleExampleWithExplicitTag();
+            dynamicTagExample("iIs" + (i % 2 == 0 ? "Even" : "Odd"));
+            dynamicMessageExample(i % 2 == 0 ? 1000L : 2000L);
+            if (i % 2 == 0) {
+                logFailuresSeparatelyExample(false);
+            } else {
+                try {
+                    logFailuresSeparatelyExample(true);
+                } catch (Exception e) { /* expected */ }
+            }
+            nonDefaultLoggerNameExample();
+
+            System.out.println("Ran loop " + i);
+        }
+    }
+
+    /**
+     * When the Profiled annotation is used without any parameters, the simple
+     * name of the method is used as the tag for any logged timing statements
+     */
+    @Profiled
+    public static void simpleExample() throws InterruptedException {
+        Thread.sleep((long) (Math.random() * 1000L));
+    }
+
+    /**
+     * Here we set the tag name to an explicit value.
+     */
+    @Profiled(tag = "simpleBlock")
+    public static void simpleExampleWithExplicitTag() throws InterruptedException {
+        Thread.sleep((long) (Math.random() * 1000L));
+    }
+
+    /**
+     * One very useful feature of the Profiled annotation is the ability to
+     * dynamically set the tag name based on the value of a method parameter.
+     * You can make use of Jakarta Commons Java Expression Language (JEXL) in
+     * curly braces in the tag name. The first parameter is assigned the variable
+     * name $0, the second $1, etc. For example, if I had a method that took as
+     * the first parameter an object with a bean accessor method "getFoo()", I
+     * could write a tag as "myTag_{$0.foo}".
+     */
+    @Profiled(tag = "dynamicTag_{$0}")
+    public static void dynamicTagExample(String tagName) throws InterruptedException {
+        Thread.sleep((long) (Math.random() * 1000L));
+    }
+
+    /**
+     * You can also specify a message to be logged in the Profiled annotation.
+     */
+    @Profiled(tag = "messageExample", message = "Requested sleep time was {$0 / 1000} seconds")
+    public static void dynamicMessageExample(long requestedSleepTimeInMS) throws InterruptedException {
+        Thread.sleep((long) (Math.random() * requestedSleepTimeInMS));
+    }
+
+    /**
+     * Often times you want to log failures (where a method completes by throwing an exception)
+     * separately from when a method completes normally. If you set the logFailuresSeparately
+     * parameter to true, then the tag given to cases when the method completes normally will
+     * be yourSpecifiedTagName.success, and when an exception is thrown the tag name will be
+     * yourSpecifiedTagName.failure. This allows you to calculate separate performance statistics
+     * for success and failure cases.
+     */
+    @Profiled(tag = "failuresSeparatelyExample", logFailuresSeparately = true)
+    public static void logFailuresSeparatelyExample(boolean shouldFail) throws Exception {
+        Thread.sleep((long) (Math.random() * 1000L));
+        if (shouldFail) {
+            throw new Exception("Method threw exception");
+        }
+    }
+
+    /**
+     * By default timing statements are logged to the logger named
+     * StopWatch.DEFAULT_LOGGER_NAME (i.e. org.perf4j.TimingLogger),
+     * but this can be overridden.
+     */
+    @Profiled(tag = "loggerExample", logger = "org.perf4j.MyCustomLoggerName")
+    public static void nonDefaultLoggerNameExample() throws InterruptedException {
+        Thread.sleep((long) (Math.random() * 1000L));
+    }
+}
++-----------------------------------------------------------------------------+
+
+  If you compile and run this class you will notice that no timing statements are printed to any logs. This is because
+  you need to integrate one of the timing aspects that ship with Perf4J using one of the methods described below.
+
+** {Using AspectJ Load-Time Weaving to Integrate Timing Aspects at Run Time}
+
+  AspectJ is an aspect-oriented programming extension for Java hosted by the Eclipse Foundation. Perf4J ships with
+  aspects that will "surround" methods that have the Profiled annotation with StopWatch timing statements (if
+  desired you can examine the code for the
+  {{{./xref/org/perf4j/aop/AbstractTimingAspect.html}AbstractTimingAspect}} and
+  {{{xref/org/perf4j/log4j/aop/TimingAspect.html}log4j TimingAspect}} classes to see what they do). AspectJ provides
+  several ways to "weave" these aspects into code, one of which is to use the AspectJ load-time weaver, which injects
+  the aspect code into the woven classes as they are loaded.
+
+  <<IMPORTANT>> To use AspectJ's load-time weaver and the aspect code you will need the following jars:
+
+  * {{{http://repo1.maven.org/maven2/org/aspectj/aspectjweaver/1.6.1/aspectjweaver-1.6.1.jar}aspectjweaver-1.6.1.jar}},
+    the AspectJ load-time weaver java agent
+
+  * {{{http://repo1.maven.org/maven2/org/aspectj/aspectjrt/1.6.1/aspectjrt-1.6.1.jar}aspectjrt-1.6.1.jar}}, the
+    AspectJ runtime
+
+  * {{{http://repo1.maven.org/maven2/commons-jexl/commons-jexl/1.1/commons-jexl-1.1.jar}commons-jexl-1.1.jar}},
+    the Jakarta Commons Java Expression Language (JEXL) runtime, which is used by the aspects when examining the
+    Profiled annotations
+
+  * {{{http://repo2.maven.org/maven2/commons-logging/commons-logging/1.0.3/commons-logging-1.0.3.jar}commons-logging-1.0.3.jar}},
+    which is a dependency of JEXL
+
+  To run the AspectJ weaver, you will first need to create an "aop.xml" file which must exist at META-INF/aop.xml in
+  the classpath. Here is an example:
+
++-----------------------------------------------------------------------------+
+<!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
+
+<aspectj>
+  <!-- we only want to weave in the log4j TimingAspect into the @Profiled classes -->
+  <aspects>
+    <aspect name="org.perf4j.log4j.aop.TimingAspect"/>
+  </aspects>
+
+  <weaver options="-verbose -showWeaveInfo">
+    <!--
+      Here is where we specify the classes to be woven. You can specify package
+      names like com.company.project.*
+    -->
+    <include within="ProfiledExample"/>
+  </weaver>
+</aspectj>
++-----------------------------------------------------------------------------+
+
+  The complete set of steps to run the ProfiledExample class defined above with profiling enabled is:
+
+  [[1]] Compile the ProfiledExample class using javac:
+
+        <<<javac -cp perf4j-0.9.4.jar ProfiledExample.java>>>
+
+  [[2]] Ensure that the log4j.xml file (you can use any of the ones defined in this guide) is in the current directory.
+
+  [[3]] Ensure that the aop.xml file defined above exists at ./META-INF/aop.xml.
+
+  [[4]] Run the class using java, specifying the AspectJ weaver as a java agent (note the path separator should be
+        ; when running in Windows, and the classpath assumes all the dependency jars are in the current directory):
+        
+        <<<java -cp .:perf4j-0.9.4-SNAPSHOT.jar:log4j-1.2.14.jar:aspectjrt-1.6.1.jar:commons-jexl-1.1.jar:commons-logging-1.0.3.jar -javaagent:aspectjweaver-1.6.1.jar ProfiledExample>>>
+
+  []
+  
+  When the ProfiledExample class is executed with the integrated timing statements log files are generated just as
+  if the StopWatch timing statements were written directly in the code:
+
++-----------------------------------------------------------------------------+
+Performance Statistics   19:53:20 - 19:53:30
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+dynamicTag_iIsEven                                      44.0          44          44         0.0           1
+dynamicTag_iIsOdd                                      561.0         561         561         0.0           1
+failuresSeparatelyExample.failure                      775.0         736         814        39.0           2
+failuresSeparatelyExample.success                       81.0          81          81         0.0           1
+messageExample                                         868.7         742         965        93.5           3
+simpleBlock                                            576.5         265         888       311.5           2
+simpleExample                                          727.0         599         855       128.0           2
++-----------------------------------------------------------------------------+
+    
+** {Using the AspectJ Compiler to Integrate Timing Aspects at Compile Time}
+
+  TODO
+
+** {Using Spring AOP to Integrate Timing Aspects}
+
+  TODO - for now see the Spring AOP documentation for how to turn aspects on for Spring-managed beans.
+
+
+
+  
+

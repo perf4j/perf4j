@@ -1,0 +1,27 @@
+  ---------
+  Downloads
+  ---------
+
+Download Project Artifacts
+
+* Release Versions
+
+  <All release versions of Perf4J are available from the maven repository at:>
+  <<{{http://repository.codehaus.org/org/perf4j/perf4j/}}>>
+
+  * <<0.9.4>>
+
+     * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.4/perf4j-0.9.4.jar}JAR archive}}
+       ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.4/perf4j-0.9.4.jar.md5}MD5}})
+
+  []
+
+* Snapshot Versions
+
+  <All SNAPSHOT versions built from the development trunk are available in the snapshot repository at:>
+  <<{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/}}>>
+
+  * <<0.9.5-SNAPSHOT>>
+
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.5-SNAPSHOT/perf4j-0.9.5-SNAPSHOT.jar}installer}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.5-SNAPSHOT/perf4j-0.9.5-SNAPSHOT.jar.md5}MD5}})

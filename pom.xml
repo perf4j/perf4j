@@ -1,0 +1,477 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.perf4j</groupId>
+    <artifactId>perf4j</artifactId>
+    <version>0.9.4-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Perf4J</name>
+    <description>Performance statistics logging and monitoring toolkit extension to log4j and the java.util.logging framework.</description>
+    <url>http://www.perf4j.org</url>
+    <inceptionYear>2008</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>LICENSE.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>perf4j.org</name>
+        <url>http://perf4j.org</url>
+    </organization>
+
+    <ciManagement>
+        <system>TeamCity</system>
+        <url>http://managed.on.a.private.build.server</url>
+    </ciManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Perf4j Users</name>
+            <post>user@perf4j.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/lists/user@perf4j.codehaus.org/subscribe</subscribe>
+            <unsubscribe>http://xircles.codehaus.org/lists/user@perf4j.codehaus.org/unsubscribe</unsubscribe>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j</archive>
+        </mailingList>
+        <mailingList>
+            <name>Perf4j Dev</name>
+            <post>dev@perf4j.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/lists/dev@perf4j.codehaus.org/subscribe</subscribe>
+            <unsubscribe>http://xircles.codehaus.org/lists/dev@perf4j.codehaus.org/unsubscribe</unsubscribe>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j</archive>
+        </mailingList>
+        <mailingList>
+            <name>Perf4j SCM</name>
+            <post>scm@perf4j.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/lists/scm@perf4j.codehaus.org/subscribe</subscribe>
+            <unsubscribe>http://xircles.codehaus.org/lists/scm@perf4j.codehaus.org/unsubscribe</unsubscribe>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j</archive>
+        </mailingList>
+        <mailingList>
+            <name>Perf4j Announce</name>
+            <post>announce@perf4j.codehaus.org</post>
+            <subscribe>http://xircles.codehaus.org/lists/announce@perf4j.codehaus.org/subscribe</subscribe>
+            <unsubscribe>http://xircles.codehaus.org/lists/announce@perf4j.codehaus.org/unsubscribe</unsubscribe>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j</archive>
+        </mailingList>
+    </mailingLists>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.codehaus.org/browse/perf4j</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <id>alexdevine</id>
+            <name>Alex Devine</name>
+            <email>alexd@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>cberry</id>
+            <name>Chris Berry</name>
+            <email>chris@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>bjacob</id>
+            <name>Bryon Jacob</name>
+            <email>bryon@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>alexvictoria</id>
+            <name>Alex Victoria</name>
+            <email>alexv@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:svn:http://svn.codehaus.org/perf4j/</connection>
+        <developerConnection>scm:svn:https://svn.codehaus.org/perf4j/</developerConnection>
+        <url>http://fisheye.codehaus.org/browse/perf4j</url>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>Apache iBiblio Mirror</id>
+            <url>http://people.apache.org/repo/m2-ibiblio-rsync-repository/</url>
+        </repository>
+        <repository>
+            <id>Maven2</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>Codehaus</id>
+            <url>http://repository.codehaus.org/</url>
+        </repository>
+        <repository>
+            <id>Apache Incubator</id>
+            <url>http://people.apache.org/repo/m2-incubating-repository/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>Codehaus</id>
+            <url>http://repository.codehaus.org/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Codehaus Mojo</id>
+            <url>http://repository.codehaus.org/org/codehaus/mojo/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Codehaus Snapshots</id>
+            <url>http://snapshots.repository.codehaus.org/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Maven2</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>maven snapshots</id>
+            <url>http://people.apache.org/repo/m2-snapshot-repository/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+
+    <dependencies>
+        <!-- if you use the log4j implementation of perf4j, you must also include this dependency -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.14</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- If you use the graphing servlets of perf4j, the servlet package should be provided by your container -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- if you use the AOP functionality of perf4j, you must also include these following dependencies -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.6.1</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.6.1</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-jexl</groupId>
+            <artifactId>commons-jexl</artifactId>
+            <version>1.1</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- if you use Spring to manage the AOP funcionality, you must also include these following dependencies --> 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+            <version>2.0.6</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>2.1_3</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+      
+        <!-- The following dependencies are required for testing only -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-mock</artifactId>
+            <version>2.0.6</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.3.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Tell Maven to compile for Java 1.5 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+
+            <!-- Specify Java 1.5 when running 'mvn idea:idea' -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-idea-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <jdkName>1.5</jdkName>
+                </configuration>
+            </plugin>
+
+            <!-- When deploying tell Maven not to create unique binaries for each snapshot -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <uniqueVersion>false</uniqueVersion>
+                </configuration>
+            </plugin>
+
+            <!-- Set up code coverage -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>emma-maven-plugin</artifactId>
+                <version>1.0-alpha-1</version>
+                <inherited>true</inherited>
+            </plugin>
+
+            <!-- Genearate a javadoc jar when deploying -->
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.1</version>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <attach>true</attach>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Generate a jar containing the source files when deploying -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <attach>true</attach>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Tell maven to generate a version.properties files from SVN -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+
+                    <execution>
+                        <id>build-versions-file</id>
+                        <phase>compile</phase>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${project.build.directory}" />
+                                <exec executable="svn" output="${project.build.directory}/version.properties">
+                                    <arg value="info" />
+                                    <arg value="." />
+                                    <redirector>
+                                        <outputfilterchain>
+                                            <linecontains>
+                                                <contains value="Revision" />
+                                            </linecontains>
+                                            <tokenfilter>
+                                                <replacestring from="Revision: " to="perf4j.revision=" />
+                                            </tokenfilter>
+                                        </outputfilterchain>
+                                    </redirector>
+                                </exec>
+                                <echo file="${project.build.directory}/version.properties" append="true">
+                                    perf4j.version=${project.version}
+                                </echo>
+                                <fixcrlf srcdir="${project.build.directory}" eol="lf" includes="version.properties" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Tell Maven to generate a META-INF manifest file that species LogParser as the jar's main class -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <mainClass>org.perf4j.LogParser</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!-- Tell surefire which tests to run, and to fork once when running, and set system properties. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.3</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <forkMode>once</forkMode>
+                    <reportFormat>plain</reportFormat>
+                    <trimStackTrace>false</trimStackTrace>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <argLine>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/1.6.1/aspectjweaver-1.6.1.jar</argLine>
+                    <systemProperties>
+                        <property>
+                            <name>log4j.debug</name>
+                            <value>false</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav</artifactId>
+                <version>1.0-beta-2</version>
+            </extension>
+        </extensions>
+
+    </build>
+
+    <!-- ======================================================================= -->
+    <!-- REPORTING
+         ========= -->
+    <reporting>
+        <plugins>
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <inherited>true</inherited>
+            </plugin>
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>emma-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+            </plugin>
+
+            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- generates a source reference for this project -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <distributionManagement>
+
+        <repository>
+            <id>codehaus.org</id>
+            <name>Perf4j Repository</name>
+            <url>dav:https://dav.codehaus.org/repository/perf4j/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>codehaus.org</id>
+            <uniqueVersion>false</uniqueVersion>
+            <name>Perf4j Snapshot Repository</name>
+            <url>dav:https://dav.codehaus.org/snapshots.repository/perf4j/</url>
+        </snapshotRepository>
+
+        <site>
+            <id>codehaus.org</id>
+            <url>dav:https://dav.codehaus.org/perf4j/</url>
+        </site>
+
+        <downloadUrl>
+            http://repository.codehaus.org/org/perf4j/perf4j/
+        </downloadUrl>
+
+    </distributionManagement>
+
+</project>

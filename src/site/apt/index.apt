@@ -1,0 +1,54 @@
+  Perf4J is a set of utilities for calculating and displaying perfomance statistics for Java code. For developers who
+  are familiar with logging frameworks such as log4j or java.util.logging, an analogy helps to describe Perf4J:
+
++-----------------------------------------+
+Perf4J is to System.currentTimeMillis() as log4j is to System.out.println()
++-----------------------------------------+
+
+  How is this relevant to Perf4J? Consider that before good logging frameworks were widely available, developers new
+  to Java would often print debugging statements using System.out.println(). Later they would discover they wanted
+  log statements to go to a dedicated file, perhaps a log file that was rolled daily. Then they would discover they
+  wanted finer control of which log statements would be written, and they wanted it to be possible to only have some
+  log statements written in some environments without changing any code. Thus, the full set of features that
+  log4j provides comes out of the original desire to have a "better" System.out.println() for logging statements.
+
+  Similarly, when new Java developers discover that they need to time specified blocks of code for performance logging
+  and monitoring reasons, they often do something like this:
+
++-----------------------------------------+
+long start = System.currentTimeMillis();
+
+// execute the block of code to be timed
+
+System.out.println("ms for block n was: " + (System.currentTimeMillis() - start));
++-----------------------------------------+
+
+  Later on, though, these developers find they want more information, such as aggregated performance statistics like
+  mean, minimum, maximum, standard deviation and transactions per second over a set time span. They would like graphs
+  of these values in real time to detect problems on a running server, or they would like to expose performance metrics
+  through JMX. In addition, they want their timing statements to work with the common logging frameworks like log4j.
+
+  Perf4J provides these features and more:
+
+  * A simple stop watch mechanism for succinct timing statements.
+
+  * A command line tool for parsing log files that generates aggregated statistics and performance graphs.
+
+  * Custom log4j appenders to generate statistics and graphs in a running application
+    (java.util.logging support coming soon).
+
+  * The ability to expose performance statistics as JMX attributes.
+
+  * A servlet for exposing performance graphs in a web application.
+
+  * A {{{./apidocs/org/perf4j/aop/Profiled.html}Profiled}} annotation and a set of custom aspects that allow
+    unobstrusive timing statements when coupled with an AOP framework such as AspectJ or Spring AOP.
+
+  * An extensible architecture.
+
+  []
+
+  See the {{{./devguide.html}Developer Guide}} to get started, or {{{./downloads.html}download}} Perf4J now.
+
+
+

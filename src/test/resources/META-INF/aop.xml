@@ -1,0 +1,13 @@
+<!DOCTYPE aspectj PUBLIC
+        "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
+
+<!-- This file is used by AspectJ to weave in aspects into the perf4j test classes -->
+<aspectj>
+    <weaver options="-verbose -showWeaveInfo">
+        <include within="org.perf4j.aop.ProfiledObject"/>
+    </weaver>
+
+    <aspects>
+        <aspect name="org.perf4j.aop.InMemoryTimingAspect"/>
+    </aspects>
+</aspectj>

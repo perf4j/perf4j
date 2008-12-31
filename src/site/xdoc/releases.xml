@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document url="http://java-build.wvrgroup.internal:/opt/sites/perf4j-${project.version}/releases.html">
+    <properties>
+        <title>Release Notes</title>
+    </properties>
+
+    <body>
+        <section name="Release 0.9.4 (??/??/08)">
+            <ol>
+                <li>Fixed a bug with the Profiled annotation where Jexl expressions would not be processed in
+                    the message field unless the tag also had an expresison.  Now, perf4j supports expressions in
+                the message AND/OR the tag.</li>
+            </ol>
+        </section>
+        <section name="Release 0.9.3 (12/04/08)">
+            <ol>
+                <li>Fixed the AbstractTimingAspect's pointcut definition on doPerfLogging() to be more specific,
+                    preventing duplicate log statements in some cases.</li>
+                <li>Changed AOP tests to use AspectJ directly instead of Spring AOP since this is the recommended
+                    integration.</li>
+            </ol>
+        </section>
+        <section name="Release 0.9.2 (10/20/08)">
+            <ol>
+                <li>Made the LogParser log Exceptions and return System.exit.</li>
+            </ol>
+        </section>
+        <section name="Release 0.9.1 (10/20/08)">
+            <ol>
+                <li>Decided it made more sense to make el() true by default.</li>
+                <li>Added aspect support for timing.</li>
+                <li>Refactored StatsValueRetriever in anticipation of Chart implementation.</li>
+                <li>Added JMX support to perf4J, replaced cobertura with emma.</li>
+                <li>Changed how the async appender works to use the StopWatchLogIterator and GroupingStatisticsIterator
+                    allowing reuse of these iterators in lots of places.</li>
+            </ol>
+        </section>
+        <section name="Release 0.9 (10/20/08)">
+            <ol>
+                <li>Initial release of perf4j</li>
+            </ol>
+        </section>
+    </body>
+</document>
+
+
+
+
+
+
+
+
+                 

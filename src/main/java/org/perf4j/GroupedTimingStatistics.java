@@ -1,5 +1,17 @@
-/* Copyright Homeaway, Inc 2005-2007. All Rights Reserved.
- * No unauthorized use of this software.
+/* Copyright (c) 2008-2009 HomeAway, Inc.
+ * All rights reserved.  http://www.perf4j.org
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.perf4j;
 
@@ -8,7 +20,6 @@ import java.util.*;
 
 /**
  * Represents a set of TimingStatistics calculated for a specific time period for a set of tags.
- * TODO - javadoc
  *
  * @author Alex Devine
  */
@@ -20,8 +31,26 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
 
     // --- Constructors ---
 
+    /**
+     * Default constructor allows you to set statistics later using the setter methods.
+     */
     public GroupedTimingStatistics() {}
 
+    /**
+     * Creates a GroupedTimingStatistics instance for a set of tags for a specified time span.
+     *
+     * @param statisticsByTag        This Map maps String tag times to the aggregated TimingStatistics for that tag.
+     * @param startTime              The start time (as reported by System.currentTimeMillis()) of the time span
+     *                               for which the statistics apply.
+     * @param stopTime               The end time of the time span for which the statistics apply.
+     * @param createRollupStatistics Whether or not the statisticsByTag contains "rollup statistics". Rollup statistics
+     *                               allow users to time different execution paths of the same code block. For example,
+     *                               when timing a code block, one may which to log execution time with a
+     *                               "codeBlock.success" tag when execution completes normally and a "codeBlock.failure"
+     *                               tag when an exception is thrown. If rollup statistics are used, then in addition
+     *                               to the codeBlock.success and codeBlock.failure tags, a codeBlock tag is created
+     *                               that represents StopWatch logs from EITHER the success or failure tags.
+     */
     public GroupedTimingStatistics(SortedMap<String, TimingStatistics> statisticsByTag,
                                    long startTime,
                                    long stopTime,
@@ -32,6 +61,22 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
         this.createRollupStatistics = createRollupStatistics;
     }
 
+    /**
+     * Creates a GroupedTimingStatistics by separating a collection of StopWatch instances by tag and calculating
+     * statistics for each tag.
+     *
+     * @param timeRecords            The collection of logged StopWatch instances
+     * @param startTime              The start time (as reported by System.currentTimeMillis()) of the time span
+     *                               for which the statistics apply.
+     * @param stopTime               The end time of the time span for which the statistics apply.
+     * @param createRollupStatistics Whether or not the statisticsByTag contains "rollup statistics". Rollup statistics
+     *                               allow users to time different execution paths of the same code block. For example,
+     *                               when timing a code block, one may which to log execution time with a
+     *                               "codeBlock.success" tag when execution completes normally and a "codeBlock.failure"
+     *                               tag when an exception is thrown. If rollup statistics are used, then in addition
+     *                               to the codeBlock.success and codeBlock.failure tags, a codeBlock tag is created
+     *                               that represents StopWatch logs from EITHER the success or failure tags.
+     */
     public GroupedTimingStatistics(Collection<StopWatch> timeRecords,
                                    long startTime,
                                    long stopTime,

@@ -5,11 +5,13 @@
     </properties>
 
     <body>
-        <section name="Release 0.9.4 (??/??/08)">
+        <section name="Release 0.9.4 (12/31/08)">
             <ol>
+                <li>Added performance graphs and graphing servlet.</li>
+                <li>Added developer guide.</li>
                 <li>Fixed a bug with the Profiled annotation where Jexl expressions would not be processed in
-                    the message field unless the tag also had an expresison.  Now, perf4j supports expressions in
-                the message AND/OR the tag.</li>
+                    the message field unless the tag also had an expresison.  Now, Perf4J supports expressions in
+                    the message AND/OR the tag.</li>
             </ol>
         </section>
         <section name="Release 0.9.3 (12/04/08)">
@@ -30,14 +32,14 @@
                 <li>Decided it made more sense to make el() true by default.</li>
                 <li>Added aspect support for timing.</li>
                 <li>Refactored StatsValueRetriever in anticipation of Chart implementation.</li>
-                <li>Added JMX support to perf4J, replaced cobertura with emma.</li>
+                <li>Added JMX support to Perf4J, replaced cobertura with emma.</li>
                 <li>Changed how the async appender works to use the StopWatchLogIterator and GroupingStatisticsIterator
                     allowing reuse of these iterators in lots of places.</li>
             </ol>
         </section>
         <section name="Release 0.9 (10/20/08)">
             <ol>
-                <li>Initial release of perf4j</li>
+                <li>Initial release of perf4J</li>
             </ol>
         </section>
     </body>

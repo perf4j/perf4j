@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.perf4j</groupId>
@@ -14,7 +16,7 @@
     <licenses>
         <license>
             <name>Apache 2</name>
-            <url>LICENSE.txt</url>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
             <comments>A business-friendly OSS license</comments>
         </license>
@@ -22,7 +24,7 @@
 
     <organization>
         <name>perf4j.org</name>
-        <url>http://perf4j.org</url>
+        <url>http://www.perf4j.org</url>
     </organization>
 
     <ciManagement>
@@ -36,44 +38,45 @@
             <post>user@perf4j.codehaus.org</post>
             <subscribe>http://xircles.codehaus.org/lists/user@perf4j.codehaus.org/subscribe</subscribe>
             <unsubscribe>http://xircles.codehaus.org/lists/user@perf4j.codehaus.org/unsubscribe</unsubscribe>
-            <archive>http://markmail.org/search/list:org.codehaus.perf4j</archive>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j.user</archive>
         </mailingList>
         <mailingList>
             <name>Perf4j Dev</name>
             <post>dev@perf4j.codehaus.org</post>
             <subscribe>http://xircles.codehaus.org/lists/dev@perf4j.codehaus.org/subscribe</subscribe>
             <unsubscribe>http://xircles.codehaus.org/lists/dev@perf4j.codehaus.org/unsubscribe</unsubscribe>
-            <archive>http://markmail.org/search/list:org.codehaus.perf4j</archive>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j.dev</archive>
         </mailingList>
         <mailingList>
             <name>Perf4j SCM</name>
             <post>scm@perf4j.codehaus.org</post>
             <subscribe>http://xircles.codehaus.org/lists/scm@perf4j.codehaus.org/subscribe</subscribe>
             <unsubscribe>http://xircles.codehaus.org/lists/scm@perf4j.codehaus.org/unsubscribe</unsubscribe>
-            <archive>http://markmail.org/search/list:org.codehaus.perf4j</archive>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j.scm</archive>
         </mailingList>
         <mailingList>
             <name>Perf4j Announce</name>
             <post>announce@perf4j.codehaus.org</post>
             <subscribe>http://xircles.codehaus.org/lists/announce@perf4j.codehaus.org/subscribe</subscribe>
             <unsubscribe>http://xircles.codehaus.org/lists/announce@perf4j.codehaus.org/unsubscribe</unsubscribe>
-            <archive>http://markmail.org/search/list:org.codehaus.perf4j</archive>
+            <archive>http://markmail.org/search/list:org.codehaus.perf4j.announce</archive>
         </mailingList>
     </mailingLists>
 
     <issueManagement>
         <system>JIRA</system>
-        <url>http://jira.codehaus.org/browse/perf4j</url>
+        <url>http://jira.codehaus.org/browse/PERFFORJ</url>
     </issueManagement>
 
     <developers>
         <developer>
-            <id>alexdevine</id>
+            <id>adevine</id>
             <name>Alex Devine</name>
-            <email>alexd@perf4j.org</email>
+            <email>adevine@perf4j.org</email>
             <organization>perf4j.org</organization>
             <timezone>-6</timezone>
             <roles>
+                <role>despot</role>
                 <role>developer</role>
             </roles>
         </developer>
@@ -84,6 +87,7 @@
             <organization>perf4j.org</organization>
             <timezone>-6</timezone>
             <roles>
+                <role>despot</role>
                 <role>developer</role>
             </roles>
         </developer>
@@ -94,6 +98,7 @@
             <organization>perf4j.org</organization>
             <timezone>-6</timezone>
             <roles>
+                <role>despot</role> 
                 <role>developer</role>
             </roles>
         </developer>
@@ -413,12 +418,9 @@
 
     </build>
 
-    <!-- ======================================================================= -->
-    <!-- REPORTING
-         ========= -->
     <reporting>
         <plugins>
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- Add the javadoc to the reporting section in the maven site -->
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
@@ -427,20 +429,19 @@
                 <inherited>true</inherited>
             </plugin>
 
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- Add the code coverage reports to the site -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>emma-maven-plugin</artifactId>
             </plugin>
 
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ -->
+            <!-- Add the test results to the site -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
             </plugin>
 
-            <!-- ~~~~~~~~~~~~~~~~~~~~~~~~ -->
-            <!-- generates a source reference for this project -->
+            <!-- Create a javadoc-style source reference on the site -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>

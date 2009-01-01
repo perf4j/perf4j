@@ -1,5 +1,17 @@
-/* Copyright Homeaway, Inc 2005-2007. All Rights Reserved.
- * No unauthorized use of this software.
+/* Copyright (c) 2008-2009 HomeAway, Inc.
+ * All rights reserved.  http://www.perf4j.org
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.perf4j.aop;
 
@@ -21,28 +33,19 @@ import org.apache.commons.jexl.JexlHelper;
 @Aspect
 public abstract class AbstractTimingAspect {
 
+    /**
+     * This advice is used to add the StopWatch logging statements around method executions that have been tagged
+     * with the Profiled annotation.
+     *
+     * @param pjp The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
+     * @param profiled The profiled annotation that was attached to the method.
+     * @return The return value from the method that was executed.
+     * @throws Throwable Any exceptions thrown by the underlying method.
+     */
     @Around(value = "execution(* *(..)) && @annotation(profiled)", argNames = "pjp,profiled")
     public Object doPerfLogging(ProceedingJoinPoint pjp, Profiled profiled) throws Throwable {
-        // get the tag and message, which depends on the el() (expressionLanguage) element of the Profiled annotation.
-        String tag, message;
-        if (Profiled.DEFAULT_TAG_NAME.equals(profiled.tag())) {
-            // if the tag name is not explicitly set on the Profiled annotation,
-            // use the name of the method being annotated.
-            tag = pjp.getSignature().getName();
-        } else if (profiled.el() && profiled.tag().indexOf("{") >= 0) {
-            tag = evaluateJexl(profiled.tag(), pjp.getArgs());
-        } else {
-            tag = profiled.tag();
-        }
-
-        if (profiled.el() && profiled.message().indexOf("{") >= 0) {
-            message = evaluateJexl(profiled.message(), pjp.getArgs());
-            if ("".equals(message)) {
-                message = null;
-            }
-        } else {
-            message = "".equals(profiled.message()) ? null : profiled.message();
-        }
+        String tag = getStopWatchTag(pjp, profiled);
+        String message = getStopWatchMessage(pjp, profiled);
 
         StopWatch stopWatch = new StopWatch();
 
@@ -62,6 +65,47 @@ public abstract class AbstractTimingAspect {
                 log(profiled.logger(), stopWatch.stop(tag, message));
             }
         }
+    }
+
+    /**
+     * Helper method gets the tag to use for StopWatch logging. Performs JEXL evaluation if necessary.
+     *
+     * @param pjp The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
+     * @param profiled The profiled annotation that was attached to the method.
+     * @return The value to use as the StopWatch tag.
+     */
+    protected String getStopWatchTag(ProceedingJoinPoint pjp, Profiled profiled) {
+        String tag;
+        if (Profiled.DEFAULT_TAG_NAME.equals(profiled.tag())) {
+            // if the tag name is not explicitly set on the Profiled annotation,
+            // use the name of the method being annotated.
+            tag = pjp.getSignature().getName();
+        } else if (profiled.el() && profiled.tag().indexOf("{") >= 0) {
+            tag = evaluateJexl(profiled.tag(), pjp.getArgs());
+        } else {
+            tag = profiled.tag();
+        }
+        return tag;
+    }
+
+    /**
+     * Helper method get the message to use for StopWatch logging. Performs JEXL evaluation if necessary.
+     *
+     * @param pjp The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
+     * @param profiled The profiled annotation that was attached to the method.
+     * @return The value to use as the StopWatch message.
+     */
+    protected String getStopWatchMessage(ProceedingJoinPoint pjp, Profiled profiled) {
+        String message;
+        if (profiled.el() && profiled.message().indexOf("{") >= 0) {
+            message = evaluateJexl(profiled.message(), pjp.getArgs());
+            if ("".equals(message)) {
+                message = null;
+            }
+        } else {
+            message = "".equals(profiled.message()) ? null : profiled.message();
+        }
+        return message;
     }
 
     /**

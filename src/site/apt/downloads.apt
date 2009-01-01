@@ -23,5 +23,82 @@ Download Project Artifacts
 
   * <<0.9.5-SNAPSHOT>>
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.5-SNAPSHOT/perf4j-0.9.5-SNAPSHOT.jar}installer}}
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.5-SNAPSHOT/perf4j-0.9.5-SNAPSHOT.jar}JAR archive}}
       ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.5-SNAPSHOT/perf4j-0.9.5-SNAPSHOT.jar.md5}MD5}})
+
+* Maven Dependencies and Ant
+
+  If you are using Perf4J in a project built with Maven, you will need to add the following entries to the dependencies
+  section of your pom.xml file. Note that some dependencies are optional depending on the Perf4J features used:
+
++-----------------------------------------------------------------------------+
+
+    <dependency>
+        <groupId>org.perf4j</groupId>
+        <artifactId>perf4j</artifactId>
+        <version>0.9.4</version>
+        <scope>compile</scope>
+    </dependency>
+
+    <!-- if you use the log4j implementation of perf4j, you must also include this dependency -->
+    <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.14</version>
+        <scope>compile</scope>
+    </dependency>
+
+    <!-- if you use the AOP functionality of perf4j, you must also include these 2 dependencies -->
+    <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjrt</artifactId>
+        <version>1.6.1</version>
+        <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>commons-jexl</groupId>
+        <artifactId>commons-jexl</artifactId>
+        <version>1.1</version>
+        <scope>runtime</scope>
+    </dependency>
+
+    <!-- if you use Spring to manage the AOP funcionality, you must also include these 2 dependencies -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring</artifactId>
+        <version>2.0.6</version>
+        <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib</artifactId>
+        <version>2.1_3</version>
+        <scope>runtime</scope>
+    </dependency>
++-----------------------------------------------------------------------------+
+
+  Alternatively, if you are building your project with Ant, you can use
+  {{{http://maven.apache.org/ant-tasks/index.html}Maven's Ant tasks}} to pull the required dependencies for your build.
+  Once you have {{{http://maven.apache.org/ant-tasks/installation.html}installed}} the tasks, you can add the following
+  lines to your build file:
+
++-----------------------------------------------------------------------------+
+    <!-- Maven's dependencies task pulls down the jar files to a local directory -->
+    <artifact:dependencies pathId="perf4j.classpath">
+        <dependency groupId="org.perf4j" artifactId="perf4j" version="0.9.4" scope="compile"/>
+        <!-- This dependency is only required if using log4j extensions in perf4j -->
+        <dependency groupId="log4j" artifactId="log4j" version="1.2.14" scope="compile"/>
+        <!-- These 2 dependencies only required if using AOP functionality in perf4j -->
+        <dependency groupId="org.aspectj" artifactId="aspectjrt" version="1.6.1" scope="runtime"/>
+        <dependency groupId="commons-jexl" artifactId="commons-jexl" version="1.1" scope="runtime"/>
+        <!-- These 2 dependencies only required if using Spring to manage AOP -->
+        <dependency groupId="org.springframework" artifactId="spring" version="2.0.6" scope="runtime"/>
+        <dependency groupId="cglib" artifactId="cglib" version="2.1_3" scope="runtime"/>
+
+        <!-- Declare the remore repositories from where dependencies are pulled -->
+        <remoteRepository url="http://repository.codehaus.org/"/>
+        <remoteRepository url="http://repo1.maven.org/maven2/"/>
+    </artifact:dependencies>
++-----------------------------------------------------------------------------+

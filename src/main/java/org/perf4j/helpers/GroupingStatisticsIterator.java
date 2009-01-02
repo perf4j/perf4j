@@ -18,9 +18,7 @@ package org.perf4j.helpers;
 import org.perf4j.GroupedTimingStatistics;
 import org.perf4j.StopWatch;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -57,9 +55,9 @@ public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatist
      */
     private GroupedTimingStatistics nextGroupedTimingStatistics = null;
     /**
-     * The stopWatches to be part of the next GroupedTimingStatistics.
+     * Keeps track of the CURRENT GroupedTimingStatistics while we iterate over the underlying StopWatches
      */
-    private List<StopWatch> stopWatchesInSlice = new ArrayList<StopWatch>();
+    private GroupedTimingStatistics currentGroupedTimingStatistics = new GroupedTimingStatistics();
     /**
      * The end time, in milliseconds since the epoch, of the next time slice.
      */
@@ -90,6 +88,7 @@ public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatist
         this.stopWatchIterator = stopWatchIterator;
         this.timeSlice = timeSlice;
         this.createRollupStatistics = createRollupStatistics;
+        this.currentGroupedTimingStatistics.setCreateRollupStatistics(createRollupStatistics);
     }
 
     public boolean hasNext() {
@@ -129,7 +128,7 @@ public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatist
     /**
      * Remove is not supported.
      *
-     * @exception UnsupportedOperationException Always thrown.
+     * @throws UnsupportedOperationException Always thrown.
      */
     public void remove() {
         throw new UnsupportedOperationException();
@@ -151,32 +150,32 @@ public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatist
             }
 
             if (stopWatch.getStartTime() >= nextTimeSliceEndTime) {
-                //then we're over a new time boundary, so create the GroupedTimingStatistics and return it
-                GroupedTimingStatistics retVal = new GroupedTimingStatistics(stopWatchesInSlice,
-                                                                             nextTimeSliceEndTime - timeSlice,
-                                                                             nextTimeSliceEndTime,
-                                                                             createRollupStatistics);
+                //then we're over a new time boundary, so update the current timing statistics and return it.
+                currentGroupedTimingStatistics.setStartTime(nextTimeSliceEndTime - timeSlice);
+                currentGroupedTimingStatistics.setStopTime(nextTimeSliceEndTime);
+                GroupedTimingStatistics retVal = currentGroupedTimingStatistics;
 
                 //set the state for the next slice
-                stopWatchesInSlice.clear();
-                stopWatchesInSlice.add(stopWatch);
+                currentGroupedTimingStatistics = new GroupedTimingStatistics();
+                currentGroupedTimingStatistics.setCreateRollupStatistics(createRollupStatistics);
+                currentGroupedTimingStatistics.addStopWatch(stopWatch);
                 nextTimeSliceEndTime = ((stopWatch.getStartTime() / timeSlice) * timeSlice) + timeSlice;
 
                 return retVal;
             } else {
-                stopWatchesInSlice.add(stopWatch);
+                currentGroupedTimingStatistics.addStopWatch(stopWatch);
             }
         }
 
         //if here then there are no more stopwatches left, so clean up the last batch
-        if (!stopWatchesInSlice.isEmpty()) {
-            GroupedTimingStatistics retVal = new GroupedTimingStatistics(stopWatchesInSlice,
-                                                                         nextTimeSliceEndTime - timeSlice,
-                                                                         nextTimeSliceEndTime,
-                                                                         createRollupStatistics);
+        if (!currentGroupedTimingStatistics.getStatisticsByTag().isEmpty()) {
+            currentGroupedTimingStatistics.setStartTime(nextTimeSliceEndTime - timeSlice);
+            currentGroupedTimingStatistics.setStopTime(nextTimeSliceEndTime);
+            GroupedTimingStatistics retVal = currentGroupedTimingStatistics;
 
-            //clear stopWatchesInSlice so we know to return null the next call to this method.
-            stopWatchesInSlice.clear();
+            //create an empty GroupedTimingStatistics so we know to return null in the next call to this method.
+            currentGroupedTimingStatistics = new GroupedTimingStatistics();
+            currentGroupedTimingStatistics.setCreateRollupStatistics(createRollupStatistics);
 
             return retVal;
         } else {

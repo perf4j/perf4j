@@ -16,7 +16,10 @@
 package org.perf4j;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Represents a set of TimingStatistics calculated for a specific time period for a set of tags.
@@ -32,7 +35,7 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
     // --- Constructors ---
 
     /**
-     * Default constructor allows you to set statistics later using the setter methods.
+     * Default constructor allows you to set statistics later using the addStopWatch and setter methods.
      */
     public GroupedTimingStatistics() {}
 
@@ -61,49 +64,41 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
         this.createRollupStatistics = createRollupStatistics;
     }
 
+    // --- Utility Methods ---
     /**
-     * Creates a GroupedTimingStatistics by separating a collection of StopWatch instances by tag and calculating
-     * statistics for each tag.
+     * This method updates the calculated statistics when a new logged StopWatch is added.
      *
-     * @param timeRecords            The collection of logged StopWatch instances
-     * @param startTime              The start time (as reported by System.currentTimeMillis()) of the time span
-     *                               for which the statistics apply.
-     * @param stopTime               The end time of the time span for which the statistics apply.
-     * @param createRollupStatistics Whether or not the statisticsByTag contains "rollup statistics". Rollup statistics
-     *                               allow users to time different execution paths of the same code block. For example,
-     *                               when timing a code block, one may which to log execution time with a
-     *                               "codeBlock.success" tag when execution completes normally and a "codeBlock.failure"
-     *                               tag when an exception is thrown. If rollup statistics are used, then in addition
-     *                               to the codeBlock.success and codeBlock.failure tags, a codeBlock tag is created
-     *                               that represents StopWatch logs from EITHER the success or failure tags.
+     * @param stopWatch The StopWatch being used to update the statistics.
+     * @return this GroupedTimingStatistics instance
      */
-    public GroupedTimingStatistics(Collection<StopWatch> timeRecords,
-                                   long startTime,
-                                   long stopTime,
-                                   boolean createRollupStatistics) {
-        this.startTime = startTime;
-        this.stopTime = stopTime;
-        this.createRollupStatistics = createRollupStatistics;
+    public GroupedTimingStatistics addStopWatch(StopWatch stopWatch) {
+        String tag = stopWatch.getTag();
 
-        //segregate the time records by tag
-        Map<String, Collection<StopWatch>> recordsByTag = new HashMap<String, Collection<StopWatch>>();
-        for (StopWatch timeRecord : timeRecords) {
-            String tag = timeRecord.getTag();
-            addTimeRecordToMapByTag(tag, timeRecord, recordsByTag);
+        addStopWatchToStatsByTag(tag, stopWatch);
 
-            //create rollup statistics if desired by splitting up the tag
-            if (createRollupStatistics) {
-                int indexOfDot = -1;
-                while ((indexOfDot = tag.indexOf('.', indexOfDot + 1)) >= 0) {
-                    addTimeRecordToMapByTag(tag.substring(0, indexOfDot), timeRecord, recordsByTag);
-                }
+        //create rollup statistics if desired by splitting up the tag
+        if (createRollupStatistics) {
+            int indexOfDot = -1;
+            while ((indexOfDot = tag.indexOf('.', indexOfDot + 1)) >= 0) {
+                addStopWatchToStatsByTag(tag.substring(0, indexOfDot), stopWatch);
             }
         }
 
-        //create statistics
-        for (Map.Entry<String, Collection<StopWatch>> tagWithRecords : recordsByTag.entrySet()) {
-            statisticsByTag.put(tagWithRecords.getKey(), new TimingStatistics(tagWithRecords.getValue()));
+        return this;
+    }
+
+    /**
+     * Updates these statistics with all of the StopWatches in the specified collection.
+     *
+     * @param stopWatches The collection of StopWatches to add to this GroupedTimingStatistics data set.
+     * @return this GroupedTimingStatistics instance
+     */
+    public GroupedTimingStatistics addStopWatches(Collection<StopWatch> stopWatches) {
+        for (StopWatch stopWatch : stopWatches) {
+            addStopWatch(stopWatch);
         }
+
+        return this;
     }
 
     // --- Bean Properties ---
@@ -142,21 +137,18 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
 
     // --- Helper Methods ---
 
-    private void addTimeRecordToMapByTag(String tag,
-                                         StopWatch timeRecord,
-                                         Map<String, Collection<StopWatch>> recordsByTag) {
-        Collection<StopWatch> recordsForTag = recordsByTag.get(tag);
-        if (recordsForTag == null) {
-            recordsByTag.put(tag, recordsForTag = new ArrayList<StopWatch>());
+    private void addStopWatchToStatsByTag(String tag, StopWatch stopWatch) {
+        TimingStatistics stats = statisticsByTag.get(tag);
+        if (stats == null) {
+            statisticsByTag.put(tag, stats = new TimingStatistics());
         }
-        recordsForTag.add(timeRecord);
+        stats.addSampleTime(stopWatch.getElapsedTime());
     }
 
     // --- Object Methods ---
 
     public String toString() {
         StringBuilder retVal = new StringBuilder();
-        String newLine = System.getProperty("line.separator");
         //output the time window
         retVal.append(String.format("Performance Statistics   %tT - %tT%n", startTime, stopTime));
         //output the header

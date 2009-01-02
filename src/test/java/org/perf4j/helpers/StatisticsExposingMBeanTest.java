@@ -16,10 +16,10 @@ import java.util.Arrays;
 public class StatisticsExposingMBeanTest extends TimingTestCase {
 
     public void testStatisticsExposingMBean() throws Exception {
-        GroupedTimingStatistics groupedTimingStats = new GroupedTimingStatistics(this.testStopWatches,
-                                                                                 System.currentTimeMillis(),
-                                                                                 System.currentTimeMillis() + 1000L,
-                                                                                 false);
+        GroupedTimingStatistics groupedTimingStats = new GroupedTimingStatistics();
+        groupedTimingStats.setStartTime(System.currentTimeMillis());
+        groupedTimingStats.setStopTime(System.currentTimeMillis() + 1000L);
+        groupedTimingStats.addStopWatches(this.testStopWatches);
 
         StatisticsExposingMBean mBean = new StatisticsExposingMBean(Arrays.asList("tag", "tag3"));
         mBean.updateCurrentTimingStatistics(groupedTimingStats);

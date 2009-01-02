@@ -8,7 +8,6 @@ import org.perf4j.GroupedTimingStatistics;
 import org.perf4j.StopWatch;
 import org.perf4j.helpers.StatsValueRetriever;
 
-import java.util.Arrays;
 import java.util.ResourceBundle;
 
 /**
@@ -33,19 +32,22 @@ public class GoogleChartGeneratorTest extends TestCase {
         GoogleChartGenerator chart = new GoogleChartGenerator();
 
         StopWatch stopWatch = new StopWatch(START_TIME + 2000L, 2000L, "tag", null);
-        GroupedTimingStatistics statistics =
-                new GroupedTimingStatistics(Arrays.asList(stopWatch), START_TIME, START_TIME + 30000L, false);
-        chart.appendData(statistics);
+        GroupedTimingStatistics statistics = new GroupedTimingStatistics();
+        statistics.setStartTime(START_TIME);
+        statistics.setStopTime(START_TIME + 30000L);
+        chart.appendData(statistics.addStopWatch(stopWatch));
 
         stopWatch = new StopWatch(START_TIME + 32000L, 3000L, "tag", null);
-        statistics =
-                new GroupedTimingStatistics(Arrays.asList(stopWatch), START_TIME + 30000L, START_TIME + 60000L, false);
-        chart.appendData(statistics);
+        statistics = new GroupedTimingStatistics();
+        statistics.setStartTime(START_TIME + 30000L);
+        statistics.setStopTime(START_TIME + 60000L);
+        chart.appendData(statistics.addStopWatch(stopWatch));
 
         stopWatch = new StopWatch(START_TIME + 62000L, 1500L, "tag", null);
-        statistics =
-                new GroupedTimingStatistics(Arrays.asList(stopWatch), START_TIME + 60000L, START_TIME + 90000L, false);
-        chart.appendData(statistics);
+        statistics = new GroupedTimingStatistics();
+        statistics.setStartTime(START_TIME + 60000L);
+        statistics.setStopTime(START_TIME + 90000L);
+        chart.appendData(statistics.addStopWatch(stopWatch));
 
         verifyUrl(chart.getChartUrl(), "threeDataPoints");
     }
@@ -56,24 +58,28 @@ public class GoogleChartGeneratorTest extends TestCase {
 
         StopWatch watch1 = new StopWatch(START_TIME + 2000L, 2000L, "tag1", null);
         StopWatch watch2 = new StopWatch(START_TIME + 2000L, 1000L, "tag2", null);
-        GroupedTimingStatistics statistics =
-                new GroupedTimingStatistics(Arrays.asList(watch1, watch2), START_TIME, START_TIME + 30000L, false);
+        GroupedTimingStatistics statistics = new GroupedTimingStatistics();
+        statistics.setStartTime(START_TIME);
+        statistics.setStopTime(START_TIME + 30000L);
+        statistics.addStopWatch(watch1).addStopWatch(watch2);
         chart.appendData(statistics);
         tpsChart.appendData(statistics);
 
         watch1 = new StopWatch(START_TIME + 32000L, 3000L, "tag1", null);
         watch2 = new StopWatch(START_TIME + 32000L, 2500L, "tag2", null);
         StopWatch watch2b = new StopWatch(START_TIME + 32000L, 2000L, "tag2", null);
-        statistics = new GroupedTimingStatistics(Arrays.asList(watch1, watch2, watch2b),
-                                                 START_TIME + 30000L,
-                                                 START_TIME + 60000L,
-                                                 false);
+        statistics = new GroupedTimingStatistics();
+        statistics.setStartTime(START_TIME + 30000L);
+        statistics.setStopTime(START_TIME + 60000L);
+        statistics.addStopWatch(watch1).addStopWatch(watch2).addStopWatch(watch2b);
         chart.appendData(statistics);
         tpsChart.appendData(statistics);
 
         watch1 = new StopWatch(START_TIME + 62000L, 1500L, "tag1", null);
-        statistics =
-                new GroupedTimingStatistics(Arrays.asList(watch1), START_TIME + 60000L, START_TIME + 90000L, false);
+        statistics = new GroupedTimingStatistics();
+        statistics.setStartTime(START_TIME + 60000L);
+        statistics.setStopTime(START_TIME + 90000L);
+        statistics.addStopWatch(watch1);
         chart.appendData(statistics);
         tpsChart.appendData(statistics);
 

@@ -58,9 +58,7 @@ public class StopWatch implements Serializable, Cloneable {
      * Creates a StopWatch with the specified tag, no message and started at the instant of creation.
      *
      * @param tag The tag name for this timing call. Tags are used to group timing logs, thus each block of code being
-     *            timed should have a unique tag. Note that tags can take a hierarchical format using dot notation -
-     *            See the {@link org.perf4j.GroupedTimingStatistics#setCreateRollupStatistics(boolean)} method for
-     *            more information.
+     *            timed should have a unique tag. Note that tags can take a hierarchical format using dot notation.
      */
     public StopWatch(String tag) {
         this(tag, null);
@@ -71,8 +69,7 @@ public class StopWatch implements Serializable, Cloneable {
      *
      * @param tag     The tag name for this timing call. Tags are used to group timing logs, thus each block of code
      *                being timed should have a unique tag. Note that tags can take a hierarchical format using dot
-     *                notation - See the {@link org.perf4j.GroupedTimingStatistics#setCreateRollupStatistics(boolean)}
-     *                method for more information.
+     *                notation.
      * @param message Additional text to be printed with the logging statement of this StopWatch.
      */
     public StopWatch(String tag, String message) {

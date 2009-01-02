@@ -15,18 +15,17 @@
  */
 package org.perf4j;
 
-import java.util.Collection;
 import java.io.Serializable;
 
 /**
  * TimingStatistics represent a set of statistical measures over a set of timing data, such as a collection of
  * StopWatch instances.
- * 
+ *
  * @author Alex Devine
  */
 public class TimingStatistics implements Serializable, Cloneable {
     private double mean;
-    private double standardDeviation;
+    private double runningQ; //for keeping running standard deviation
     private long max;
     private long min;
     private int count;
@@ -40,55 +39,49 @@ public class TimingStatistics implements Serializable, Cloneable {
     /**
      * Creates a TimingStatistics object with the specified data.
      *
-     * @param mean The mean execution time, in ms, of the underlying time records.
+     * @param mean              The mean execution time, in ms, of the underlying time records.
      * @param standardDeviation The standard deviation, in ms, of the underlying time records.
-     * @param max The maximum value in ms of the logged execution times.
-     * @param min The minimum value in ms of the logged execution times.
-     * @param count The total number of executions that were timed.
+     * @param max               The maximum value in ms of the logged execution times.
+     * @param min               The minimum value in ms of the logged execution times.
+     * @param count             The total number of executions that were timed.
      */
     public TimingStatistics(double mean, double standardDeviation, long max, long min, int count) {
         this.mean = mean;
-        this.standardDeviation = standardDeviation;
+        this.runningQ = Math.pow(standardDeviation, 2.0) * count;
         this.max = max;
         this.min = min;
         this.count = count;
     }
 
+    // --- Utility Methods ---
     /**
-     * This constructor calculates the mean, standard deviation, maximum, minimum and count values of a collection
-     * of StopWatch instances that represent logged code execution times. All the StopWatches in the specified
-     * collection should have the same tag.
+     * This method updates the calculated statistics with a new logged execution time.
      *
-     * @param timeRecords The time records to aggregate.
+     * @param elapsedTime The elapsed time being used to update the statistics.
+     * @return this TimingStatistics instance
      */
-    public TimingStatistics(Collection<StopWatch> timeRecords) {
-        if (timeRecords.isEmpty()) {
-            return;
+    public TimingStatistics addSampleTime(long elapsedTime) {
+        count++;
+
+        double diffFromMean = elapsedTime - mean;
+        mean = mean + (diffFromMean / count);
+
+        runningQ = runningQ + (((count - 1) * Math.pow(diffFromMean, 2.0)) / count);
+
+        //special case initial stopWatch when finding max and min
+        if (count == 1) {
+            min = elapsedTime;
+            max = elapsedTime;
+        } else {
+            if (elapsedTime < min) {
+                min = elapsedTime;
+            }
+            if (elapsedTime > max) {
+                max = elapsedTime;
+            }
         }
 
-        this.count = 0;
-        this.min = Long.MAX_VALUE;
-        this.max = Long.MIN_VALUE;
-        long sum = 0L;
-        long[] elapsedTimes = new long[timeRecords.size()];
-
-        //calculate min, max and mean
-        for (StopWatch timeRecord : timeRecords) {
-            long elapsedTime = timeRecord.getElapsedTime();
-            sum += elapsedTime;
-            this.min = Math.min(this.min, elapsedTime);
-            this.max = Math.max(this.max, elapsedTime);
-            elapsedTimes[this.count++] = elapsedTime;
-        }
-
-        this.mean = ((double)sum) / ((double)this.count);
-
-        //calculate standard deviation
-        double sumOfDeviation = 0.0;
-        for (long elapsedTime : elapsedTimes) {
-            sumOfDeviation += Math.pow(elapsedTime - this.mean, 2.0);
-        }
-        this.standardDeviation = Math.sqrt(sumOfDeviation / this.count);
+        return this;
     }
 
     // --- Bean Properties ---
@@ -97,53 +90,33 @@ public class TimingStatistics implements Serializable, Cloneable {
         return mean;
     }
 
-    public void setMean(double mean) {
-        this.mean = mean;
-    }
-
     public double getStandardDeviation() {
-        return standardDeviation;
-    }
-
-    public void setStandardDeviation(double standardDeviation) {
-        this.standardDeviation = standardDeviation;
+        return Math.sqrt(runningQ / count);
     }
 
     public long getMax() {
         return max;
     }
 
-    public void setMax(long max) {
-        this.max = max;
-    }
-
     public long getMin() {
         return min;
-    }
-
-    public void setMin(long min) {
-        this.min = min;
     }
 
     public int getCount() {
         return count;
     }
 
-    public void setCount(int count) {
-        this.count = count;
-    }
-
     // --- Object Methods ---
 
     public String toString() {
-        return "mean[" + mean +
-               "] stddiv[" + standardDeviation +
-               "] min[" + standardDeviation +
-               "] max[" + standardDeviation +
-               "] count[" + standardDeviation + "]";
+        return "mean[" + getMean() +
+               "] stddev[" + getStandardDeviation() +
+               "] min[" + getMin() +
+               "] max[" + getMax() +
+               "] count[" + getCount() + "]";
     }
 
-    public TimingStatistics clone()  {
+    public TimingStatistics clone() {
         try {
             return (TimingStatistics) super.clone();
         } catch (CloneNotSupportedException cnse) {
@@ -173,7 +146,7 @@ public class TimingStatistics implements Serializable, Cloneable {
         if (min != that.min) {
             return false;
         }
-        if (Double.compare(that.standardDeviation, standardDeviation) != 0) {
+        if (Double.compare(that.runningQ, runningQ) != 0) {
             return false;
         }
 
@@ -185,7 +158,7 @@ public class TimingStatistics implements Serializable, Cloneable {
         long temp;
         temp = mean != +0.0d ? Double.doubleToLongBits(mean) : 0L;
         result = (int) (temp ^ (temp >>> 32));
-        temp = standardDeviation != +0.0d ? Double.doubleToLongBits(standardDeviation) : 0L;
+        temp = runningQ != +0.0d ? Double.doubleToLongBits(runningQ) : 0L;
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (int) (max ^ (max >>> 32));
         result = 31 * result + (int) (min ^ (min >>> 32));

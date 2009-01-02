@@ -23,7 +23,7 @@
                 var gaS = "%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"; document.write(unescape(gaS));
             </script>
             <script type="text/javascript">
-                var pageTracker = _gat._getTracker("UA-5277776-1");
+                var pageTracker = _gat._getTracker("UA-5369441-1");
                 pageTracker._initData();
                 pageTracker._trackPageview();
             </script>

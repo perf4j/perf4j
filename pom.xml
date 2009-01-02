@@ -79,6 +79,16 @@
             </roles>
         </developer>
         <developer>
+            <id>dchakraborty</id>
+            <name>Doran Chakraborty</name>
+            <email>dchakraborty@perf4j.org</email>
+            <organization>perf4j.org</organization>
+            <timezone>-6</timezone>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
             <id>cberry</id>
             <name>Chris Berry</name>
             <email>chris@perf4j.org</email>

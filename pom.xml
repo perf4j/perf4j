@@ -366,10 +366,21 @@
                 </executions>
             </plugin>
 
-            <!-- Tell Maven to generate a META-INF manifest file that species LogParser as the jar's main class -->
+            <!--
+              Tell the Maven jar plugin to generate three jars: one with all the files, then one withOUT the
+              java.util.logging extensions (i.e. just the log4j extensions) and one withOUT the log4j extensions.
+              These separate log4j and javalog jars are needed when using the AspectJ compiler so that only ONE
+              TimingAspect is included.
+
+              Also, tell the jar plugin to make org.per4j.LogParser the main executable class.
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <!--
+                  The main jar includes all classes and generates a META-INF manifest file that species
+                  LogParser as the jar's main class
+                -->
                 <configuration>
                     <archive>
                         <manifest>
@@ -379,6 +390,36 @@
                         </manifest>
                     </archive>
                 </configuration>
+                <executions>
+                    <!-- This jar includes only the log4j classes and NOT the java.util.logging classes -->
+                    <execution>
+                        <id>log4jAspects</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>log4jonly</classifier>
+                            <excludes>
+                                <exclude>**/javalog/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- This jar includes only the java.util.logging classes and NOT the log4j classes -->
+                    <execution>
+                        <id>javalogAspects</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>javalogonly</classifier>
+                            <excludes>
+                                <exclude>**/log4j/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Tell surefire which tests to run, and to fork once when running, and set system properties. -->

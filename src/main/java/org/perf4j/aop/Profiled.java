@@ -59,6 +59,15 @@ public @interface Profiled {
     String logger() default StopWatch.DEFAULT_LOGGER_NAME;
 
     /**
+     * The level to use when logging the StopWatch. Defaults to INFO. Acceptable values are taken from names of the
+     * standard log4j Levels.
+     *
+     * @return The level to use when logging the StopWatch
+     * @see <a href="http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/Level.html">log4j Level class</a>
+     */
+    String level() default "INFO";
+
+    /**
      * Whether or not the tag and message elements should support Java Expression Language syntax. Setting this to true
      * enables the tag name to be dynamic with respect to the arguments passed to the method being profiled. An
      * Expression Language expression is delimited with curly brackets, and arguments are accessed as $0, $1, $2, etc.
@@ -66,7 +75,7 @@ public @interface Profiled {
      * on the path info (as returned by getPathInfo()) of the request. You could create the following annotation:
      *
      * <pre>
-     * &amp;#064;Profiled(tag = "myServlet{$0.pathInfo}", el = true)
+     * &#064;Profiled(tag = "myServlet{$0.pathInfo}", el = true)
      * protected void doGet(HttpServletRequest req, HttpServletResponse res) {
      * ...
      * }

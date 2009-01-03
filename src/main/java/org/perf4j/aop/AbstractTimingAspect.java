@@ -25,8 +25,9 @@ import org.apache.commons.jexl.JexlContext;
 import org.apache.commons.jexl.JexlHelper;
 
 /**
- * This is the base class for TimingAspects. Subclasses just need to implement the {@link #log} method to use
- * their logging framework of choice (e.g. log4j or java.logging) to persist the StopWatch log message.
+ * This is the base class for TimingAspects. Subclasses just need to implement the {@link #shouldLog} and
+ * {@link #log} methods to use their logging framework of choice (e.g. log4j or java.logging) to persist the
+ * StopWatch log message.
  * 
  * @author Alex Devine
  */
@@ -44,6 +45,11 @@ public abstract class AbstractTimingAspect {
      */
     @Around(value = "execution(* *(..)) && @annotation(profiled)", argNames = "pjp,profiled")
     public Object doPerfLogging(ProceedingJoinPoint pjp, Profiled profiled) throws Throwable {
+        //if we're not going to end up logging the stopwatch, just run the wrapped method
+        if (!shouldLog(profiled.logger(), profiled.level())) {
+            return pjp.proceed();
+        }
+
         String tag = getStopWatchTag(pjp, profiled);
         String message = getStopWatchMessage(pjp, profiled);
 
@@ -52,17 +58,17 @@ public abstract class AbstractTimingAspect {
         try {
             Object retVal = pjp.proceed();
             if (profiled.logFailuresSeparately()) {
-                log(profiled.logger(), stopWatch.stop(tag + ".success", message));
+                log(profiled.logger(), profiled.level(), stopWatch.stop(tag + ".success", message));
             }
             return retVal;
         } catch (Throwable t) {
             if (profiled.logFailuresSeparately()) {
-                log(profiled.logger(), stopWatch.stop(tag + ".failure", message));
+                log(profiled.logger(), profiled.level(), stopWatch.stop(tag + ".failure", message));
             }
             throw t;
         } finally {
             if (!profiled.logFailuresSeparately()) {
-                log(profiled.logger(), stopWatch.stop(tag, message));
+                log(profiled.logger(), profiled.level(), stopWatch.stop(tag, message));
             }
         }
     }
@@ -159,12 +165,22 @@ public abstract class AbstractTimingAspect {
         return retVal.toString();
     }
 
+    /**
+     * Subclasses should implement this method to determine whether or not the logger specified is enabled for the
+     * specified level.
+     *
+     * @param loggerName This name identifies the logger to use to persist the log message
+     * @param levelName  The level at which the StopWatch will be persisted
+     * @return true if the specified logger is enabled for the specified level
+     */
+    protected abstract boolean shouldLog(String loggerName, String levelName);
 
     /**
      * Subclasses must implement this method to persist the StopWatch logging message.
      *
      * @param loggerName      This name identifies the logger to use to persist the log message
+     * @param levelName       The level at which the message should be logged
      * @param stopWatchString The StopWatch log to be saved.
      */
-    protected abstract void log(String loggerName, String stopWatchString);
+    protected abstract void log(String loggerName, String levelName, String stopWatchString);
 }

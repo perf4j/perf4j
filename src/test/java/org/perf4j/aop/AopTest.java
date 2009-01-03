@@ -54,6 +54,10 @@ public class AopTest extends TestCase {
                    InMemoryTimingAspect.getLastLoggedString().indexOf("expressionTest") >= 0);
         assertTrue("Expected message not found in " + InMemoryTimingAspect.getLastLoggedString(),
                    InMemoryTimingAspect.getLastLoggedString().indexOf("message[message_50_Alex_32]") >= 0);
+
+        profiledObject.simpleTestWithLevel(50);
+        assertTrue("Shouldn't have logged when level was DEBUG: " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleTestWithLevel]") < 0);
     }
 
     /**

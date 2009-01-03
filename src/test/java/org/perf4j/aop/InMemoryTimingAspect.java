@@ -4,6 +4,7 @@
 package org.perf4j.aop;
 
 import org.aspectj.lang.annotation.Aspect;
+import org.apache.log4j.Level;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -15,7 +16,11 @@ import java.util.ArrayList;
 public class InMemoryTimingAspect extends AbstractTimingAspect {
     public static List<String> logStrings = new ArrayList<String>();
 
-    protected void log(String loggerName, String stopWatchString) {
+    protected boolean shouldLog(String loggerName, String levelName) {
+        return Level.toLevel(levelName).toInt() >= Level.INFO_INT;
+    }
+
+    protected void log(String loggerName, String levelName, String stopWatchString) {
         InMemoryTimingAspect.logStrings.add(stopWatchString);
     }
 

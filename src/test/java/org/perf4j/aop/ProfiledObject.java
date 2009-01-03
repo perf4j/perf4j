@@ -52,6 +52,12 @@ public class ProfiledObject {
         return sleepTime;
     }
 
+    @Profiled(tag = "simpleTestWithLevel", level = "DEBUG")
+    public long simpleTestWithLevel(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+
     /**
      * A simple wrapper method that will expose a call joinpoint on a Profiled method.
      * If the AbstractTimingAspect isn't correctly configured, this will result in a log

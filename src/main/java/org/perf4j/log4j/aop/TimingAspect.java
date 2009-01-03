@@ -18,6 +18,7 @@ package org.perf4j.log4j.aop;
 import org.aspectj.lang.annotation.Aspect;
 import org.perf4j.aop.AbstractTimingAspect;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 /**
  * This TimingAspect implementation uses Log4j to persist StopWatch log messages at the info level.
@@ -27,7 +28,11 @@ import org.apache.log4j.Logger;
 @Aspect
 public class TimingAspect extends AbstractTimingAspect {
 
-    protected void log(String loggerName, String stopWatchString) {
-        Logger.getLogger(loggerName).info(stopWatchString);
+    protected boolean shouldLog(String loggerName, String levelName) {
+        return Logger.getLogger(loggerName).isEnabledFor(Level.toLevel(levelName));
+    }
+
+    protected void log(String loggerName, String levelName, String stopWatchString) {
+        Logger.getLogger(loggerName).log(Level.toLevel(levelName), stopWatchString);
     }
 }

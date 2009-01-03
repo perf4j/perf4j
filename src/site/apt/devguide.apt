@@ -872,9 +872,171 @@ simpleExample                                          727.0         599        
   
 ** {Using Spring AOP to Integrate Timing Aspects}
 
-  TODO - for now see the Spring AOP documentation for how to turn aspects on for Spring-managed beans.
+  The Spring Application Framework provides a large toolset for working with aspects and integrating them with
+  Spring-managed beans. If you already use Spring in your application, Spring AOP may be the simplest method for
+  integrating the timing aspects into your code. Note that the small example given here makes use of just a small part
+  of Spring AOP; you will likely want to review the
+  {{{http://static.springframework.org/spring/docs/2.5.x/reference/aop.html}Spring AOP documentation}} for more
+  information.
 
+  Spring AOP using a proxy-based framework to weave aspects into Spring-managed beans, either using JDK dynamic proxies
+  (when the bean being proxied implements at least one interface) or CGLIB proxies. Note the two following important
+  restrictions when using Spring AOP:
 
+  * Any objects to be woven must exist as Spring-managed beans declared in the Spring container. This is necessary
+    because, in order to wrap object instances with the required proxies, the Spring container needs to control the
+    lifecycle of your objects.
 
-  
+  * Any method being @Profiled MUST be a public method.
 
+  []
+
+  If your code does not fit these restrictions, Spring still has some utilities for using native AspectJ load-time
+  weaving with Spring - see
+  {{{http://static.springframework.org/spring/docs/2.5.x/reference/aop.html#aop-aj-ltw}Spring's load-time weaving documentation}}
+  for more.
+
+  For this example, assume we have the following class that we will load as a Spring-managed bean:
+
++-----------------------------------------------------------------------------+
+import java.math.BigInteger;
+import org.perf4j.aop.Profiled;
+
+public class PrimeGenerator {
+
+    //keeps track of the prime we're going to return
+    private BigInteger currentPrime = new BigInteger("0");
+
+    public void setCurrentPrime(BigInteger currentPrime) {
+        this.currentPrime = currentPrime;
+    }
+
+    @Profiled
+    public BigInteger nextPrime() {
+        currentPrime = currentPrime.nextProbablePrime();
+        return currentPrime;
+    }
+}
++-----------------------------------------------------------------------------+
+
+  This simple bean just reports a running series of prime numbers. The Profiled annotation has been added to allow
+  us to track the execution time of the nextPrime() method.
+
+  The following sample spring.xml file sets up the bean and uses Spring's autoproxy feature to weave in the
+  log4j TimingAspect:
+
++-----------------------------------------------------------------------------+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Note how the aop namespace is defined in the top-level beans element -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+    <!--
+      Including this aspectj-autoproxy element will cause spring to automatically
+      create proxies around any beans defined in this file that match the pointcuts
+      of any aspects defined in this file.
+    -->
+    <aop:aspectj-autoproxy/>
+
+    <!--
+      Declare the TimingAspect that we want to weave into the other beans
+      defined in this config file.
+    -->
+    <bean id="timingAspect" class="org.perf4j.log4j.aop.TimingAspect"/>
+
+    <!--
+      Because we included the aspectj-autoproxy element, Spring will automatically
+      create a proxy for this bean that runs the TimingAspect around any public
+      @Profiled methods on this bean.
+    -->
+    <bean id="primeGenerator" class="PrimeGenerator">
+        <property name="currentPrime"
+                  value="12345678910111213141516171819202122232425262728293031323334353637383940"/>
+    </bean>
+</beans>
++-----------------------------------------------------------------------------+
+
+  Finally, we provide a main class to start up Spring and call the nextPrime() method:
+
++-----------------------------------------------------------------------------+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+public class SpringProfiledExample {
+    public static void main(String[] args) throws Exception {
+        //initialize Spring
+        ApplicationContext applicationContext = new FileSystemXmlApplicationContext("spring.xml");
+
+        //Spring will actually return a CGLIB-generated proxy here that injects
+        //the TimingAspects into the PrimeGenerator class.
+        PrimeGenerator primeGenerator = (PrimeGenerator) applicationContext.getBean("primeGenerator");
+
+        for (int i = 0; i < 500; i++) {
+            System.out.println("nextPrime() returned " + primeGenerator.nextPrime());
+        }
+    }
+}
++-----------------------------------------------------------------------------+
+
+  To run the example:
+
+  [[1]] First, ensure that you have all the required files and dependencies in your current directory
+        (note it is usually easiest to use Maven or Ant to manage dependencies, see the
+        {{{./downloads.html}downloads page}}):
+
+        * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.5/perf4j-0.9.5.jar}perf4j-0.9.5.jar}}
+
+        * {{{http://repo1.maven.org/maven2/org/springframework/spring/2.0.6/spring-2.0.6.jar}spring-2.0.6.jar}},
+          the Spring Framework jar
+
+        * {{{http://repo1.maven.org/maven2/org/aspectj/aspectjweaver/1.6.1/aspectjweaver-1.6.1.jar}aspectjweaver-1.6.1.jar}},
+          the AspectJ load-time weaver java agent
+
+        * {{{http://repo1.maven.org/maven2/org/aspectj/aspectjrt/1.6.1/aspectjrt-1.6.1.jar}aspectjrt-1.6.1.jar}}, the
+          AspectJ runtime
+
+        * {{{http://repo1.maven.org/maven2/cglib/cglib/2.1_3/cglib-2.1_3.jar}cglib-2.1_3.jar}}, the CGLIB library
+          needed by Spring to create the proxies
+
+        * {{{http://repo2.maven.org/maven2/asm/asm/1.5.3/asm-1.5.3.jar}asm-1.5.3.jar}}, a dependency of CGLIB
+
+        * {{{http://repo1.maven.org/maven2/log4j/log4j/1.2.14/log4j-1.2.14.jar}log4j-1.2.14.jar}}, the log4j classes
+
+        * {{{http://repo1.maven.org/maven2/commons-jexl/commons-jexl/1.1/commons-jexl-1.1.jar}commons-jexl-1.1.jar}},
+          the Jakarta Commons Java Expression Language (JEXL) runtime, which is used by the aspects when examining the
+          Profiled annotations
+
+        * {{{http://repo2.maven.org/maven2/commons-logging/commons-logging/1.0.3/commons-logging-1.0.3.jar}commons-logging-1.0.3.jar}},
+          which is a dependency of JEXL
+
+        * The PrimeGenerator.java, spring.xml and SpringProfiledExample.java files given above
+
+        * Any of the log4j.xml configuration files from this guide
+
+  [[2]] Compile the PrimeGenerator and SpringProfiledExample classes:
+
+        <<<javac -cp perf4j-0.9.5.jar:spring-2.0.6.jar PrimeGenerator.java SpringProfiledExample.java>>>
+
+  [[3]] Run SpringProfiledExample:
+
+        <<<java -cp .:perf4j-0.9.5.jar:spring-2.0.6.jar:aspectjrt-1.6.1.jar:aspectjweaver-1.6.1.jar:cglib-2.1_3.jar:asm-1.5.3.jar:log4j-1.2.14.jar:commons-jexl-1.1.jar:commons-logging-1.0.3.jar SpringProfiledExample>>>
+
+  []
+
+  Some sample output printed to the perfStats.log file:
+
++-----------------------------------------------------------------------------+
+Performance Statistics   18:46:50 - 18:47:00
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+nextPrime                                               31.3          24          73         6.9         277
+
+Performance Statistics   18:47:00 - 18:47:10
+Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
+nextPrime                                               31.0          24          78         7.2         223
++-----------------------------------------------------------------------------+

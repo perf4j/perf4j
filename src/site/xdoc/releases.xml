@@ -5,6 +5,14 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.5 (1/2/09)">
+            <ol>
+                <li>Added maven dependencies example to downloads page.</li>
+                <li>Fixed bug where if timespans are very large, AsyncCoalescingStatisticsAppender can have large memory growth.</li>
+                <li>Added Spring AOP section in developer guide.</li>
+                <li>Changed build to create log4j-only and java.util.logging-only jars in the build for use with AspectJ compiler.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.4 (12/31/08)">
             <ol>
                 <li>Added performance graphs and graphing servlet.</li>

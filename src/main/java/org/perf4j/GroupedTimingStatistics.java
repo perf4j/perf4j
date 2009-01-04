@@ -174,6 +174,9 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
         try {
             GroupedTimingStatistics retVal = (GroupedTimingStatistics) super.clone();
             retVal.statisticsByTag = new TreeMap<String, TimingStatistics>(retVal.statisticsByTag);
+            for (Map.Entry<String, TimingStatistics> tagAndStats : retVal.statisticsByTag.entrySet()) {
+                tagAndStats.setValue(tagAndStats.getValue().clone());
+            }
             return retVal;
         } catch (CloneNotSupportedException cnse) {
             throw new Error("Unexpected CloneNotSupportedException");
@@ -190,17 +193,9 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
 
         GroupedTimingStatistics that = (GroupedTimingStatistics) o;
 
-        if (startTime != that.startTime) {
-            return false;
-        }
-        if (stopTime != that.stopTime) {
-            return false;
-        }
-        if (!statisticsByTag.equals(that.statisticsByTag)) {
-            return false;
-        }
-
-        return true;
+        return startTime == that.startTime &&
+               stopTime == that.stopTime &&
+               statisticsByTag.equals(that.statisticsByTag);
     }
 
     public int hashCode() {

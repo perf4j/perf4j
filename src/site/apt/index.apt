@@ -37,7 +37,8 @@ System.out.println("ms for block n was: " + (System.currentTimeMillis() - start)
   * Custom log4j appenders to generate statistics and graphs in a running application
     (java.util.logging support coming soon).
 
-  * The ability to expose performance statistics as JMX attributes.
+  * The ability to expose performance statistics as JMX attributes, and to send notifications when statistics
+    exceed specified thresholds.
 
   * A servlet for exposing performance graphs in a web application.
 

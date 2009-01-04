@@ -9,6 +9,7 @@
 
   <appender name="jmx" class="org.perf4j.log4j.JmxAttributeStatisticsAppender">
     <param name="TagNamesToExpose" value="tag0,tag1"/>
+    <param name="NotificationThresholds" value="tag0Max(0-10000)"/>
   </appender>
 
   <logger name="org.perf4j.TimingLogger">

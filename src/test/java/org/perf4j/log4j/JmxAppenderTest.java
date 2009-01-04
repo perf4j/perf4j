@@ -11,6 +11,8 @@ import org.perf4j.helpers.StatisticsExposingMBean;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.NotificationListener;
+import javax.management.Notification;
 import java.lang.management.ManagementFactory;
 
 /**
@@ -19,6 +21,13 @@ import java.lang.management.ManagementFactory;
 public class JmxAppenderTest extends TestCase {
     public void testJmxAppender() throws Exception {
         DOMConfigurator.configure(getClass().getResource("log4jWJmx.xml"));
+
+        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+        ObjectName statisticsMBeanName = new ObjectName(StatisticsExposingMBean.DEFAULT_MBEAN_NAME);
+
+        //add a notification listener so we can check for notifications
+        DummyNotificationListener notificationListener = new DummyNotificationListener();
+        server.addNotificationListener(statisticsMBeanName, notificationListener, null, null);
 
         //log a bunch of messages
         Logger logger = Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME);
@@ -29,9 +38,6 @@ public class JmxAppenderTest extends TestCase {
         }
 
         //check that the mbean attributes are accessible
-        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-        ObjectName statisticsMBeanName = new ObjectName(StatisticsExposingMBean.DEFAULT_MBEAN_NAME);
-
         assertTrue(((Integer) server.getAttribute(statisticsMBeanName, "tag0Count")) > 0);
         assertEquals(0.0, server.getAttribute(statisticsMBeanName, "tag0StdDev"));
         assertEquals(100.0, server.getAttribute(statisticsMBeanName, "tag0Mean"));
@@ -45,5 +51,32 @@ public class JmxAppenderTest extends TestCase {
         assertEquals(200L, server.getAttribute(statisticsMBeanName, "tag1Min"));
         assertEquals(200L, server.getAttribute(statisticsMBeanName, "tag1Max"));
         assertTrue(((Double) server.getAttribute(statisticsMBeanName, "tag1TPS")) > 1);
+
+        //now at a stopwatch that should trigger a notification
+        logger.info(new StopWatch(System.currentTimeMillis(), 20000L, "tag0", "logging"));
+        Thread.sleep(1100L); //go over the next time slice boundary
+        logger.info(new StopWatch(System.currentTimeMillis(), 20000L, "tag0", "logging"));
+
+        //check for the notification - need the wait loop as it takes time for the notification to appear
+        for (int i = 0; i <= 200; i++) {
+            Thread.sleep(10);
+            if (notificationListener.lastReceivedNotification != null) {
+                assertEquals(StatisticsExposingMBean.OUT_OF_RANGE_NOTIFICATION_TYPE,
+                             notificationListener.lastReceivedNotification.getType());
+                break;
+            }
+
+            if (i == 200) {
+                fail("Notification not received after 2 seconds");
+            }
+        }
+    }
+
+    protected static class DummyNotificationListener implements NotificationListener {
+        public Notification lastReceivedNotification;
+
+        public void handleNotification(Notification notification, Object handback) {
+            lastReceivedNotification = notification;
+        }
     }
 }

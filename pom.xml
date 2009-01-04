@@ -3,7 +3,7 @@
 
     <groupId>org.perf4j</groupId>
     <artifactId>perf4j</artifactId>
-    <version>0.9.6-SNAPSHOT</version>
+    <version>0.9.6</version>
     <packaging>jar</packaging>
 
     <name>Perf4J</name>

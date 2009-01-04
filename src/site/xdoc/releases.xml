@@ -5,6 +5,12 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.6 (1/4/09)">
+            <ol>
+                <li>Allow JMX notifications to be send when statistics attribute values exceed thresholds.</li>
+                <li>Allow users to specify a logging level on the Profiled annotation.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.5 (1/2/09)">
             <ol>
                 <li>Added maven dependencies example to downloads page.</li>

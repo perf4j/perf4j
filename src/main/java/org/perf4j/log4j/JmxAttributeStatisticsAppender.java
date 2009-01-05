@@ -186,7 +186,7 @@ public class JmxAttributeStatisticsAppender extends AppenderSkeleton {
             MBeanServer mBeanServer = getMBeanServer();
             mBeanServer.unregisterMBean(new ObjectName(mBeanName));
         } catch (Exception e) {
-            //fine, if we can't unresiter it's not a big deal
+            //fine, if we can't unregister it's not a big deal
         }
     }
 

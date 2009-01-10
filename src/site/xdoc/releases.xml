@@ -5,9 +5,17 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.7 (1/10/09)">
+            <ol>
+                <li>Added TimedRunnable and TimedCallable utility classes.</li>
+                <li>Added lap methods to StopWatch.</li>
+                <li>Added LoggingStopWatch class and subclasses to simplify logging.</li>
+                <li>Added support for SLF4J and Apache Commons Logging.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.6 (1/4/09)">
             <ol>
-                <li>Allow JMX notifications to be send when statistics attribute values exceed thresholds.</li>
+                <li>Allow JMX notifications to be sent when statistics attribute values exceed thresholds.</li>
                 <li>Allow users to specify a logging level on the Profiled annotation.</li>
             </ol>
         </section>

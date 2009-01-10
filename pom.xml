@@ -122,6 +122,13 @@
         </developer>
     </developers>
 
+    <contributors>
+        <contributor>
+            <name>Patrick Moore</name>
+            <url>http://www.sworddance.com/blog/</url>
+        </contributor>
+    </contributors>
+
     <scm>
         <connection>scm:svn:http://svn.codehaus.org/perf4j/</connection>
         <developerConnection>scm:svn:https://svn.codehaus.org/perf4j/</developerConnection>

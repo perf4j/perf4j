@@ -42,17 +42,17 @@ Download Project Artifacts
     * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT.jar}JAR archive}}
       ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT.jar.md5}MD5}})
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-log4jonly.jar}JAR archive containing log4j aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-log4jonly.jar.md5}MD5}})
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT-log4jonly.jar}JAR archive containing log4j aspects}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT-log4jonly.jar.md5}MD5}})
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-javalogonly.jar}JAR archive containing java.util.logging aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-javalogonly.jar.md5}MD5}})
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT-javalogonly.jar}JAR archive containing java.util.logging aspects}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT-javalogonly.jar.md5}MD5}})
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-commonslogonly.jar}JAR archive containing Apache Commons Logging aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-commonslogonly.jar.md5}MD5}})
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT-commonslogonly.jar}JAR archive containing Apache Commons Logging aspects}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT-commonslogonly.jar.md5}MD5}})
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-slf4jonly.jar}JAR archive containing SLF4J aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-slf4jonly.jar.md5}MD5}})
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT-slf4jonly.jar}JAR archive containing SLF4J aspects}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.8-SNAPSHOT/perf4j-0.9.8-SNAPSHOT-slf4jonly.jar.md5}MD5}})
        
 * Maven Dependencies and Ant
 

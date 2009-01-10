@@ -34,8 +34,11 @@ System.out.println("ms for block n was: " + (System.currentTimeMillis() - start)
 
   * A command line tool for parsing log files that generates aggregated statistics and performance graphs.
 
+  * Easy integration with the most common logging frameworks and facades: log4j, java.util.logging, Apache Commons
+    Logging and SLF4J.
+    
   * Custom log4j appenders to generate statistics and graphs in a running application
-    (java.util.logging support coming soon).
+    (custom java.util.logging handlers coming soon).
 
   * The ability to expose performance statistics as JMX attributes, and to send notifications when statistics
     exceed specified thresholds.

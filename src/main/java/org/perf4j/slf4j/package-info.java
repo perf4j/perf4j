@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 /**
- * Provides a {@link org.perf4j.javalog.JavaLogStopWatch} to use as your StopWatch implementation if the
- * java.util.logging framework is your logging framework of choice. <b>IMPORTANT</b>: The custom Handlers of this class
- * are not yet implemented but will be provided in a subsequent release of Perf4J.
+ * Provides a {@link org.perf4j.slf4j.Slf4JStopWatch} to use as your StopWatch implementation if the
+ * SLF4J framework is your logging framework of choice. Note that since SLF4J is just a thin
+ * facade over an underlying logging implentation like log4j, java.util.logging or logback, you must still configure
+ * that underlying framework. However, using a Slf4JStopWatch ensures that a SLF4J Logger instance will be used
+ * to make the log calls.
  *
- * @see <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/logging/package-summary.html">java.util.logging package</a>
+ * @see <a href="http://www.slf4j.org/">Simple Logging Facade for Java</a>
  */
-package org.perf4j.javalog;
+package org.perf4j.slf4j;

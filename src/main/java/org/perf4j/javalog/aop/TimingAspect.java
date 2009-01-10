@@ -13,11 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.perf4j.javalog.aop;
+
+import org.aspectj.lang.annotation.Aspect;
+import org.perf4j.aop.AbstractTimingAspect;
+import org.perf4j.javalog.JavaLogStopWatch;
+
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 /**
- * Provides a {@link org.perf4j.javalog.JavaLogStopWatch} to use as your StopWatch implementation if the
- * java.util.logging framework is your logging framework of choice. <b>IMPORTANT</b>: The custom Handlers of this class
- * are not yet implemented but will be provided in a subsequent release of Perf4J.
+ * This TimingAspect implementation uses java.util.logging to persist StopWatch log messages.
  *
- * @see <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/logging/package-summary.html">java.util.logging package</a>
+ * @author Alex Devine
  */
-package org.perf4j.javalog;
+@Aspect
+public class TimingAspect extends AbstractTimingAspect {
+    protected JavaLogStopWatch newStopWatch(String loggerName, String levelName) {
+        Level level = JavaLogStopWatch.mapLevelName(levelName);
+        return new JavaLogStopWatch(Logger.getLogger(loggerName), level, level);
+    }
+}

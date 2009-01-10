@@ -181,6 +181,24 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- if you use the commons logging code (in the commonslog package), you must also include this dependency -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.3</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- if you use the slf4j logging code, you must also include this dependency -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.5.6</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+
         <!-- If you use the graphing servlets of perf4j, the servlet package should be provided by your container -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -259,6 +277,13 @@
             <version>1.3.2</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.5.6</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -306,6 +331,14 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.1</version>
                 <inherited>true</inherited>
+                <configuration>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
+                        <link>http://logging.apache.org/log4j/1.2/apidocs</link>
+                        <link>http://commons.apache.org/logging/apidocs</link>
+                        <link>http://www.slf4j.org/api</link>
+                    </links>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>verify</phase>
@@ -377,10 +410,10 @@
             </plugin>
 
             <!--
-              Tell the Maven jar plugin to generate three jars: one with all the files, then one withOUT the
-              java.util.logging extensions (i.e. just the log4j extensions) and one withOUT the log4j extensions.
-              These separate log4j and javalog jars are needed when using the AspectJ compiler so that only ONE
-              TimingAspect is included.
+              Tell the Maven jar plugin to generate multiple jars: one with all the files, then ones that JUST contain
+              the particular logging framework extensions (e.g. log4j, java.util.logging, commons logging or slf4j).
+              These separate log4j, javalog, commonslog and slf4j jars are needed when using the AspectJ compiler so
+              that only ONE TimingAspect is included.
 
               Also, tell the jar plugin to make org.per4j.LogParser the main executable class.
             -->
@@ -401,7 +434,7 @@
                     </archive>
                 </configuration>
                 <executions>
-                    <!-- This jar includes only the log4j classes and NOT the java.util.logging classes -->
+                    <!-- This jar includes only the log4j classes and NOT the other logging framework classes -->
                     <execution>
                         <id>log4jAspects</id>
                         <phase>package</phase>
@@ -412,10 +445,12 @@
                             <classifier>log4jonly</classifier>
                             <excludes>
                                 <exclude>**/javalog/**</exclude>
+                                <exclude>**/commonslog/**</exclude>
+                                <exclude>**/slf4j/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
-                    <!-- This jar includes only the java.util.logging classes and NOT the log4j classes -->
+                    <!-- This jar includes only the java.util.logging classes and NOT the other logging frameworks -->
                     <execution>
                         <id>javalogAspects</id>
                         <phase>package</phase>
@@ -426,6 +461,40 @@
                             <classifier>javalogonly</classifier>
                             <excludes>
                                 <exclude>**/log4j/**</exclude>
+                                <exclude>**/commonslog/**</exclude>
+                                <exclude>**/slf4j/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- This jar includes only the commonslog classes and NOT the other logging framework classes -->
+                    <execution>
+                        <id>commonslogAspects</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>commonslogonly</classifier>
+                            <excludes>
+                                <exclude>**/log4j/**</exclude>
+                                <exclude>**/javalog/**</exclude>
+                                <exclude>**/slf4j/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- This jar includes only the slf4j classes and NOT the other logging framework classes -->
+                    <execution>
+                        <id>slf4jAspects</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>slf4jonly</classifier>
+                            <excludes>
+                                <exclude>**/log4j/**</exclude>
+                                <exclude>**/javalog/**</exclude>
+                                <exclude>**/commonslog/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -474,6 +543,12 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <attach>true</attach>
+                    <links>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
+                        <link>http://logging.apache.org/log4j/1.2/apidocs</link>
+                        <link>http://commons.apache.org/logging/apidocs</link>
+                        <link>http://www.slf4j.org/api</link>
+                    </links>
                 </configuration>
                 <inherited>true</inherited>
             </plugin>

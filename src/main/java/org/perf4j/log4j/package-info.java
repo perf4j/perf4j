@@ -15,8 +15,9 @@
  */
 /**
  * Provides the log4j appenders that can be used to automatically aggregate and analyze
- * {@link org.perf4j.StopWatch} timing statements logged to a <tt>org.apache.log4j.Logger</tt>. Three appenders are
- * provided:
+ * {@link org.perf4j.StopWatch} timing statements logged to an <tt>org.apache.log4j.Logger</tt>. Normally, though, if
+ * log4j is your logging framework of choice you should use the {@link org.perf4j.log4j.Log4JStopWatch} as your
+ * StopWatch implementation. Three appenders are provided:
  *
  * <ol>
  * <li>{@link org.perf4j.log4j.AsyncCoalescingStatisticsAppender} - This appender is used to group logged
@@ -99,5 +100,7 @@
  *   &lt;/root&gt;
  * &lt;/log4j:configuration&gt;
  * <pre>
+ *
+ * @see <a href="http://logging.apache.org/log4j/1.2/index.html">log4j</a>
  */
 package org.perf4j.log4j;

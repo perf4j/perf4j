@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.perf4j.log4j.aop;
+package org.perf4j.commonslog.aop;
 
+import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.annotation.Aspect;
 import org.perf4j.aop.AbstractTimingAspect;
-import org.perf4j.LoggingStopWatch;
-import org.perf4j.log4j.Log4JStopWatch;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 
 /**
- * This TimingAspect implementation uses Log4j to persist StopWatch log messages.
- * 
+ * This TimingAspect implementation uses an Apache Commons Logging Log instance to persist StopWatch log messages.
+ *
  * @author Alex Devine
  */
 @Aspect
 public class TimingAspect extends AbstractTimingAspect {
-    protected Log4JStopWatch newStopWatch(String loggerName, String levelName) {
-        Level level = Level.toLevel(levelName, Level.INFO);
-        return new Log4JStopWatch(Logger.getLogger(loggerName), level, level);
+    protected CommonsLogStopWatch newStopWatch(String loggerName, String levelName) {
+        int levelInt = CommonsLogStopWatch.mapLevelName(levelName);
+        return new CommonsLogStopWatch(LogFactory.getLog(loggerName), levelInt, levelInt);
     }
 }

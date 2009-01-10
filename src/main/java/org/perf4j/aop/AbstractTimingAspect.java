@@ -15,20 +15,19 @@
  */
 package org.perf4j.aop;
 
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.perf4j.StopWatch;
 import org.apache.commons.jexl.Expression;
 import org.apache.commons.jexl.ExpressionFactory;
 import org.apache.commons.jexl.JexlContext;
-import org.apache.commons.jexl.JexlHelper;
+import org.apache.commons.jexl.context.HashMapContext;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.perf4j.LoggingStopWatch;
 
 /**
- * This is the base class for TimingAspects. Subclasses just need to implement the {@link #shouldLog} and
- * {@link #log} methods to use their logging framework of choice (e.g. log4j or java.logging) to persist the
- * StopWatch log message.
- * 
+ * This is the base class for TimingAspects. Subclasses just need to implement the {@link #newStopWatch} method to use
+ * their logging framework of choice (e.g. log4j or java.logging) to persist the StopWatch log message.
+ *
  * @author Alex Devine
  */
 @Aspect
@@ -38,37 +37,38 @@ public abstract class AbstractTimingAspect {
      * This advice is used to add the StopWatch logging statements around method executions that have been tagged
      * with the Profiled annotation.
      *
-     * @param pjp The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
+     * @param pjp      The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
      * @param profiled The profiled annotation that was attached to the method.
      * @return The return value from the method that was executed.
      * @throws Throwable Any exceptions thrown by the underlying method.
      */
     @Around(value = "execution(* *(..)) && @annotation(profiled)", argNames = "pjp,profiled")
     public Object doPerfLogging(ProceedingJoinPoint pjp, Profiled profiled) throws Throwable {
+
+        LoggingStopWatch stopWatch = newStopWatch(profiled.logger(), profiled.level());
+
         //if we're not going to end up logging the stopwatch, just run the wrapped method
-        if (!shouldLog(profiled.logger(), profiled.level())) {
+        if (!stopWatch.isLogging()) {
             return pjp.proceed();
         }
 
         String tag = getStopWatchTag(pjp, profiled);
         String message = getStopWatchMessage(pjp, profiled);
 
-        StopWatch stopWatch = new StopWatch();
-
         try {
             Object retVal = pjp.proceed();
             if (profiled.logFailuresSeparately()) {
-                log(profiled.logger(), profiled.level(), stopWatch.stop(tag + ".success", message));
+                stopWatch.stop(tag + ".success", message);
             }
             return retVal;
         } catch (Throwable t) {
             if (profiled.logFailuresSeparately()) {
-                log(profiled.logger(), profiled.level(), stopWatch.stop(tag + ".failure", message));
+                stopWatch.stop(tag + ".failure", message);
             }
             throw t;
         } finally {
             if (!profiled.logFailuresSeparately()) {
-                log(profiled.logger(), profiled.level(), stopWatch.stop(tag, message));
+                stopWatch.stop(tag, message);
             }
         }
     }
@@ -76,7 +76,7 @@ public abstract class AbstractTimingAspect {
     /**
      * Helper method gets the tag to use for StopWatch logging. Performs JEXL evaluation if necessary.
      *
-     * @param pjp The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
+     * @param pjp      The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
      * @param profiled The profiled annotation that was attached to the method.
      * @return The value to use as the StopWatch tag.
      */
@@ -97,7 +97,7 @@ public abstract class AbstractTimingAspect {
     /**
      * Helper method get the message to use for StopWatch logging. Performs JEXL evaluation if necessary.
      *
-     * @param pjp The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
+     * @param pjp      The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
      * @param profiled The profiled annotation that was attached to the method.
      * @return The value to use as the StopWatch message.
      */
@@ -127,7 +127,7 @@ public abstract class AbstractTimingAspect {
         StringBuilder retVal = new StringBuilder(text.length());
 
         //create a JexlContext to be used in all evaluations
-        JexlContext jexlContext = JexlHelper.createContext();
+        JexlContext jexlContext = new HashMapContext();
         for (int i = 0; i < args.length; i++) {
             jexlContext.getVars().put("$" + i, args[i]);
         }
@@ -166,21 +166,12 @@ public abstract class AbstractTimingAspect {
     }
 
     /**
-     * Subclasses should implement this method to determine whether or not the logger specified is enabled for the
-     * specified level.
+     * Subclasses should implement this method to return a LoggingStopWatch that should be used to time the wrapped
+     * code block.
      *
-     * @param loggerName This name identifies the logger to use to persist the log message
-     * @param levelName  The level at which the StopWatch will be persisted
-     * @return true if the specified logger is enabled for the specified level
+     * @param loggerName The name of the logger to use for persisting StopWatch messages.
+     * @param levelName  The level at which the message should be logged.
+     * @return The new LoggingStopWatch.
      */
-    protected abstract boolean shouldLog(String loggerName, String levelName);
-
-    /**
-     * Subclasses must implement this method to persist the StopWatch logging message.
-     *
-     * @param loggerName      This name identifies the logger to use to persist the log message
-     * @param levelName       The level at which the message should be logged
-     * @param stopWatchString The StopWatch log to be saved.
-     */
-    protected abstract void log(String loggerName, String levelName, String stopWatchString);
+    protected abstract LoggingStopWatch newStopWatch(String loggerName, String levelName);
 }

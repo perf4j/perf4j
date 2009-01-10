@@ -18,9 +18,8 @@ package org.perf4j;
 import java.io.Serializable;
 
 /**
- * The StopWatch class is the main object that is used to log timing statements in perf4j. The general usage pattern
- * is to create a StopWatch before a section of code that is to be timed and then stop it before it is passed to a
- * logging method:
+ * The StopWatch class is used to time code blocks in Perf4J. The general usage pattern is to create a StopWatch
+ * before a section of code that is to be timed and then stop it before it is passed to a logging method:
  * <p/>
  * <pre>
  * StopWatch stopWatch = new StopWatch();
@@ -35,6 +34,8 @@ import java.io.Serializable;
  * Note that a StopWatch is reusable. That is, you can call <tt>start()</tt> and <tt>stop()</tt> in succession
  * and the <tt>getElapsedTime()</tt> method will refer to the time since the most recent <tt>start()</tt> call.
  * <p/>
+ * In general, most clients will find it simpler and cleaner to use the {@link LoggingStopWatch} class or one of its
+ * subclasses in preference to this class.
  *
  * @author Alex Devine
  */
@@ -141,7 +142,7 @@ public class StopWatch implements Serializable, Cloneable {
      */
     public void setMessage(String message) { this.message = message; }
 
-    // --- Start/Stop methods ---
+    // --- Start/Stop/Lap methods ---
 
     /**
      * Starts this StopWatch, which sets its startTime property to the current time and resets the elapsedTime property.
@@ -196,9 +197,8 @@ public class StopWatch implements Serializable, Cloneable {
      * @return this.toString(), which is a message suitable for logging
      */
     public String stop(String tag) {
-        stop();
         this.tag = tag;
-        return this.toString();
+        return stop();
     }
 
     /**
@@ -209,10 +209,56 @@ public class StopWatch implements Serializable, Cloneable {
      * @return this.toString(), which is a message suitable for logging
      */
     public String stop(String tag, String message) {
-        stop();
         this.tag = tag;
         this.message = message;
-        return this.toString();
+        return stop();
+    }
+
+    /**
+     * The lap method is useful when using a single StopWatch to time multiple consecutive blocks. It calls stop()
+     * and then immediately calls start(), e.g.:
+     * <p/>
+     * <pre>
+     * StopWatch stopWatch = new StopWatch();
+     * ...some code
+     * log.info(stopWatch.lap("block1"));
+     * ...some more code
+     * log.info(stopWatch.lap("block2"));
+     * ...even more code
+     * log.info(stopWatch.stop("block3"));
+     * </pre>
+     *
+     * @param tag The grouping tag to use for the execution block that was just stopped.
+     * @return A message suitable for logging the previous execution block's execution time.
+     */
+    public String lap(String tag) {
+        String retVal = stop(tag);
+        start();
+        return retVal;
+    }
+
+    /**
+     * The lap method is useful when using a single StopWatch to time multiple consecutive blocks. It calls stop()
+     * and then immediately calls start(), e.g.:
+     * <p/>
+     * <pre>
+     * StopWatch stopWatch = new StopWatch();
+     * ...some code
+     * log.info(stopWatch.lap("block1", "message about block 1"));
+     * ...some more code
+     * log.info(stopWatch.lap("block2", "message about block 2"));
+     * ...even more code
+     * log.info(stopWatch.stop("block3", "message about block 3"));
+     * </pre>
+     *
+     * @param tag     The grouping tag to use for the execution block that was just stopped.
+     * @param message A descriptive message about the code being timed, may be null
+     * @return A message suitable for logging the previous execution block's execution time.
+     */
+    public String lap(String tag, String message) {
+        String retVal = stop(tag, message);
+        start();
+        return retVal;
     }
 
     // --- Object Methods ---

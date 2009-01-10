@@ -14,24 +14,29 @@ Perf4J Developer Guide
 
 * {Adding Timing Statements}
 
-  The {{{./apidocs/org/perf4j/StopWatch.html}org.perf4j.StopWatch}} class is used to calculate execution times as shown:
+  The {{{./apidocs/org/perf4j/LoggingStopWatch.html}org.perf4j.LoggingStopWatch}} class or one of its logging-framework
+  specific subclasses is used to calculate execution times and log them as shown:
 
 +-----------------------------------------------------------------------------+
-// Create the StopWatch to start timing. This constructor takes the tag name,
-// which identifies the code block being timed.
-StopWatch stopWatch = new StopWatch("codeBlock1");
+// Create the LoggingStopWatch to start timing. This constructor takes the tag
+// name, which identifies the code block being timed. Note that usually you
+// will want to instantiate one of the subclasses of LoggingStopWatch, such as
+// a Log4JStopWatch or CommonsLogStopWatch depending on your preferred
+// logging framework.
+StopWatch stopWatch = new LoggingStopWatch("codeBlock1");
 
 // Execute the code block - this is just a dummy call to pause execution for
 // 0-1 second.
 Thread.sleep((long)(Math.random() * 1000L));
 
-// Stop the StopWatch and log it. The code line assumes a log4j or
-// java.util.logging Logger has been created. Alternatively you could just
-// output the StopWatch timing statement to System.out or some other stream.
-logger.info(stopWatch.stop());
+// Stop the StopWatch and log it. LoggingStopWatches automatically log their
+// timing statements when one of the stop() or lap() methods are called.
+stopWatch.stop();
 +-----------------------------------------------------------------------------+
 
-  The above block results in the following output to a log file when the block is executed multiple times:
+  The above block results in the following output to the standard error stream when the block is executed
+  multiple times. Note that if you were using one of the LoggingStopWatch subclasses it would output to the
+  log file configured in your logging framework:
 
 +-----------------------------------------------------------------------------+
 INFO: start[1230448905165] time[704] tag[codeBlock1]
@@ -51,7 +56,7 @@ INFO: start[1230448909720] time[559] tag[codeBlock1]
   code being timed like so:
 
 +-----------------------------------------------------------------------------+
-StopWatch stopWatch = new StopWatch();
+StopWatch stopWatch = new LoggingStopWatch();
 
 try {
     // the code block being timed - this is just a dummy example
@@ -61,9 +66,9 @@ try {
         throw new Exception("Throwing exception");
     }
 
-    logger.info(stopWatch.stop("codeBlock2.success", "Sleep time was < 500 ms"));
+    stopWatch.stop("codeBlock2.success", "Sleep time was < 500 ms");
 } catch (Exception e) {
-    logger.info(stopWatch.stop("codeBlock2.failure", "Exception was: " + e));
+    stopWatch.stop("codeBlock2.failure", "Exception was: " + e);
 }
 +-----------------------------------------------------------------------------+
 
@@ -146,9 +151,9 @@ java -jar perf4j-0.9.6.jar --graph perfGraphs.out times.log
 * {Using the log4j Appenders to Generate Real-Time Performance Information}
 
   One of the main benefits of Perf4J is that it allows performance analysis and monitoring on live production
-  applications through extensions to common logging frameworks like log4j (java.util.logging support coming soon). These
-  custom log4j appenders can be configured through the standard configuration mechanisms to add functionality without
-  requiring changes to code. Note that all of the examples given below assume that you have the
+  applications through extensions to common logging frameworks like log4j (custom java.util.logging handler coming
+  soon). These custom log4j appenders can be configured through the standard configuration mechanisms to add
+  functionality without requiring changes to code. Note that all of the examples given below assume that you have the
   {{{http://repo1.maven.org/maven2/log4j/log4j/1.2.14/log4j-1.2.14.jar}log4j jar}}, version 1.2.14 or higher,
   in your classpath.
 
@@ -240,24 +245,24 @@ public class Perf4JAppenderExample {
         // note that the log4j framework will automatically load the log4j.xml
         // file if it is in a root directory on the classpath
 
-        Logger perf4jLogger = Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME);
         Logger rootLogger = Logger.getRootLogger();
 
         for (int i = 0; i < 50; i++) {
-            StopWatch stopWatch = new StopWatch("firstBlock");
+            // By default the Log4JStopWatch uses the Logger named org.perf4j.TimingLogger
+            StopWatch stopWatch = new Log4JStopWatch();
 
             // for demo purposes just sleep
             Thread.sleep((long) (Math.random() * 1000L));
 
             rootLogger.info("Normal logging messages only go to the console");
-            perf4jLogger.info(stopWatch.stop());
 
-            // the StopWatch instance can be reused
-            stopWatch.start("secondBlock");
+            // Calling lap() stops timing for the previous block, sends the
+            // message to the log4j Logger, and starts timing the next block.
+            stopWatch.lap("firstBlock");
 
             Thread.sleep((long) (Math.random() * 2000L));
 
-            perf4jLogger.info(stopWatch.stop());
+            stopWatch.stop("secondBlock");
         }
 
     }
@@ -751,7 +756,7 @@ public class ProfiledExample {
 ** {Using AspectJ Load-Time Weaving to Integrate Timing Aspects at Run Time}
 
   AspectJ is an aspect-oriented programming extension for Java hosted by the Eclipse Foundation. Perf4J ships with
-  aspects that will "surround" methods that have the Profiled annotation with StopWatch timing statements (if
+  aspects that will "surround" methods that have the Profiled annotation with LoggingStopWatch timing statements (if
   desired you can examine the code for the
   {{{./xref/org/perf4j/aop/AbstractTimingAspect.html}AbstractTimingAspect}} and
   {{{xref/org/perf4j/log4j/aop/TimingAspect.html}log4j TimingAspect}} classes to see what they do). AspectJ provides
@@ -782,7 +787,13 @@ public class ProfiledExample {
 <!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
 
 <aspectj>
-  <!-- we only want to weave in the log4j TimingAspect into the @Profiled classes -->
+  <!--
+    We only want to weave in the log4j TimingAspect into the @Profiled classes.
+    Note that Perf4J provides TimingAspects for the most popular Java logging
+    frameworks and facades: log4j, java.util.logging, Apache Commons Logging
+    and SLF4J. The TimingAspect you specify here will depend on which logging
+    framework you wish to use in your code.
+  -->
   <aspects>
     <aspect name="org.perf4j.log4j.aop.TimingAspect"/>
   </aspects>
@@ -835,8 +846,8 @@ simpleExample                                          727.0         599        
   to {{{http://www.eclipse.org/aspectj/downloads.php}download the AspectJ toolset}} and install it first. Using the
   ProfiledExample class from above, you can integrate the aspects using the following steps.
 
-  <<IMPORTANT>> In addition to the main perf4j-0.9.6.jar file, Perf4J also provides jars that contain ONLY either the
-  log4j aspects (which use a log4j Logger to write timing statements) or the java.util.logging aspects. You can
+  <<IMPORTANT>> In addition to the main perf4j-0.9.6.jar file, Perf4J also provides jars that are specific to each of
+  the different logging frameworks that contain only the TimingAspect specific to that framework. You can
   download the jar with the logging framework you wish to use from the {{{./downloads.html}downloads}} page. When
   calling ajc it is <<critical>> that you do <<NOT>> use the main perf4j-0.9.6.jar in your inpath. If you do this,
   ajc will weave ALL defined aspects into your classes, and you always only want one TimingAspect to run for each
@@ -888,7 +899,7 @@ simpleExample                                          727.0         599        
   {{{http://static.springframework.org/spring/docs/2.5.x/reference/aop.html}Spring AOP documentation}} for more
   information.
 
-  Spring AOP using a proxy-based framework to weave aspects into Spring-managed beans, either using JDK dynamic proxies
+  Spring AOP uses a proxy-based framework to weave aspects into Spring-managed beans, either using JDK dynamic proxies
   (when the bean being proxied implements at least one interface) or CGLIB proxies. Note the two following important
   restrictions when using Spring AOP:
 

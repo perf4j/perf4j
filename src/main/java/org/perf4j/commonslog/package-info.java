@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 /**
- * Provides a {@link org.perf4j.javalog.JavaLogStopWatch} to use as your StopWatch implementation if the
- * java.util.logging framework is your logging framework of choice. <b>IMPORTANT</b>: The custom Handlers of this class
- * are not yet implemented but will be provided in a subsequent release of Perf4J.
+ * Provides a {@link org.perf4j.commonslog.CommonsLogStopWatch} to use as your StopWatch implementation if the
+ * Apache Commons Logging framework is your logging framework of choice. Note that since Commons Logging is just a thin
+ * facade over an underlying logging implentation like log4j or java.util.logging, you must still configure that
+ * underlying framework. However, using a CommonsLogStopWatch ensures that a Commons Logging Log instance will be used
+ * to make the log calls.
  *
- * @see <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/logging/package-summary.html">java.util.logging package</a>
+ * @see <a href="http://commons.apache.org/logging/">Apache Commons Logging</a>
  */
-package org.perf4j.javalog;
+package org.perf4j.commonslog;

@@ -1,7 +1,7 @@
 Certain components of this software may have been provided or made available
 subject to the licenses under which such components were licensed to
 HomeAway.  The relevant components, if any, and corresponding licenses,
-if any, are listedvin the folder in the distribution titled 'licenses'. In
+if any, are listed in the folder in the distribution titled 'licenses'. In
 any event, the disclaimer of warranty and limitation of liability provision
 in this Agreement will apply to all Software in this distribution.
 

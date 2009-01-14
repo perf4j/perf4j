@@ -16,9 +16,10 @@ public class TimedCallableAndRunnableTest extends TestCase {
     public void testTimedCallableAndRunnable() throws Exception {
         TestTask task = new TestTask();
 
-        TimedRunnable timedRunnable = new TimedRunnable(task, new LoggingStopWatch());
+        LoggingStopWatch stopWatch = new LoggingStopWatch();
+        TimedRunnable timedRunnable = new TimedRunnable(task, stopWatch);
         assertEquals(task, timedRunnable.getWrappedTask());
-        assertEquals(new LoggingStopWatch(), timedRunnable.getStopWatch());
+        assertEquals(stopWatch, timedRunnable.getStopWatch());
 
         timedRunnable.run();
 
@@ -29,11 +30,11 @@ public class TimedCallableAndRunnableTest extends TestCase {
         assertEquals(elapsedTime, timedRunnable.getStopWatch().getElapsedTime());
 
         task = new TestTask();
-        TimedCallable timedCallable = new TimedCallable(task, new LoggingStopWatch());
+        TimedCallable<Long> timedCallable = new TimedCallable<Long>(task, new LoggingStopWatch());
         assertEquals(task, timedCallable.getWrappedTask());
         assertEquals(new LoggingStopWatch(), timedCallable.getStopWatch());
 
-        assertEquals(100L, timedCallable.call());
+        assertEquals(100L, (long) timedCallable.call());
 
         assertTrue(task.wasRun);
         //make sure stop watch was stopped by ensuring that elapsed time doesn't change

@@ -894,20 +894,26 @@ simpleExample                                          727.0         599        
 
   The Spring Application Framework provides a large toolset for working with aspects and integrating them with
   Spring-managed beans. If you already use Spring in your application, Spring AOP may be the simplest method for
-  integrating the timing aspects into your code. Note that the small example given here makes use of just a small part
-  of Spring AOP; you will likely want to review the
-  {{{http://static.springframework.org/spring/docs/2.5.x/reference/aop.html}Spring AOP documentation}} for more
+  integrating the timing aspects into your code, provided you can live with the restrictions outlined below.
+  Note that the small example given here makes use of just a small part of Spring AOP; you will likely want to review
+  the {{{http://static.springframework.org/spring/docs/2.5.x/reference/aop.html}Spring AOP documentation}} for more
   information.
 
   Spring AOP uses a proxy-based framework to weave aspects into Spring-managed beans, either using JDK dynamic proxies
-  (when the bean being proxied implements at least one interface) or CGLIB proxies. Note the two following important
-  restrictions when using Spring AOP:
+  (when the bean being proxied implements at least one interface) or CGLIB proxies. As such, there are a couple of
+  important restrictions when using Spring AOP:
 
   * Any objects to be woven must exist as Spring-managed beans declared in the Spring container. This is necessary
     because, in order to wrap object instances with the required proxies, the Spring container needs to control the
     lifecycle of your objects.
 
   * Any method being @Profiled MUST be a public method.
+
+  * If you have a method on your spring bean that calls another @Profiled method directly, then that method will NOT
+    be timed as you will not be going through the Spring proxy to make the call. Note this is NOT the case when using
+    AspectJ directly. The Spring documentation
+    {{{http://static.springframework.org/spring/docs/2.5.x/reference/aop.html#aop-understanding-aop-proxies}explains the effect proxies have}}
+    on AOP-enabled methods.
 
   []
 

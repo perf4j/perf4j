@@ -127,6 +127,10 @@
             <name>Patrick Moore</name>
             <url>http://www.sworddance.com/blog/</url>
         </contributor>
+        <contributor>
+            <name>Nicholas Whitehead</name>
+            <url>https://helios.dev.java.net/</url>
+        </contributor>
     </contributors>
 
     <scm>

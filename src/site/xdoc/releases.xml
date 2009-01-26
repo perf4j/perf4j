@@ -5,6 +5,16 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.8 (1/25/09)">
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-17'>PERFFORJ-17</a>]
+                    - AsyncCoalescingStatisticsAppender can cause application to slow down if queue cannot be
+                    drained fast enough.</li>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-18'>PERFFORJ-18</a>]
+                    - Clarify documentation to state that using Spring AOP means that methods called by Spring beans
+                    themselves won't be timed</li>
+            </ol>
+        </section>
         <section name="Release 0.9.7 (1/10/09)">
             <ol>
                 <li>Added TimedRunnable and TimedCallable utility classes.</li>

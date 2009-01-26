@@ -21,13 +21,14 @@ import org.perf4j.LoggingStopWatch;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * This class is used by the AOP tests to check when the aspect was called
  */
 @Aspect
 public class InMemoryTimingAspect extends AbstractTimingAspect {
-    public static List<String> logStrings = new ArrayList<String>();
+    public static List<String> logStrings = Collections.synchronizedList(new ArrayList<String>());
 
     protected LoggingStopWatch newStopWatch(final String loggerName, final String levelName) {
         return new LoggingStopWatch() {

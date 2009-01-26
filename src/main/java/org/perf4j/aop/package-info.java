@@ -18,7 +18,7 @@
  * of code blocks without explicit logging statements. The {@link org.perf4j.aop.Profiled} annotation can be added to
  * method declarations to indicate that method execution should be timed, e.g.:
  * <pre>
- * &#064;Profiled(tag = "servlet{$0.pathInfo}")
+ * &#064;Profiled(tag = "servlet{$this.servletName}_{$0.pathInfo}")
  * protected void doGet(HttpServletRequest req, HttpServletResponse res) {
  * ...
  * }

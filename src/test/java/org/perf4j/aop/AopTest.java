@@ -17,6 +17,10 @@ package org.perf4j.aop;
 
 import junit.framework.TestCase;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+
 /**
  * Tests the Aspect Oriented Programming support provided by perf4j utilizing AspectJ AOP.
  */
@@ -70,6 +74,62 @@ public class AopTest extends TestCase {
         profiledObject.simpleTestWithLevel(50);
         assertTrue("Shouldn't have logged when level was DEBUG: " + InMemoryTimingAspect.getLastLoggedString(),
                    InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleTestWithLevel]") < 0);
+
+        profiledObject.simpleTestWithJexlThisAndReturn(100);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("expressionTest_0]") >= 0);
+        assertTrue("Expected message not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("message[message: 5, exception: null]") >= 0);
+
+        try {
+            profiledObject.simpleTestWithJexlException(100);
+        } catch (Exception e) { /* expected */ }
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("expressionTest_null]") >= 0);
+        assertTrue("Expected message not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("message[message: 5, exception: java.lang.Exception: failure]") >= 0);
+    }
+
+    public void testConcurrentCalls() throws Exception {
+        InMemoryTimingAspect.logStrings.clear();
+        final List<String> expectedTags = Collections.synchronizedList(new ArrayList<String>(2000));
+
+        //run a bunch of threads concurrently that call a @Profiled method
+        Thread[] threads = new Thread[20];
+        for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread() {
+                public void run() {
+                    for (int i = 0; i < 100; i++) {
+                        try {
+                            profiledObject.simpleTestWithJexlTag(i, new ProfiledObject.SimpleBean("Alex", 10));
+                            expectedTags.add("expressionTest_" + i + "_Alex_10");
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            };
+            threads[i].start();
+        }
+
+        //wait for all the threads to finish
+        for (Thread thread : threads) {
+            thread.join();
+        }
+        Thread.sleep(100);
+
+        //ensure that that all of the expected tags are present in the InMemoryTimingAspect.logStrings
+        assertEquals(expectedTags.size(), InMemoryTimingAspect.logStrings.size());
+outer:  for (String expectedTag : expectedTags) {
+            for (String logString : InMemoryTimingAspect.logStrings) {
+                if (logString.indexOf(expectedTag) >= 0) {
+                    continue outer;
+                }
+            }
+
+            //if this far, expected tag wasn't found in logStrings
+            fail("Expected tag " + expectedTag + " not found");
+        }
     }
 
     /**

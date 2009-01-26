@@ -69,22 +69,36 @@ public @interface Profiled {
 
     /**
      * Whether or not the tag and message elements should support Java Expression Language syntax. Setting this to true
-     * enables the tag name to be dynamic with respect to the arguments passed to the method being profiled. An
-     * Expression Language expression is delimited with curly brackets, and arguments are accessed as $0, $1, $2, etc.
+     * enables the tag name to be dynamic with respect to the arguments passed to the method being profiled, the
+     * return value or exception thrown from the method (if any), and the object on which the method is being called.
+     * An Expression Language expression is delimited with curly brackets, and arguments are accessed using the
+     * following variable names:
+     * <p>
+     * <ul>
+     * <li>$0, $1, $2, $3, etc. - the parameters passed to the method in declaration order
+     * <li>$this - the object whose method is being called - when a static class method is profiled, this
+     * will always be null
+     * <li>$return - the return value from the method, which will be null if the method has a void return type, or an
+     * exception was thrown during method execution
+     * <li>$exception - the value of any Throwable thrown by the method - will be null if the method returns normally
+     * </ul>
+     * <p>
      * For example, suppose you want to profile the <tt>doGet()</tt> method of a servlet, with the tag name dependent
-     * on the path info (as returned by getPathInfo()) of the request. You could create the following annotation:
+     * on the name of the servlet AND the path info (as returned by getPathInfo()) of the request.
+     * You could create the following annotation:
      *
      * <pre>
-     * &#064;Profiled(tag = "myServlet{$0.pathInfo}", el = true)
+     * &#064;Profiled(tag = "servlet{$this.servletName}_{$0.pathInfo}", el = true)
      * protected void doGet(HttpServletRequest req, HttpServletResponse res) {
      * ...
      * }
      * </pre>
      *
-     * If the doGet() method is called with a request whose getPathInfo() method returns "/sub/path", then the tag used
-     * when logging a StopWatch will be "myServlet/sub/path".
+     * If the doGet() method is called with a request whose getPathInfo() method returns "/sub/path", and the servlet's
+     * name if "main", then the tag used when logging a StopWatch will be "servletMain_/sub/path".
      *
      * @return True if expression language support should be enabled, false to disable support - defaults to true.
+     * @see <a href="http://commons.apache.org/jexl/">Apache Commons JEXL</a>
      */
     boolean el() default true;
 

@@ -708,6 +708,17 @@ public class ProfiledExample {
      * name $0, the second $1, etc. For example, if I had a method that took as
      * the first parameter an object with a bean accessor method "getFoo()", I
      * could write a tag as "myTag_{$0.foo}".
+     *
+     * In addition to method parameters, you can also access the following variables
+     * in JEXL expressions:
+     *
+     * $this - the object whose method is being called.
+     * $return - the return value from the method (this will be null if the method
+     *           has a void return type or if the method throws an exception)
+     * $exception - if the method completes by throwing an exception, the $exception
+     *              variable can be used to access the exception (this will be null
+     *              if the method completes normlly)
+     *
      */
     @Profiled(tag = "dynamicTag_{$0}")
     public static void dynamicTagExample(String tagName) throws InterruptedException {

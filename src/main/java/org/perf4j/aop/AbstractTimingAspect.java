@@ -24,6 +24,9 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.perf4j.LoggingStopWatch;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * This is the base class for TimingAspects. Subclasses just need to implement the {@link #newStopWatch} method to use
  * their logging framework of choice (e.g. log4j or java.logging) to persist the StopWatch log message.
@@ -32,6 +35,13 @@ import org.perf4j.LoggingStopWatch;
  */
 @Aspect
 public abstract class AbstractTimingAspect {
+
+    /**
+     * This Map is used to cache compiled JEXL expressions. While theoretically unbounded, in reality the number of
+     * possible keys is equivalent to the number of unique JEXL expressions created in @Profiled annotations, which
+     * will have to be loaded in memory anyway when the class is loaded.
+     */
+    private Map<String, Expression> jexlExpressionCache = new ConcurrentHashMap<String, Expression>(64, .75F, 16);
 
     /**
      * This advice is used to add the StopWatch logging statements around method executions that have been tagged
@@ -52,42 +62,46 @@ public abstract class AbstractTimingAspect {
             return pjp.proceed();
         }
 
-        String tag = getStopWatchTag(pjp, profiled);
-        String message = getStopWatchMessage(pjp, profiled);
-
+        Object retVal = null;
+        Throwable exceptionThrown = null;
         try {
-            Object retVal = pjp.proceed();
-            if (profiled.logFailuresSeparately()) {
-                stopWatch.stop(tag + ".success", message);
-            }
-            return retVal;
+            return retVal = pjp.proceed();
         } catch (Throwable t) {
-            if (profiled.logFailuresSeparately()) {
-                stopWatch.stop(tag + ".failure", message);
-            }
-            throw t;
+            throw exceptionThrown = t;
         } finally {
-            if (!profiled.logFailuresSeparately()) {
-                stopWatch.stop(tag, message);
+            String tag = getStopWatchTag(profiled, pjp, retVal, exceptionThrown);
+            String message = getStopWatchMessage(profiled, pjp, retVal, exceptionThrown);
+
+            if (profiled.logFailuresSeparately()) {
+                tag = (exceptionThrown == null) ? tag + ".success" : tag + ".failure";
             }
+
+            stopWatch.stop(tag, message);
         }
     }
 
     /**
      * Helper method gets the tag to use for StopWatch logging. Performs JEXL evaluation if necessary.
      *
-     * @param pjp      The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
-     * @param profiled The profiled annotation that was attached to the method.
+     * @param profiled        The profiled annotation that was attached to the method.
+     * @param pjp             The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
+     * @param returnValue     The value returned from the execution of the profiled method, or null if the method
+     *                        returned void or an exception was thrown.
+     * @param exceptionThrown The exception thrown, if any, by the profiled method. Will be null if the method
+     *                        completed normally.
      * @return The value to use as the StopWatch tag.
      */
-    protected String getStopWatchTag(ProceedingJoinPoint pjp, Profiled profiled) {
+    protected String getStopWatchTag(Profiled profiled,
+                                     ProceedingJoinPoint pjp,
+                                     Object returnValue,
+                                     Throwable exceptionThrown) {
         String tag;
         if (Profiled.DEFAULT_TAG_NAME.equals(profiled.tag())) {
             // if the tag name is not explicitly set on the Profiled annotation,
             // use the name of the method being annotated.
             tag = pjp.getSignature().getName();
         } else if (profiled.el() && profiled.tag().indexOf("{") >= 0) {
-            tag = evaluateJexl(profiled.tag(), pjp.getArgs());
+            tag = evaluateJexl(profiled.tag(), pjp.getArgs(), pjp.getThis(), returnValue, exceptionThrown);
         } else {
             tag = profiled.tag();
         }
@@ -97,14 +111,21 @@ public abstract class AbstractTimingAspect {
     /**
      * Helper method get the message to use for StopWatch logging. Performs JEXL evaluation if necessary.
      *
-     * @param pjp      The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
-     * @param profiled The profiled annotation that was attached to the method.
+     * @param profiled        The profiled annotation that was attached to the method.
+     * @param pjp             The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
+     * @param returnValue     The value returned from the execution of the profiled method, or null if the method
+     *                        returned void or an exception was thrown.
+     * @param exceptionThrown The exception thrown, if any, by the profiled method. Will be null if the method
+     *                        completed normally.
      * @return The value to use as the StopWatch message.
      */
-    protected String getStopWatchMessage(ProceedingJoinPoint pjp, Profiled profiled) {
+    protected String getStopWatchMessage(Profiled profiled,
+                                         ProceedingJoinPoint pjp,
+                                         Object returnValue,
+                                         Throwable exceptionThrown) {
         String message;
         if (profiled.el() && profiled.message().indexOf("{") >= 0) {
-            message = evaluateJexl(profiled.message(), pjp.getArgs());
+            message = evaluateJexl(profiled.message(), pjp.getArgs(), pjp.getThis(), returnValue, exceptionThrown);
             if ("".equals(message)) {
                 message = null;
             }
@@ -118,12 +139,22 @@ public abstract class AbstractTimingAspect {
      * Helper method is used to parse out {expressionLanguage} elements from the text and evaluate the strings using
      * JEXL.
      *
-     * @param text The text to be parsed.
-     * @param args The args that were passed to the method to be profiled.
+     * @param text            The text to be parsed.
+     * @param args            The args that were passed to the method to be profiled.
+     * @param annotatedObject The value of the object whose method was profiled. Will be null if a class method was
+     *                        profiled.
+     * @param returnValue     The value returned from the execution of the profiled method, or null if the method
+     *                        returned void or an exception was thrown.
+     * @param exceptionThrown The exception thrown, if any, by the profiled method. Will be null if the method
+     *                        completed normally.
      * @return The evaluated string.
      * @see Profiled#el()
      */
-    protected String evaluateJexl(String text, Object[] args) {
+    protected String evaluateJexl(String text,
+                                  Object[] args,
+                                  Object annotatedObject,
+                                  Object returnValue,
+                                  Throwable exceptionThrown) {
         StringBuilder retVal = new StringBuilder(text.length());
 
         //create a JexlContext to be used in all evaluations
@@ -131,6 +162,9 @@ public abstract class AbstractTimingAspect {
         for (int i = 0; i < args.length; i++) {
             jexlContext.getVars().put("$" + i, args[i]);
         }
+        jexlContext.getVars().put("$this", annotatedObject);
+        jexlContext.getVars().put("$return", returnValue);
+        jexlContext.getVars().put("$exception", exceptionThrown);
 
         // look for {expression} in the passed in text
         int bracketIndex;
@@ -144,11 +178,10 @@ public abstract class AbstractTimingAspect {
                 lastCloseBracketIndex = text.length();
             }
 
-            String expression = text.substring(bracketIndex + 1, lastCloseBracketIndex);
-            if (expression.length() > 0) {
+            String expressionText = text.substring(bracketIndex + 1, lastCloseBracketIndex);
+            if (expressionText.length() > 0) {
                 try {
-                    Expression jexlExpression = ExpressionFactory.createExpression(expression);
-                    Object result = jexlExpression.evaluate(jexlContext);
+                    Object result = getJexlExpression(expressionText).evaluate(jexlContext);
                     retVal.append(result);
                 } catch (Exception e) {
                     //we don't want to propagate exceptions up
@@ -163,6 +196,23 @@ public abstract class AbstractTimingAspect {
         }
 
         return retVal.toString();
+    }
+
+    /**
+     * Helper method gets a compiled JEXL expression for the specified expression text, either from the cache or by
+     * creating a new compiled expression.
+     *
+     * @param expressionText The JEXL expression text
+     * @return A compiled JEXL expression representing the expression text
+     * @throws Exception Thrown if there was an error compiling the expression text
+     */
+    protected Expression getJexlExpression(String expressionText) throws Exception {
+        Expression retVal = jexlExpressionCache.get(expressionText);
+        if (retVal == null) {
+            //Don't need synchronization here - if we end up calling createExpression in 2 separate threads, that's fine
+            jexlExpressionCache.put(expressionText, retVal = ExpressionFactory.createExpression(expressionText));
+        }
+        return retVal;
     }
 
     /**

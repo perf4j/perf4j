@@ -70,6 +70,22 @@ public class ProfiledObject {
         return sleepTime;
     }
 
+    @Profiled(tag = "expressionTest_{$return}", message = "message: {$this.beanProp}, exception: {$exception}")
+    public int simpleTestWithJexlThisAndReturn(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return 0;
+    }
+
+    @Profiled(tag = "expressionTest_{$return}", message = "message: {$this.beanProp}, exception: {$exception}")
+    public int simpleTestWithJexlException(long sleepTime) throws Exception {
+        throw new Exception("failure");
+    }
+
+    //this method is called using JEXL in the @Profiled tags above
+    public int getBeanProp() {
+        return 5;
+    }
+
     /**
      * A simple wrapper method that will expose a call joinpoint on a Profiled method.
      * If the AbstractTimingAspect isn't correctly configured, this will result in a log

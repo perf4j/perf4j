@@ -375,7 +375,7 @@ public class GoogleChartGenerator implements StatisticsChartGenerator {
         StringBuilder retVal = new StringBuilder();
 
         double valueRange = maxPossibleValue - minPossibleValue;
-        DecimalFormat formatter = new DecimalFormat("##0.0");
+        DecimalFormat formatter = new DecimalFormat("##0.0", new DecimalFormatSymbols(Locale.US));
 
         for (Iterator<Number> iter = values.iterator(); iter.hasNext();) {
             Number value = iter.next();

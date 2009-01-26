@@ -21,6 +21,7 @@ import org.perf4j.StopWatch;
 import org.perf4j.helpers.StatsValueRetriever;
 
 import java.util.ResourceBundle;
+import java.util.Locale;
 
 /**
  * Tests the GoogleChartGenerator
@@ -97,6 +98,20 @@ public class GoogleChartGeneratorTest extends TestCase {
 
         verifyUrl(chart.getChartUrl(), "twoSeriesThreeDataPoints");
         verifyUrl(tpsChart.getChartUrl(), "twoSeriesThreeDataPointsTps");
+    }
+
+    public void testGermanLocale() throws Exception {
+        //Test for PERFFORJ-19, ensure charts are still generated correctly in a locale that uses , for decimal sep.
+        Locale realDefault = Locale.getDefault();
+        Locale.setDefault(Locale.GERMANY);
+
+        try {
+            testNoData();
+            testThreeDataPoints();
+            testTwoSeriesThreeDataPoints();
+        } finally {
+            Locale.setDefault(realDefault);
+        }
     }
 
     protected void verifyUrl(String url, String name) {

@@ -9,25 +9,25 @@ Download Project Artifacts
   <All release versions of Perf4J are available from the maven repository at:>
   <<{{http://repository.codehaus.org/org/perf4j/perf4j/}}>>
 
-  * <<0.9.8>>
+  * <<0.9.8.1>>
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8.jar}Main JAR archive}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1.jar}Main JAR archive}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1.jar.md5}MD5}})
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-log4jonly.jar}JAR archive containing log4j aspects and extensions but NOT extensions for other logging frameworks}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-log4jonly.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1-log4jonly.jar}JAR archive containing log4j aspects and extensions but NOT extensions for other logging frameworks}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1-log4jonly.jar.md5}MD5}})
       This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the log4j aspects.
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-javalogonly.jar}JAR archive containing java.util.logging aspects and extensions but NOT extensions for other logging frameworks}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-javalogonly.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1-javalogonly.jar}JAR archive containing java.util.logging aspects and extensions but NOT extensions for other logging frameworks}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1-javalogonly.jar.md5}MD5}})
       This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the java.util.logging aspects.
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-commonslogonly.jar}JAR archive containing Apache Commons Logging aspects and extensions but NOT extensions for other logging frameworks}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-commonslogonly.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1-commonslogonly.jar}JAR archive containing Apache Commons Logging aspects and extensions but NOT extensions for other logging frameworks}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1-commonslogonly.jar.md5}MD5}})
       This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the Apache Commons Logging aspects.
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-slf4jonly.jar}JAR archive containing SLF4J aspects and extensions but NOT extensions for other logging frameworks}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8/perf4j-0.9.8-slf4jonly.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1-slf4jonly.jar}JAR archive containing SLF4J aspects and extensions but NOT extensions for other logging frameworks}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.8.1/perf4j-0.9.8.1-slf4jonly.jar.md5}MD5}})
       This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the SLF4J aspects.
 
   []
@@ -64,7 +64,7 @@ Download Project Artifacts
     <dependency>
         <groupId>org.perf4j</groupId>
         <artifactId>perf4j</artifactId>
-        <version>0.9.8</version>
+        <version>0.9.8.1</version>
         <scope>compile</scope>
     </dependency>
 
@@ -131,7 +131,7 @@ Download Project Artifacts
 +-----------------------------------------------------------------------------+
     <!-- Maven's dependencies task pulls down the jar files to a local directory -->
     <artifact:dependencies pathId="perf4j.classpath">
-        <dependency groupId="org.perf4j" artifactId="perf4j" version="0.9.8" scope="compile"/>
+        <dependency groupId="org.perf4j" artifactId="perf4j" version="0.9.8.1" scope="compile"/>
         <!-- This dependency is only required if using log4j extensions in perf4j -->
         <dependency groupId="log4j" artifactId="log4j" version="1.2.14" scope="compile"/>
         <!-- This dependency is only required if using commons logging extensions in perf4j -->

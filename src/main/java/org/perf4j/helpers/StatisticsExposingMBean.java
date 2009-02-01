@@ -19,10 +19,7 @@ import org.perf4j.GroupedTimingStatistics;
 import org.perf4j.TimingStatistics;
 
 import javax.management.*;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -52,6 +49,10 @@ public class StatisticsExposingMBean extends NotificationBroadcasterSupport impl
      * This MBeanInfo exposes this MBean's management interface to the MBeanServer.
      */
     protected MBeanInfo managementInterface;
+    /**
+     * The tags whose statistics values are being exposed.
+     */
+    protected Collection<String> tagsToExpose;
     /**
      * These AcceptableRangeConfigurations force a notification to be sent if a statistic is updated to a value
      * outside the allowable range. This Map maps acceptable ranges to whether or not the LAST check of the attribute
@@ -121,6 +122,8 @@ public class StatisticsExposingMBean extends NotificationBroadcasterSupport impl
             this.outOfRangeNotifierThread = Executors.newSingleThreadExecutor();
         }
 
+        this.tagsToExpose = new ArrayList<String>(tagsToExpose);
+
         this.managementInterface = createMBeanInfoFromTagNames(tagsToExpose);
 
         this.currentTimingStatistics = new GroupedTimingStatistics(); //just set empty so it's never null
@@ -139,6 +142,29 @@ public class StatisticsExposingMBean extends NotificationBroadcasterSupport impl
         this.currentTimingStatistics = currentTimingStatistics;
 
         sendNotificationsIfValuesNotAcceptable();
+    }
+
+    /**
+     * This MBean operation method allows the caller to add a tag whose statistics should be exposed as attributes
+     * at runtime.
+     *
+     * @param tagName The name of the tag whose statistics should be exposed.
+     */
+    public void exposeTag(String tagName) {
+        this.tagsToExpose.add(tagName);
+        this.managementInterface = createMBeanInfoFromTagNames(this.tagsToExpose);
+    }
+
+    /**
+     * This MBean operation method allows the caller to remove, at runtime, a tag whose statistics are exposed.
+     *
+     * @param tagName The name of the tag whose statistics should be removed as attributes from this MBean.
+     * @return Whether or not the specified tag was previously exposed on this MBean.
+     */
+    public boolean removeTag(String tagName) {
+        boolean retVal = this.tagsToExpose.remove(tagName);
+        this.managementInterface = createMBeanInfoFromTagNames(this.tagsToExpose);
+        return retVal;
     }
 
     public synchronized Object getAttribute(String attribute)
@@ -180,9 +206,16 @@ public class StatisticsExposingMBean extends NotificationBroadcasterSupport impl
         return new AttributeList();
     }
 
-    public Object invoke(String s, Object[] objects, String[] strings) throws MBeanException, ReflectionException {
-        //we don't support any operations
-        return null;
+    public Object invoke(String actionName, Object[] params, String[] signature)
+            throws MBeanException, ReflectionException {
+        if ("exposeTag".equals(actionName)) {
+            exposeTag(params[0].toString());
+            return null;
+        } else if ("removeTag".equals(actionName)) {
+            return removeTag(params[0].toString());
+        } else {
+            throw new UnsupportedOperationException("Unsupported operation: " + actionName);
+        }
     }
 
     public MBeanInfo getMBeanInfo() {
@@ -228,6 +261,26 @@ public class StatisticsExposingMBean extends NotificationBroadcasterSupport impl
             }
         }
 
+        MBeanOperationInfo[] operations = new MBeanOperationInfo[2]; //exposeTag and removeTag
+        operations[0] = new MBeanOperationInfo("exposeTag",
+                                               "Allows the caller to add a monitored tag at runtime",
+                                               new MBeanParameterInfo[]{
+                                                       new MBeanParameterInfo("tagName",
+                                                                              String.class.getName(),
+                                                                              "The name of the tag to expose")
+                                               },
+                                               "void",
+                                               MBeanOperationInfo.ACTION);
+        operations[1] = new MBeanOperationInfo("removeTag",
+                                               "Allows the caller to remove a monitored tag at runtime",
+                                               new MBeanParameterInfo[]{
+                                                       new MBeanParameterInfo("tagName",
+                                                                              String.class.getName(),
+                                                                              "The name of the tag to remove")
+                                               },
+                                               "boolean",
+                                               MBeanOperationInfo.ACTION);
+
         MBeanNotificationInfo[] notificationInfos;
         if (acceptableRanges.isEmpty()) {
             //then we don't send any out-of-range notifications
@@ -246,7 +299,7 @@ public class StatisticsExposingMBean extends NotificationBroadcasterSupport impl
                              "Timing Statistics",
                              attributes,
                              null /* no constructors */,
-                             null /* no operations */,
+                             operations,
                              notificationInfos);
     }
 

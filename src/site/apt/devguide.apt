@@ -615,6 +615,10 @@ java -Dcom.sun.management.jmxremote -cp .:./perf4j-0.9.8.jar:./log4j-1.2.14.jar 
 
 [images/jconsoleJmx.png] JConsole showing Perf4J MBean
 
+  Note that the exposed MBean supports two operations, exposeTag and removeTag, that allow you to change, at runtime,
+  which tags' statistics are exposed as attributes. This is helpful if you are unsure, at deployment time, which tags
+  are being logged in the application.
+
   For more information on JMX see
   {{{http://java.sun.com/javase/technologies/core/mntr-mgmt/javamanagement}Sun's JMX website}}.
 

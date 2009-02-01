@@ -22,9 +22,9 @@ import org.perf4j.StopWatch;
 import org.perf4j.helpers.StatisticsExposingMBean;
 
 import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.NotificationListener;
 import javax.management.Notification;
+import javax.management.NotificationListener;
+import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 
 /**
@@ -63,6 +63,16 @@ public class JmxAppenderTest extends TestCase {
         assertEquals(200L, server.getAttribute(statisticsMBeanName, "tag1Min"));
         assertEquals(200L, server.getAttribute(statisticsMBeanName, "tag1Max"));
         assertTrue(((Double) server.getAttribute(statisticsMBeanName, "tag1TPS")) > 1);
+
+        //invoke exposeTag, insure that it makes a tag accessible
+        server.invoke(statisticsMBeanName, "exposeTag", new Object[]{"tagFoo"}, new String[0]);
+        assertEquals(0, server.getAttribute(statisticsMBeanName, "tagFooCount"));
+
+        //invoke removeTag, which should return true
+        assertTrue((Boolean) server.invoke(statisticsMBeanName,
+                                           "removeTag",
+                                           new Object[]{"tagFoo"},
+                                           new String[] {String.class.getName()}));
 
         //now at a stopwatch that should trigger a notification
         logger.info(new StopWatch(System.currentTimeMillis(), 20000L, "tag0", "logging"));

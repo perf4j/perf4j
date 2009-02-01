@@ -23,6 +23,8 @@ import java.util.regex.Pattern;
 
 /**
  * This helper class is used to parse StopWatches from log message.
+ *
+ * @author Alex Devine
  */
 public class StopWatchParser {
 

@@ -22,6 +22,8 @@ import java.util.concurrent.Callable;
  * This helper wrapper class can be used to add timing statements to an existing Callable instance, logging how long
  * it takes for the call method to execute. Note that instances of this class are only serializable if the wrapped
  * Callable is serializable.
+ *
+ * @author Alex Devine
  */
 public class TimedCallable<V> implements Callable<V>, Serializable {
     private Callable<V> wrappedTask;

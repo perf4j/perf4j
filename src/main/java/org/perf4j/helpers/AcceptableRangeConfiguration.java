@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 /**
  * Instances of this class are used by the StatisticsExposingMBean to determine if JMX notifications should be sent if
  * timing statistics fall outside a specified acceptable range.
+ *
+ * @author Alex Devine
  */
 public class AcceptableRangeConfiguration implements Serializable, Cloneable {
     private String attributeName;

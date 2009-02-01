@@ -15,17 +15,19 @@
  */
 package org.perf4j.log4j;
 
-import org.apache.log4j.Logger;
+import junit.framework.TestCase;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.perf4j.StopWatch;
 
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
-import java.util.Scanner;
-import java.io.File;
-
-import junit.framework.TestCase;
 
 /**
  * This class tests the log4j appenders.
@@ -53,7 +55,7 @@ public class AppenderTest extends TestCase {
         appender.close();
 
         //simple verification ensures that the total number of logged messages is correct.
-                       //tagName  avg           min     max     std dev       count, which is group 1
+        //tagName  avg           min     max     std dev       count, which is group 1
         String regex = "tag\\d\\s*\\d+\\.\\d\\s*\\d+\\s*\\d+\\s*\\d+\\.\\d\\s*(\\d+)";
         Pattern statLinePattern = Pattern.compile(regex);
         Scanner scanner = new Scanner(new File("target/statisticsLog.log"));
@@ -85,6 +87,53 @@ public class AppenderTest extends TestCase {
         //again close the appender
         appender.close();
         assertTrue("Expected some stop watch messages to get discarded", appender.getNumDiscardedMessages() > 0);
+    }
+
+    public void testCsvRenderer() throws Exception {
+        DOMConfigurator.configure(getClass().getResource("log4jWCsv.xml"));
+
+        Logger logger = Logger.getLogger("org.perf4j.CsvAppenderTest");
+
+        for (int i = 0; i < 20; i++) {
+            StopWatch stopWatch = new Log4JStopWatch(logger);
+            Thread.sleep(i * 10);
+            stopWatch.stop("csvTest");
+        }
+
+        //close the appender
+        logger.getAppender("coalescingStatistics").close();
+
+        //verify the statisticsLog.csv file
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        for (Object line : FileUtils.readLines(new File("./target/statisticsLog.csv"))) {
+            String[] values = line.toString().split(",");
+            //first column is the tag
+            assertEquals("\"csvTest\"", values[0]);
+            //next 2 columns are the dates - ensure they can be parsed
+            assertTrue(dateFormat.parse(values[1]).before(dateFormat.parse(values[2])));
+            //next 3 columns are mean, min and max
+            double mean = Double.parseDouble(values[3]);
+            int min = Integer.parseInt(values[4]);
+            int max = Integer.parseInt(values[5]);
+            assertTrue(mean >= min && mean <= max);
+            //next column is stddev - ust make sure it's parseable
+            Double.parseDouble(values[6]);
+            //next column is count
+            assertTrue(Integer.parseInt(values[7]) < 20);
+            //final column is TPS - just make sure it's parseable
+            Double.parseDouble(values[8]);
+        }
+
+        //verify the pivotedStatisticsLog.csv file
+        for (Object line : FileUtils.readLines(new File("./target/pivotedStatisticsLog.csv"))) {
+            String[] values = line.toString().split(",");
+            //first 2 columns are the dates - ensure they can be parsed
+            assertTrue(dateFormat.parse(values[0]).before(dateFormat.parse(values[1])));
+            //next column is mean, ensure it can be parsed
+            Double.parseDouble(values[2]);
+            //last column should be empty, so make sure last char on string is comma
+            assertEquals(',', line.toString().charAt(line.toString().length() - 1));
+        }
     }
 
     protected static class TestLoggingThread extends Thread {

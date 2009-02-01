@@ -64,6 +64,15 @@ public class LogParserTest extends TimingTestCase {
                        fakeOut.toString().indexOf("tag3") >= 0);
             fakeOut.reset();
 
+            //CSV format test
+            realOut.println("-- File in -> Std out Test with CSV --");
+            LogParser.runMain(new String[]{"-f", "csv", "./target/logParserTest.log"});
+            realOut.println(fakeOut.toString());
+            assertTrue(fakeOut.toString().indexOf("\"tag\",") >= 0 &&
+                       fakeOut.toString().indexOf("\"tag2\",") >= 0 &&
+                       fakeOut.toString().indexOf("\"tag3\",") >= 0);
+            fakeOut.reset();
+
             //log from file, write to file
             realOut.println("-- File in -> File out Test --");
             LogParser.runMain(new String[]{"-o", "./target/statistics.out", "./target/logParserTest.log"});

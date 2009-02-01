@@ -125,6 +125,19 @@ codeBlock2.failure                                     781.1         599        
 codeBlock2.success                                     316.2         115         490       112.6          13
 +-----------------------------------------------------------------------------+
 
+  The log parser also supports output in comma-separated values format:
+
++-----------------------------------------------------------------------------+
+java -jar perf4j-0.9.8.jar -f csv times.log
+
+"codeBlock1",2009-02-01 16:24:00,2009-02-01 16:24:30,488.15624999999994,31,962,293.98800032643766,32
+"codeBlock2.failure",2009-02-01 16:24:00,2009-02-01 16:24:30,772.6666666666667,535,962,119.15125774502854,15
+"codeBlock2.success",2009-02-01 16:24:00,2009-02-01 16:24:30,237.11764705882356,31,461,125.37749228204501,17
+"codeBlock1",2009-02-01 16:24:30,2009-02-01 16:25:00,412.69117647058846,0,979,289.32097265193715,68
+"codeBlock2.failure",2009-02-01 16:24:30,2009-02-01 16:25:00,727.5,501,979,142.69959031799314,26
+"codeBlock2.success",2009-02-01 16:24:30,2009-02-01 16:25:00,217.8095238095238,0,492,153.59009115100247,42
++-----------------------------------------------------------------------------+
+
   Note that if no log file is specified the Perf4J log parser by default reads from standard input. Thus, one way to
   get real-time performance statistics from a live application is to use the Unix <<<tail>>> command to pipe the raw
   log file to the log parser. The following example assumes a live application is writing StopWatch log messages to
@@ -314,6 +327,12 @@ Tag                                                  Avg(ms)         Min        
 firstBlock                                             530.5         138         902       278.7           4
 secondBlock                                           1140.3         516        1649       447.5           4
 +-----------------------------------------------------------------------------+
+
+  Similar to the log parser, the log4j appender supports CSV-formatted output by way of the
+  {{{./apidocs/org/perf4j/log4j/StatisticsCsvLayout.html}StatisticsCsvLayout}}. That is, by replacing the PatternLayout
+  with a StatisticsCsvLayout on the fileAppender, output will be CSV formatted instead of text formatted as shown above.
+  The StatisticsCsvLayout supports a number of options to customize which data values are output; see the javadoc for
+  more information.
 
 ** {Writing Graphs with the GraphingStatisticsAppender}
 

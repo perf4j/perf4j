@@ -15,9 +15,7 @@
  */
 package org.perf4j;
 
-import org.perf4j.helpers.GroupingStatisticsIterator;
-import org.perf4j.helpers.StopWatchLogIterator;
-import org.perf4j.helpers.StatsValueRetriever;
+import org.perf4j.helpers.*;
 import org.perf4j.chart.StatisticsChartGenerator;
 import org.perf4j.chart.GoogleChartGenerator;
 
@@ -29,7 +27,7 @@ import java.util.List;
 
 /**
  * LogParser provides the main method for reading a log of StopWatch output and generating statistics and graphs
- * from that output. Run "java -cp pathToPerf4jJar org.per4j.LogParser --help" for instructions.
+ * from that output. Run "java -jar pathToPerf4jJar --help" for instructions.
  *
  * @author Alex Devine
  */
@@ -63,6 +61,10 @@ public class LogParser {
      * Whether or not "rollup statistics" should be created for each GroupedTimingStatistics created.
      */
     private boolean createRollupStatistics;
+    /**
+     * The formatter to use to print statistics.
+     */
+    private GroupedTimingStatisticsFormatter statisticsFormatter;
 
     // --- Constructors ---
     /**
@@ -70,7 +72,12 @@ public class LogParser {
      * graph output, has a time slice window of 30 seconds, and does not create rollup statistics.
      */
     public LogParser() {
-        this(new InputStreamReader(System.in), System.out, null, 30000L, false);
+        this(new InputStreamReader(System.in),
+             System.out,
+             null /* no graph output */,
+             30000L,
+             false /* don't create rollup statistics */,
+             new GroupedTimingStatisticsTextFormatter());
     }
 
     /**
@@ -82,9 +89,11 @@ public class LogParser {
      * @param graphingOutput         The stream where graphing data should be written - if null, graphs are not written.
      * @param timeSlice              The length of time, in milliseconds, of the timeslice of each statistics data created.
      * @param createRollupStatistics Whether or not "rollup statistics" should be created for each timeslice of data.
+     * @param statisticsFormatter    The formatter to use to print GroupedTimingStatistics
      */
     public LogParser(Reader inputLog, PrintStream statisticsOutput, PrintStream graphingOutput,
-                     long timeSlice, boolean createRollupStatistics) {
+                     long timeSlice, boolean createRollupStatistics,
+                     GroupedTimingStatisticsFormatter statisticsFormatter) {
         this.inputLog = inputLog;
         this.statisticsOutput = statisticsOutput;
         this.graphingOutput = graphingOutput;
@@ -94,6 +103,7 @@ public class LogParser {
             this.meanTimeChartGenerator = newMeanTimeChartGenerator();
             this.tpsChartGenerator = newTpsChartGenerator();
         }
+        this.statisticsFormatter = statisticsFormatter;
     }
 
     // --- Instance Methods ---
@@ -114,7 +124,7 @@ public class LogParser {
             GroupedTimingStatistics statistics = statsIter.next();
 
             if (statisticsOutput != null) {
-                statisticsOutput.println(statistics.toString());
+                statisticsOutput.print(statisticsFormatter.format(statistics));
             }
 
             if (graphingOutput != null) {
@@ -159,6 +169,7 @@ public class LogParser {
             PrintStream graphingOutput = openGraphingOutput(argsList);
             long timeSlice = getTimeSlice(argsList);
             boolean rollupStatistics = getRollupStatistics(argsList);
+            GroupedTimingStatisticsFormatter formatter = getStatisticsFormatter(argsList);
             Reader input = openInput(argsList);
 
             if (!argsList.isEmpty()) {
@@ -166,7 +177,7 @@ public class LogParser {
                 return 1;
             }
 
-            new LogParser(input, statisticsOutput, graphingOutput, timeSlice, rollupStatistics).parseLog();
+            new LogParser(input, statisticsOutput, graphingOutput, timeSlice, rollupStatistics, formatter).parseLog();
 
             closeGraphingOutput(graphingOutput);
         } catch ( Exception e ) {
@@ -181,7 +192,9 @@ public class LogParser {
             System.out.println("Usage: LogParser [-o|--out|--output outputFile] " +
                                "[-g|--graph graphingOutputFile] " +
                                "[-t|--timeslice timeslice] " +
-                               "[-r] [logInputFile]");
+                               "[-r] " +
+                               "[-f|--format text|csv] " +
+                               "[logInputFile]");
             System.out.println("Arguments:");
             System.out.println("  logInputFile - The log file to be parsed. If not specified, log data is read from stdin.");
             System.out.println("  -o|--out|--output outputFile - The file where generated statistics should be written." +
@@ -192,6 +205,9 @@ public class LogParser {
                                " statistics should be generated. Defaults to 30000 ms.");
             System.out.println("  -r - Whether or not statistics rollups should be generated." +
                                " If not specified, rollups are not generated.");
+            System.out.println("  -f|--format text|csv - The format for the statistics output, either plain text or CSV." +
+                               " Defaults to text.");
+            System.out.println("                         If format is csv, then the columns output are tag, start, stop, mean, min, max, stddev, and count.");
             System.out.println();
             System.out.println("Note that out, stdout, err and stderr can be used as aliases to the standard output" +
                                " streams when specifying output files.");
@@ -254,6 +270,23 @@ public class LogParser {
             return true;
         } else {
             return false;
+        }
+    }
+
+    protected static GroupedTimingStatisticsFormatter getStatisticsFormatter(List<String> argsList) {
+        int indexOfFormat = getIndexOfArg(argsList, true, "-f", "--format");
+        if (indexOfFormat >= 0) {
+            String formatString = argsList.remove(indexOfFormat + 1);
+            argsList.remove(indexOfFormat);
+            if ("text".equalsIgnoreCase(formatString)) {
+                return new GroupedTimingStatisticsTextFormatter();
+            } else if ("csv".equalsIgnoreCase(formatString)) {
+                return new GroupedTimingStatisticsCsvFormatter();
+            } else {
+                throw new IllegalArgumentException("Unknown format type: " + formatString);
+            }
+        } else {
+            return new GroupedTimingStatisticsTextFormatter();
         }
     }
 

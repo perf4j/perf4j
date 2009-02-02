@@ -5,6 +5,20 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.9 (2/1/09)">
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-12'>PERFFORJ-12</a>]
+                    - Provide CSV output for logged GroupedTimingStatistics.</li>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-20'>PERFFORJ-20</a>]
+                    - Allow the set of tags whose statistics are exposed as JMX attributes to be changed at runtime.</li>
+            </ol>
+        </section>
+        <section name="Release 0.9.8.1 (1/26/09)">
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-19'>PERFFORJ-19</a>]
+                    - Graph produced by chart servlet is not correct in German locale.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.8 (1/25/09)">
             <ol>
                 <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-17'>PERFFORJ-17</a>]

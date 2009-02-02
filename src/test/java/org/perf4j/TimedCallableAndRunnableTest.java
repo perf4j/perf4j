@@ -42,9 +42,9 @@ public class TimedCallableAndRunnableTest extends TestCase {
         assertEquals(elapsedTime, timedRunnable.getStopWatch().getElapsedTime());
 
         task = new TestTask();
-        TimedCallable<Long> timedCallable = new TimedCallable<Long>(task, new LoggingStopWatch());
+        TimedCallable<Long> timedCallable = new TimedCallable<Long>(task, stopWatch = new LoggingStopWatch());
         assertEquals(task, timedCallable.getWrappedTask());
-        assertEquals(new LoggingStopWatch(), timedCallable.getStopWatch());
+        assertEquals(stopWatch, timedCallable.getStopWatch());
 
         assertEquals(100L, (long) timedCallable.call());
 

@@ -1,3 +1,9 @@
+  ----
+  Home
+  ----
+
+Overview
+
   Perf4J is a set of utilities for calculating and displaying perfomance statistics for Java code. For developers who
   are familiar with logging frameworks such as log4j or java.util.logging, an analogy helps to describe Perf4J:
 
@@ -53,6 +59,27 @@ System.out.println("ms for block n was: " + (System.currentTimeMillis() - start)
   []
 
   See the {{{./devguide.html}Developer Guide}} to get started, or {{{./downloads.html}download}} Perf4J now.
+
+What's New
+
+  We released version 0.9.9, whose main new feature is CSV formatting for easy import into Excel, on Feb 1. This version
+  also allows you to change the attributes exposed on a Perf4J JMX MBean at runtime.
+
+What's Next
+
+  Perf4J is undergoing active development and new features are added frequently. Here's what we're currently working on:
+
+  * A custom log4j JDBC appender to save performance data to a database.
+
+  * More graphing options.
+
+  * The ability to add StopWatch logs using the AspectJ load-time weaving even if the classes to be profiled don't
+    have the @Profiled annotation.
+
+  []
+
+  If there are missing features you would like added, please let us know on our {{{./mail-lists.html}mailing lists}},
+  or better yet, download the {{{./source-repository.html}source code}} and become a contributor.
 
 
 

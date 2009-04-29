@@ -54,8 +54,9 @@ public abstract class AbstractTimingAspect {
      */
     @Around(value = "execution(* *(..)) && @annotation(profiled)", argNames = "pjp,profiled")
     public Object doPerfLogging(ProceedingJoinPoint pjp, Profiled profiled) throws Throwable {
-
-        LoggingStopWatch stopWatch = newStopWatch(profiled.logger(), profiled.level());
+        //WORKAROUND - the + "" below is needed to workaround a bug in the AspectJ ajc compiler that generates invalid
+        //bytecode causing AbstractMethodErrors. 
+        LoggingStopWatch stopWatch = newStopWatch(profiled.logger() + "", profiled.level());
 
         //if we're not going to end up logging the stopwatch, just run the wrapped method
         if (!stopWatch.isLogging()) {

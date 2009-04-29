@@ -9,25 +9,25 @@ Download Project Artifacts
   <All release versions of Perf4J are available from the maven repository at:>
   <<{{http://repository.codehaus.org/org/perf4j/perf4j/}}>>
 
-  * <<0.9.9>>
+  * <<0.9.10>>
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9.jar}Main JAR archive}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10.jar}Main JAR archive}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10.jar.md5}MD5}})
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9-log4jonly.jar}JAR archive containing log4j aspects and extensions but NOT extensions for other logging frameworks}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9-log4jonly.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10-log4jonly.jar}JAR archive containing log4j aspects and extensions but NOT extensions for other logging frameworks}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10-log4jonly.jar.md5}MD5}})
       This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the log4j aspects.
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9-javalogonly.jar}JAR archive containing java.util.logging aspects and extensions but NOT extensions for other logging frameworks}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9-javalogonly.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10-javalogonly.jar}JAR archive containing java.util.logging aspects and extensions but NOT extensions for other logging frameworks}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10-javalogonly.jar.md5}MD5}})
       This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the java.util.logging aspects.
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9-commonslogonly.jar}JAR archive containing Apache Commons Logging aspects and extensions but NOT extensions for other logging frameworks}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9-commonslogonly.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10-commonslogonly.jar}JAR archive containing Apache Commons Logging aspects and extensions but NOT extensions for other logging frameworks}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10-commonslogonly.jar.md5}MD5}})
       This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the Apache Commons Logging aspects.
 
-    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9-slf4jonly.jar}JAR archive containing SLF4J aspects and extensions but NOT extensions for other logging frameworks}}
-      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.9/perf4j-0.9.9-slf4jonly.jar.md5}MD5}})
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10-slf4jonly.jar}JAR archive containing SLF4J aspects and extensions but NOT extensions for other logging frameworks}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.10/perf4j-0.9.10-slf4jonly.jar.md5}MD5}})
       This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the SLF4J aspects.
 
   []
@@ -37,22 +37,22 @@ Download Project Artifacts
   <All SNAPSHOT versions built from the development trunk are available in the snapshot repository at:>
   <<{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/}}>>
 
-  * <<0.9.10-SNAPSHOT>>
+  * <<0.9.11-SNAPSHOT>>
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT.jar}JAR archive}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT.jar.md5}MD5}})
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT.jar}JAR archive}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT.jar.md5}MD5}})
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT-log4jonly.jar}JAR archive containing log4j aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT-log4jonly.jar.md5}MD5}})
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT-log4jonly.jar}JAR archive containing log4j aspects}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT-log4jonly.jar.md5}MD5}})
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT-javalogonly.jar}JAR archive containing java.util.logging aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT-javalogonly.jar.md5}MD5}})
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT-javalogonly.jar}JAR archive containing java.util.logging aspects}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT-javalogonly.jar.md5}MD5}})
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT-commonslogonly.jar}JAR archive containing Apache Commons Logging aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT-commonslogonly.jar.md5}MD5}})
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT-commonslogonly.jar}JAR archive containing Apache Commons Logging aspects}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT-commonslogonly.jar.md5}MD5}})
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT-slf4jonly.jar}JAR archive containing SLF4J aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.10-SNAPSHOT/perf4j-0.9.10-SNAPSHOT-slf4jonly.jar.md5}MD5}})
+    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT-slf4jonly.jar}JAR archive containing SLF4J aspects}}
+      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/0.9.11-SNAPSHOT/perf4j-0.9.11-SNAPSHOT-slf4jonly.jar.md5}MD5}})
        
 * Maven Dependencies and Ant
 
@@ -64,7 +64,7 @@ Download Project Artifacts
     <dependency>
         <groupId>org.perf4j</groupId>
         <artifactId>perf4j</artifactId>
-        <version>0.9.9</version>
+        <version>0.9.10</version>
         <scope>compile</scope>
     </dependency>
 
@@ -131,7 +131,7 @@ Download Project Artifacts
 +-----------------------------------------------------------------------------+
     <!-- Maven's dependencies task pulls down the jar files to a local directory -->
     <artifact:dependencies pathId="perf4j.classpath">
-        <dependency groupId="org.perf4j" artifactId="perf4j" version="0.9.9" scope="compile"/>
+        <dependency groupId="org.perf4j" artifactId="perf4j" version="0.9.10" scope="compile"/>
         <!-- This dependency is only required if using log4j extensions in perf4j -->
         <dependency groupId="log4j" artifactId="log4j" version="1.2.14" scope="compile"/>
         <!-- This dependency is only required if using commons logging extensions in perf4j -->

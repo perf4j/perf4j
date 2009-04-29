@@ -62,9 +62,9 @@ System.out.println("ms for block n was: " + (System.currentTimeMillis() - start)
 
 What's New
 
-  We released version 0.9.9, whose main new feature is CSV formatting for easy import into Excel, on Feb 1. This version
-  also allows you to change the attributes exposed on a Perf4J JMX MBean at runtime.
-
+  The recent release of version 0.9.10 fixes a bug that was causing compilation with the AspectJ ajc compiler to
+  generate invalid bytecode that would throw AbstractMethodErrors at runtime.
+  
 What's Next
 
   Perf4J is undergoing active development and new features are added frequently. Here's what we're currently working on:

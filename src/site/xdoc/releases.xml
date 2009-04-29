@@ -5,6 +5,12 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.10 (4/29/09)">
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-25'>PERFFORJ-25</a>]
+                    - Compilation using the AspectJ ajc compiler causes AbstractMethodErrors to be thrown at runtime.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.9 (2/1/09)">
             <ol>
                 <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-12'>PERFFORJ-12</a>]

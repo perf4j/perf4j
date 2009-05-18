@@ -84,6 +84,10 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
      * This int keeps track of the total number of messages that had to be discarded due to the queue being full.
      */
     private volatile int numDiscardedMessages = 0;
+    /**
+     * This shutdown hook is needed to flush the appender on JVM shutdown so that all messages are logged.
+     */
+    private Thread shutdownHook = null;
 
     // --- options ---
     /**
@@ -189,6 +193,20 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
         drainingThread = new Thread(new Dispatcher(), "perf4j-async-stats-appender-sink-" + getName());
         drainingThread.setDaemon(true);
         drainingThread.start();
+
+        //We add a shutdown hook that will attempt to flush any pending log events in the queue.
+        if (shutdownHook == null) {
+            shutdownHook = new Thread("perf4j-async-stats-appender-shutdown") {
+                public void run() {
+                    if (!closed) {
+                        close();
+                    }
+                }
+            };
+            try {
+                Runtime.getRuntime().addShutdownHook(shutdownHook);
+            } catch (Exception e) { /* likely a security exception, nothing we can do */ }
+        }
     }
 
     // --- attributes ---
@@ -268,6 +286,8 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
                 ((Appender) enumer.nextElement()).close();
             }
         }
+
+        this.closed = true;
     }
 
     // --- Helper Methods ---

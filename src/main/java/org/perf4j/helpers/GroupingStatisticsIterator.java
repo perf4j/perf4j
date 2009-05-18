@@ -68,7 +68,9 @@ public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatist
      * stopWatchIterator into GroupedTimingStatistics. A timeslice of 30 seconds is used and rollup statistics are not
      * created.
      *
-     * @param stopWatchIterator The StopWatch Iterator that provides the StopWatch instances.
+     * @param stopWatchIterator The StopWatch Iterator that provides the StopWatch instances. If stopWatchIterator
+     *                          returns a null value, will check to see if a timeslice is over and return
+     *                          GroupedTimingStatistics if necessary.
      */
     public GroupingStatisticsIterator(Iterator<StopWatch> stopWatchIterator) {
         this(stopWatchIterator, 30000L, false);
@@ -78,7 +80,9 @@ public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatist
      * Creates a GroupingStatisticsIterator that groups StopWatch instances pulled from the specified
      * stopWatchIterator into GroupedTimingStatistics.
      *
-     * @param stopWatchIterator      The StopWatch Iterator that provides the StopWatch instances.
+     * @param stopWatchIterator      The StopWatch Iterator that provides the StopWatch instances. If stopWatchIterator
+     * 								 returns a null value, will check to see if a timeslice is over and return
+     * 								 GroupedTimingStatistics if necessary.
      * @param timeSlice              The length of each time slice, in milliseconds.
      * @param createRollupStatistics Whether or not entries for "rollup" tags should be created
      */
@@ -143,13 +147,16 @@ public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatist
     private GroupedTimingStatistics getNext() {
         while (stopWatchIterator.hasNext()) {
             StopWatch stopWatch = stopWatchIterator.next();
-
+            
+            // if stopwatch is null, then the timeslice might be over (use current time)
+            long startTime = stopWatch == null ? System.currentTimeMillis() : stopWatch.getStartTime();
+            
             //the first time we pull a stop watch we need to set the first end time
             if (nextTimeSliceEndTime == 0L) {
-                nextTimeSliceEndTime = ((stopWatch.getStartTime() / timeSlice) * timeSlice) + timeSlice;
+                nextTimeSliceEndTime = ((startTime / timeSlice) * timeSlice) + timeSlice;
             }
 
-            if (stopWatch.getStartTime() >= nextTimeSliceEndTime) {
+            if (startTime >= nextTimeSliceEndTime) {
                 //then we're over a new time boundary, so update the current timing statistics and return it.
                 currentGroupedTimingStatistics.setStartTime(nextTimeSliceEndTime - timeSlice);
                 currentGroupedTimingStatistics.setStopTime(nextTimeSliceEndTime);
@@ -158,9 +165,11 @@ public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatist
                 //set the state for the next slice
                 currentGroupedTimingStatistics = new GroupedTimingStatistics();
                 currentGroupedTimingStatistics.setCreateRollupStatistics(createRollupStatistics);
-                currentGroupedTimingStatistics.addStopWatch(stopWatch);
-                nextTimeSliceEndTime = ((stopWatch.getStartTime() / timeSlice) * timeSlice) + timeSlice;
-
+                if (stopWatch != null) {
+                	// only add if we got a new stopwatch, not if timeslice just expired
+                	currentGroupedTimingStatistics.addStopWatch(stopWatch);
+                }                
+                nextTimeSliceEndTime = ((startTime / timeSlice) * timeSlice) + timeSlice;
                 return retVal;
             } else {
                 currentGroupedTimingStatistics.addStopWatch(stopWatch);

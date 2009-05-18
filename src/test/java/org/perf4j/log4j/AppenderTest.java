@@ -66,6 +66,42 @@ public class AppenderTest extends TestCase {
         }
         assertEquals(testThreads.length * TestLoggingThread.STOP_WATCH_COUNT, totalCount);
     }
+    
+    // http://jira.codehaus.org/browse/PERFFORJ-21
+    public void testAppendersTimesliceOver() throws Exception {
+    	// need to do immediateflush on the fileappender since close will not be called
+        DOMConfigurator.configure(getClass().getResource("log4j-timeslicebug.xml"));
+
+        AsyncCoalescingStatisticsAppender appender =
+                (AsyncCoalescingStatisticsAppender) Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME)
+                        .getAppender("coalescingStatistics");
+
+        //log from a bunch of threads
+        TestLoggingThread[] testThreads = new TestLoggingThread[10];
+        for (int i = 0; i < testThreads.length; i++) {
+            testThreads[i] = new TestLoggingThread();
+            testThreads[i].start();
+        }
+
+        for (TestLoggingThread testThread : testThreads) {
+            testThread.join();
+        }
+        
+        // we should see all the logging after waiting this long
+        Thread.sleep(2*appender.getTimeSlice());
+
+        //simple verification ensures that the total number of logged messages is correct.
+        //tagName  avg           min     max     std dev       count, which is group 1
+        String regex = "tag\\d+\\s*\\d+\\.\\d\\s*\\d+\\s*\\d+\\s*\\d+\\.\\d\\s*(\\d+)";
+        Pattern statLinePattern = Pattern.compile(regex);
+        Scanner scanner = new Scanner(new File("target/statisticsLog-timeslicebug.log"));
+
+        int totalCount = 0;
+        while (scanner.findWithinHorizon(statLinePattern, 0) != null) {
+            totalCount += Integer.parseInt(scanner.match().group(1));
+        }
+        assertEquals(testThreads.length * TestLoggingThread.STOP_WATCH_COUNT, totalCount);
+    }
 
     public void testOverflowHandling() throws Exception {
         Logger logger = Logger.getLogger("AppenderTest.overflowTest");

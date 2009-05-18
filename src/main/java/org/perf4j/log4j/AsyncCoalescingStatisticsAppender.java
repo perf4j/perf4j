@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This log4j Appender groups StopWatch log messages together to form GroupedTimingStatistics. At a scheduled interval
@@ -362,17 +363,25 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
          * State variable keeps track of whether we've already determined that the loggedMessages queue has been closed.
          */
         private boolean done;
+        /**
+         * State variable keeps track of whether we've finished waiting for a timeslice.
+         * If true, hasNext will return true and next will return null.
+         */
+        private boolean timeSliceOver;
 
         public boolean hasNext() {
             if (nextStopWatch == null) {
                 nextStopWatch = getNext(); //then try to get it
             }
-            return nextStopWatch != null;
+            return timeSliceOver || nextStopWatch != null;
         }
 
         public StopWatch next() {
-            if (nextStopWatch == null) {
-                nextStopWatch = getNext(); //then try to get it, and barf if there is no more
+        	if (timeSliceOver) {
+        		timeSliceOver = false;
+            	return null;
+        	} else if (nextStopWatch == null) {
+                nextStopWatch = getNext(); //then try to get it, and barf if there is no more                
                 if (nextStopWatch == null) {
                     throw new NoSuchElementException();
                 }
@@ -401,7 +410,14 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
                     if (drainedMessages.isEmpty()) {
                         //then wait for a message to show up
                         try {
-                            drainedMessages.add(loggedMessages.take());
+                        	String message = loggedMessages.poll(timeSlice, TimeUnit.MILLISECONDS);
+                        	if (message == null) {
+                        		// no new messages, but want to indicate to check the timeslice
+                        		timeSliceOver = true;
+                        		return null;
+                        	} else {
+                        		drainedMessages.add(message);
+                        	}                            
                         } catch (InterruptedException ie) {
                             //someone interrupted us, we're done
                             done = true;

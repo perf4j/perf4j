@@ -5,6 +5,12 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.11 (5/17/09)">
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-21'>PERFFORJ-21</a>]
+                    - AsyncCoalescingStatisticsAppender doesn't log all events on shutdown.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.10 (4/29/09)">
             <ol>
                 <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-25'>PERFFORJ-25</a>]

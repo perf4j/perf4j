@@ -84,7 +84,6 @@ public class StopWatchParser {
         return (result != null) ? parseStopWatchFromLogMatch(result) : null;
     }
 
-
     /**
      * Gets the MatchResult object that is returned when the Pattern used by this parser matches the specified message.
      *
@@ -107,5 +106,19 @@ public class StopWatchParser {
                              Long.parseLong(matchResult.group(2)) /*elapsed time*/,
                              matchResult.group(3) /*tag*/,
                              matchResult.group(4) /*message, may be null*/);
+    }
+
+    /**
+     * This method is intended to be used when you want to do a quick check of whether or not the specified string
+     * is valid WITHOUT incurring the cost to do a full parse. Thus, importantly, if this method returns false, the
+     * message is GUARANTEED to NOT be parseable, BUT THE CONVERSE IS NOT TRUE. That is, if the method returns true,
+     * you must still call one of the parse or match methods to determine if the message is in fact truly parseable.
+     *
+     * @param message The message to test
+     * @return false if the message is DEFINITELY not parseable, true if it potentially (but not definitely) could
+     *         be parsed.
+     */
+    public boolean isPotentiallyValid(String message) {
+        return message.startsWith("start");
     }
 }

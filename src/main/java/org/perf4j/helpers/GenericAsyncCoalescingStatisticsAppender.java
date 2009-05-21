@@ -203,7 +203,7 @@ public class GenericAsyncCoalescingStatisticsAppender {
 
     /**
      * The <b>StopWatchParserClassName</b> option is used to determine the class used to parse stop watch messages
-     * into StopWatch instances.
+     * into StopWatch instances. This defaults to the standard "org.perf4j.helpers.StopWatchParser" class.
      *
      * @return The StopWatchParserClassName option.
      */

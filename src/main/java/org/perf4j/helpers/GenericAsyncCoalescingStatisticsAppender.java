@@ -15,18 +15,9 @@
  */
 package org.perf4j.helpers;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.helpers.AppenderAttachableImpl;
-import org.apache.log4j.helpers.LogLog;
-import org.apache.log4j.spi.AppenderAttachable;
-import org.apache.log4j.spi.LoggingEvent;
 import org.perf4j.GroupedTimingStatistics;
 import org.perf4j.StopWatch;
 
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -35,27 +26,46 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This log4j Appender groups StopWatch log messages together to form GroupedTimingStatistics. At a scheduled interval
- * the StopWatch log messages that currently exist in the buffer are pulled to create a single
- * GroupedTimingStatistics instance that is then sent to any attached appenders.
- * <p/>
- * Note that any LoggingEvents which do NOT contain StopWatch objects are discarded. Also, this appender stores logged
- * messages in a bounded buffer before sending those messages to downstream appenders. If the buffer becomes full then
- * subsequent logs will be discarded until the buffer has time to clear. You can access the number of discarded
- * messages using the getNumDiscardedMessages() method.
+ * This class provides the implementation for the AsyncCoalescingStatisticsAppenders made available for different
+ * logging frameworks.
  *
- * @author Alex Devine
+ * @see org.perf4j.log4j.AsyncCoalescingStatisticsAppender
+ * @see org.perf4j.logback.AsyncCoalescingStatisticsAppender
  */
-public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implements AppenderAttachable {
+public class GenericAsyncCoalescingStatisticsAppender {
+
+    /**
+     * The GroupedTimingStatisticsHandler defines a callback interface so that logging-framework-specific
+     * implementations can decide what to do with the coalesced GroupedTimingStatistics.
+     */
+    public interface GroupedTimingStatisticsHandler {
+        /**
+         * This callback method is called for each GroupedTimingStatistics instance that is formed by coalescing
+         * individual StopWatch messages from the logs. Implementations will most likely pass this instance to
+         * downstream appenders or handlers.
+         *
+         * @param statistics The GroupedTimingStatistics instance.
+         */
+        void handle(GroupedTimingStatistics statistics);
+
+        /**
+         * This method is called whenever an error occurs that should be handled in a logging-framework specific
+         * manner.
+         *
+         * @param errorMessage The message that describes the error.
+         */
+        void error(String errorMessage);
+    }
+
     // --- configuration options ---
+    /**
+     * The name of this appender.
+     */
+    private String name = "";
     /**
      * TimeSlice option
      */
     private long timeSlice = 30000L;
-    /**
-     * DownstreamLogLevel option, converted to a Level object
-     */
-    private Level downstreamLogLevel = Level.INFO;
     /**
      * CreateRollupStatistics option
      */
@@ -64,18 +74,28 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
      * The QueueSize option, used to set the capacity of the loggedMessages queue
      */
     private int queueSize = 1024;
+    /**
+     * The fully qualified class name of the class to use for StopWatch parsing, defaults to the standard
+     * org.perf4j.helpers.StopWatchParser
+     */
+    private String stopWatchParserClassName = StopWatchParser.class.getName();
 
     // --- contained objects ---
     /**
-     * The downstream appenders are contained in this AppenderAttachableImpl
+     * All GroupedTimingStatistics created by this appender are passed to the handler object for further handling.
+     * This variable is set by the param passed to the start() method.
      */
-    private final AppenderAttachableImpl downstreamAppenders = new AppenderAttachableImpl();
+    private GroupedTimingStatisticsHandler handler = null;
     /**
-     * StopWatch log messages are pushed onto this queue, which is initialized in activateOptions().
+     * StopWatch log messages are pushed onto this queue, which is initialized in start().
      */
     private BlockingQueue<String> loggedMessages = null;
     /**
-     * This thread pumps logs from the loggedMessages queue. It is created in activateOptions().
+     * This parser is used to convert String log messages to StopWatches
+     */
+    private StopWatchParser stopWatchParser;
+    /**
+     * This thread pumps logs from the loggedMessages queue. It is created in start().
      */
     private Thread drainingThread = null;
     /**
@@ -86,11 +106,33 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
      * This shutdown hook is needed to flush the appender on JVM shutdown so that all messages are logged.
      */
     private Thread shutdownHook = null;
+    /**
+     * Whether or not this appender has been stopped
+     */
+    private boolean stopped = false;
 
     // --- options ---
     /**
+     * The name of this appender.
+     *
+     * @return The name set for this appender.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name of this appender.
+     *
+     * @param name The new appender name.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      * The <b>TimeSlice</b> option represents the length of time, in milliseconds, of the window in which appended
-     * LoggingEvents are coalesced to a single GroupedTimingStatistics and sent to downstream appenders.
+     * log event are coalesced to a single GroupedTimingStatistics and sent to downstream appenders.
      * Defaults to 30,000 milliseconds.
      *
      * @return the TimeSlice option.
@@ -106,27 +148,6 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
      */
     public void setTimeSlice(long timeSlice) {
         this.timeSlice = timeSlice;
-    }
-
-    /**
-     * The <b>DownstreamLogLevel</b> option gets the Level of the GroupedTimingStatistics LoggingEvent that is sent to
-     * downstream appenders. Since each GroupedTimingStatistics represents a view of a collection of single StopWatch
-     * timing event, each of which may have been logged at different levels, this appender needs to decide on a single
-     * Level to use to notify downstream appenders. Defaults to "INFO".
-     *
-     * @return The DownstreamLogLevel option as a String
-     */
-    public String getDownstreamLogLevel() {
-        return downstreamLogLevel.toString();
-    }
-
-    /**
-     * Sets the value of the <b>DownstreamLogLevel</b> option. This String must be one of the defined Level constants.
-     *
-     * @param downstreamLogLevel The new DownstreamLogLevel option.
-     */
-    public void setDownstreamLogLevel(String downstreamLogLevel) {
-        this.downstreamLogLevel = Level.toLevel(downstreamLogLevel);
     }
 
     /**
@@ -180,31 +201,23 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
         this.queueSize = queueSize;
     }
 
-    public synchronized void activateOptions() {
-        //activate options should only be called once, but just in case:
-        if (drainingThread != null) {
-            stopDrainingThread();
-        }
+    /**
+     * The <b>StopWatchParserClassName</b> option is used to determine the class used to parse stop watch messages
+     * into StopWatch instances.
+     *
+     * @return The StopWatchParserClassName option.
+     */
+    public String getStopWatchParserClassName() {
+        return stopWatchParserClassName;
+    }
 
-        numDiscardedMessages = 0;
-        loggedMessages = new ArrayBlockingQueue<String>(getQueueSize());
-        drainingThread = new Thread(new Dispatcher(), "perf4j-async-stats-appender-sink-" + getName());
-        drainingThread.setDaemon(true);
-        drainingThread.start();
-
-        //We add a shutdown hook that will attempt to flush any pending log events in the queue.
-        if (shutdownHook == null) {
-            shutdownHook = new Thread("perf4j-async-stats-appender-shutdown") {
-                public void run() {
-                    if (!closed) {
-                        close();
-                    }
-                }
-            };
-            try {
-                Runtime.getRuntime().addShutdownHook(shutdownHook);
-            } catch (Exception e) { /* likely a security exception, nothing we can do */ }
-        }
+    /**
+     * Sets the value of the <b>StopWatchParserClassName</b> option.
+     *
+     * @param stopWatchParserClassName The new StopWatchParserClassName option.
+     */
+    public void setStopWatchParserClassName(String stopWatchParserClassName) {
+        this.stopWatchParserClassName = stopWatchParserClassName;
     }
 
     // --- attributes ---
@@ -217,92 +230,70 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
         return numDiscardedMessages;
     }
 
-    // --- appender attachable methods ---
+    // --- main lifecycle methods ---
+    /**
+     * The start method should only be called once, before the append method is called, to initialize options.
+     *
+     * @param handler The GroupedTimingStatisticsHandler used to process GroupedTimingStatistics created by aggregating
+     *                StopWatch log message.
+     */
+    public void start(GroupedTimingStatisticsHandler handler) {
+        //start should only be called once, but just in case:
+        if (drainingThread != null) {
+            stopDrainingThread();
+        }
 
-    public void addAppender(Appender appender) {
-        synchronized (downstreamAppenders) {
-            downstreamAppenders.addAppender(appender);
+        this.handler = handler;
+        stopWatchParser = newStopWatchParser();
+        numDiscardedMessages = 0;
+        loggedMessages = new ArrayBlockingQueue<String>(getQueueSize());
+
+        drainingThread = new Thread(new Dispatcher(), "perf4j-async-stats-appender-sink-" + getName());
+        drainingThread.setDaemon(true);
+        drainingThread.start();
+
+        //We add a shutdown hook that will attempt to flush any pending log events in the queue.
+        if (shutdownHook == null) {
+            shutdownHook = new Thread("perf4j-async-stats-appender-shutdown") {
+                public void run() {
+                    if (!stopped) {
+                        GenericAsyncCoalescingStatisticsAppender.this.stop();
+                    }
+                }
+            };
+            try {
+                Runtime.getRuntime().addShutdownHook(shutdownHook);
+            } catch (Exception e) { /* likely a security exception, nothing we can do */ }
         }
     }
 
-    public Enumeration getAllAppenders() {
-        synchronized (downstreamAppenders) {
-            return downstreamAppenders.getAllAppenders();
-        }
-    }
-
-    public Appender getAppender(String name) {
-        synchronized (downstreamAppenders) {
-            return downstreamAppenders.getAppender(name);
-        }
-    }
-
-    public boolean isAttached(Appender appender) {
-        synchronized (downstreamAppenders) {
-            return downstreamAppenders.isAttached(appender);
-        }
-    }
-
-    public void removeAllAppenders() {
-        synchronized (downstreamAppenders) {
-            downstreamAppenders.removeAllAppenders();
-        }
-    }
-
-    public void removeAppender(Appender appender) {
-        synchronized (downstreamAppenders) {
-            downstreamAppenders.removeAppender(appender);
-        }
-    }
-
-    public void removeAppender(String name) {
-        synchronized (downstreamAppenders) {
-            downstreamAppenders.removeAppender(name);
-        }
-    }
-
-    // --- appender methods ---
-    protected void append(LoggingEvent event) {
-        String message = String.valueOf(event.getMessage());
+    /**
+     * The append method should be called each time a StopWatch log message is handled by the logging framework.
+     *
+     * @param message The log message, may not be null. If this message is not a valid StopWatch log message it will
+     *        be discarded.
+     */
+    public void append(String message) {
         //Do a quick check to cull out any messages not meant for us
-        if (message.startsWith("start")) {
-            pushMessageOntoQueue(message);
-        }
-    }
-
-    public boolean requiresLayout() {
-        return false;
-    }
-
-    public void close() {
-        stopDrainingThread();
-
-        //close the downstream appenders
-        synchronized (downstreamAppenders) {
-            for (Enumeration enumer = downstreamAppenders.getAllAppenders();
-                 enumer != null && enumer.hasMoreElements();) {
-                ((Appender) enumer.nextElement()).close();
+        if (stopWatchParser.isPotentiallyValid(message)) {
+            if (!loggedMessages.offer(message)) {
+                ++numDiscardedMessages;
+                handler.error(message);
             }
         }
+    }
 
-        this.closed = true;
+    /**
+     * This method should be called on shutdown to flush any pending messages in the queue and create a final
+     * GroupedTimingStatistics instance if necessary.
+     */
+    public void stop() {
+        stopDrainingThread();
+
+        this.stopped = true;
     }
 
     // --- Helper Methods ---
-    /**
-     * Helper method pushes a StopWatch message onto the queue
-     *
-     * @param message the message to add, may not be null.
-     */
-    private void pushMessageOntoQueue(String message) {
-        if (!loggedMessages.offer(message)) {
-            ++numDiscardedMessages;
-            //let the error handler get this message - by default the error handler will be an OnlyOnceErrorHandler,
-            //so we shouldn't have to worry about flooding with bad messages if the queue fills up.
-            getErrorHandler().error(message);
-        }
-    }
-
     /**
      * Helper method stops the draining thread and waits for it to finish.
      */
@@ -313,48 +304,42 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
             //wait for the draining thread to finish
             drainingThread.join(10000L);
         } catch (Exception e) {
-            LogLog.warn("Unexpected error stopping AsyncCoalescingStatisticsAppender draining thread", e);
+            handler.error("Unexpected error stopping AsyncCoalescingStatisticsAppender draining thread: "
+                          + e.getMessage());
         }
     }
 
     /**
-     * This helper method could potentially be overridden to return a different type of StopWatchParser that is used
-     * to parse the log messages send to this appender.
+     * Helper method instantiates a new StopWatchParser based on the StopWatchParserClassName option.
      *
-     * @return A new StopWatchParser to use to parse log messages.
+     * @return The newly created StopWatchParser
      */
-    protected StopWatchParser newStopWatchParser() {
-        return new StopWatchParser();
+    private StopWatchParser newStopWatchParser() {
+        try {
+            return (StopWatchParser) Class.forName(stopWatchParserClassName).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not create StopWatchParser: " + e.getMessage(), e);
+        }
     }
 
     // --- Support Classes ---
     /**
      * This Dispatcher Runnable uses a StopWatchesFromQueueIterator to pull StopWatch logging message off the
      * loggedMessages queue, which are grouped to create GroupedTimingStatistics by the GroupingStatisticsIterator.
-     * Downstream appenders are then notified for each GroupedTimingStatistics object created.
+     * The GroupedTimingStatisticsHandler is then called to deal with the created GroupedTimingStatistics.
      */
     private class Dispatcher implements Runnable {
         public void run() {
-            GroupingStatisticsIterator statsIterator = new GroupingStatisticsIterator(new StopWatchesFromQueueIterator(),
-                                                                                      timeSlice,
-                                                                                      createRollupStatistics);
+            GroupingStatisticsIterator statsIterator =
+                    new GroupingStatisticsIterator(new StopWatchesFromQueueIterator(),
+                                                   timeSlice,
+                                                   createRollupStatistics);
 
             while (statsIterator.hasNext()) {
-                GroupedTimingStatistics stats = statsIterator.next();
-
-                LoggingEvent coalescedLoggingEvent = new LoggingEvent(Logger.class.getName(),
-                                                                      Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME),
-                                                                      System.currentTimeMillis(),
-                                                                      downstreamLogLevel,
-                                                                      stats,
-                                                                      null);
                 try {
-                    synchronized (downstreamAppenders) {
-                        downstreamAppenders.appendLoopOnAppenders(coalescedLoggingEvent);
-                    }
+                    handler.handle(statsIterator.next());
                 } catch (Exception e) {
-                    getErrorHandler().error("Exception calling append with GroupedTimingStatistics on downstream appender",
-                                            e, -1, coalescedLoggingEvent);
+                    handler.error("Error calling the GroupedTimingStatisticsHandler: " + e.getMessage());
                 }
             }
         }
@@ -369,10 +354,6 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
          * Messages are drained to this list in blocks.
          */
         private LinkedList<String> drainedMessages = new LinkedList<String>();
-        /**
-         * This parser is used to convert String log messages to StopWatches
-         */
-        private StopWatchParser stopWatchParser = newStopWatchParser();
         /**
          * Keeps track of the NEXT stop watch we will return.
          */
@@ -395,10 +376,10 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
         }
 
         public StopWatch next() {
-        	if (timeSliceOver) {
-        		timeSliceOver = false;
-            	return null;
-        	} else if (nextStopWatch == null) {
+            if (timeSliceOver) {
+                timeSliceOver = false;
+                return null;
+            } else if (nextStopWatch == null) {
                 nextStopWatch = getNext(); //then try to get it, and barf if there is no more
                 if (nextStopWatch == null) {
                     throw new NoSuchElementException();
@@ -428,14 +409,14 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
                     if (drainedMessages.isEmpty()) {
                         //then wait for a message to show up
                         try {
-                        	String message = loggedMessages.poll(timeSlice, TimeUnit.MILLISECONDS);
-                        	if (message == null) {
-                        		// no new messages, but want to indicate to check the timeslice
-                        		timeSliceOver = true;
-                        		return null;
-                        	} else {
-                        		drainedMessages.add(message);
-                        	}
+                            String message = loggedMessages.poll(timeSlice, TimeUnit.MILLISECONDS);
+                            if (message == null) {
+                                // no new messages, but want to indicate to check the timeslice
+                                timeSliceOver = true;
+                                return null;
+                            } else {
+                                drainedMessages.add(message);
+                            }
                         } catch (InterruptedException ie) {
                             //someone interrupted us, we're done
                             done = true;

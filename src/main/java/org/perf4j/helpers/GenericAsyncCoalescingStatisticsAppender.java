@@ -27,10 +27,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class provides the implementation for the AsyncCoalescingStatisticsAppenders made available for different
- * logging frameworks.
+ * logging frameworks. This class itself is generic in that it does not use any logging-framework-sppecific APIs, but
+ * is intended to be wrapped by classes that DO use those specific APIs.
  *
  * @see org.perf4j.log4j.AsyncCoalescingStatisticsAppender
- * @see org.perf4j.logback.AsyncCoalescingStatisticsAppender
  */
 public class GenericAsyncCoalescingStatisticsAppender {
 
@@ -115,7 +115,7 @@ public class GenericAsyncCoalescingStatisticsAppender {
     /**
      * The name of this appender.
      *
-     * @return The name set for this appender.
+     * @return The name of this appender.
      */
     public String getName() {
         return name;
@@ -132,7 +132,7 @@ public class GenericAsyncCoalescingStatisticsAppender {
 
     /**
      * The <b>TimeSlice</b> option represents the length of time, in milliseconds, of the window in which appended
-     * log event are coalesced to a single GroupedTimingStatistics and sent to downstream appenders.
+     * log events are coalesced to a single GroupedTimingStatistics and sent to the GroupedTimingStatisticsHandler.
      * Defaults to 30,000 milliseconds.
      *
      * @return the TimeSlice option.

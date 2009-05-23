@@ -54,7 +54,8 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
      * parts.
      */
     private final GenericAsyncCoalescingStatisticsAppender baseImplementation =
-            new GenericAsyncCoalescingStatisticsAppender();
+            newGenericAsyncCoalescingStatisticsAppender();
+    
     /**
      * The downstream appenders are contained in this AppenderAttachableImpl
      */
@@ -172,6 +173,11 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
         baseImplementation.setStopWatchParserClassName(stopWatchParserClassName);
     }
 
+    public void setName(String name) {
+        super.setName(name);
+        baseImplementation.setName(name);
+    }
+
     public synchronized void activateOptions() {
         //The handler object just pumps statistics to the downstream appenders
         GenericAsyncCoalescingStatisticsAppender.GroupedTimingStatisticsHandler handler =
@@ -279,5 +285,15 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
         }
 
         this.closed = true;
+    }
+
+    // --- helper methods ---
+    /**
+     * Creates the new GenericAsyncCoalescingStatisticsAppender that this instance will wrap.
+     *
+     * @return The newly created GenericAsyncCoalescingStatisticsAppender.
+     */
+    protected GenericAsyncCoalescingStatisticsAppender newGenericAsyncCoalescingStatisticsAppender() {
+        return new GenericAsyncCoalescingStatisticsAppender();
     }
 }

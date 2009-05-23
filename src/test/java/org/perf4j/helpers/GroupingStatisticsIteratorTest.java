@@ -16,11 +16,12 @@
 package org.perf4j.helpers;
 
 import org.perf4j.GroupedTimingStatistics;
-import org.perf4j.TimingTestCase;
 import org.perf4j.StopWatch;
 import org.perf4j.TimingStatistics;
+import org.perf4j.TimingTestCase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -100,7 +101,7 @@ public class GroupingStatisticsIteratorTest extends TimingTestCase {
         assertEquals(2, groupedTimingStatistics.get(1).getStatisticsByTag().get("tag2").getCount());
         assertEquals(500L, groupedTimingStatistics.get(2).getStatisticsByTag().get("tag3").getMax());
     }
-    
+
     public void testRemove() throws Exception {
         //remove is not supported
         try {
@@ -109,5 +110,45 @@ public class GroupingStatisticsIteratorTest extends TimingTestCase {
         } catch (UnsupportedOperationException uoe) {
             //expected
         }
+    }
+
+    /**
+     * Test StopWatch in the middle of the timeslice. See bug
+     * http://jira.codehaus.org/browse/PERFFORJ-29
+     */
+    public void testStopWatchIteratorContainsNullBeginningTimeslice() {
+        GroupingStatisticsIterator groupingStatisticsIterator = new GroupingStatisticsIterator(
+                Collections.singletonList((StopWatch) null).iterator());
+        assertFalse(groupingStatisticsIterator.hasNext());
+    }
+
+    /**
+     * Test null StopWatch that terminates the timeslice
+     */
+    public void testStopWatchIteratorContainsNullNotBeginningTimeslice() {
+        long timeslice = 300L;
+
+        // create a non-null stopWatch to start the timeSlice and terminate with
+        // a null stopWatch
+        StopWatch stopWatch = new StopWatch(System.currentTimeMillis() - timeslice - 1,
+                                            timeslice,
+                                            "stopWatch1",
+                                            "should start the timeslice");
+        GroupingStatisticsIterator groupingStatisticsIterator = new GroupingStatisticsIterator(
+                Arrays.asList(stopWatch, null).iterator());
+
+        // should be one timeslice and null will trigger it to end the timeslice
+        assertTrue(groupingStatisticsIterator.hasNext());
+        GroupedTimingStatistics groupStats = groupingStatisticsIterator.next();
+        assertEquals(1, groupStats.getStatisticsByTag().size());
+
+        TimingStatistics timingStats1 = groupStats.getStatisticsByTag().get(stopWatch.getTag());
+        assertEquals(1, timingStats1.getCount());
+        assertEquals(stopWatch.getElapsedTime(), timingStats1.getMax());
+        assertEquals(stopWatch.getElapsedTime(), timingStats1.getMin());
+        assertEquals(stopWatch.getElapsedTime() + 0.0, timingStats1.getMean());
+
+        // no more timeslices
+        assertFalse(groupingStatisticsIterator.hasNext());
     }
 }

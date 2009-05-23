@@ -32,7 +32,8 @@ import java.util.NoSuchElementException;
  *
  * @author Alex Devine
  */
-public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatistics> {
+public class
+        GroupingStatisticsIterator implements Iterator<GroupedTimingStatistics> {
     /**
      * The underlying StopWatch iterator
      */
@@ -171,7 +172,7 @@ public class GroupingStatisticsIterator implements Iterator<GroupedTimingStatist
                 }                
                 nextTimeSliceEndTime = ((startTime / timeSlice) * timeSlice) + timeSlice;
                 return retVal;
-            } else {
+            } else if (stopWatch != null) {
                 currentGroupedTimingStatistics.addStopWatch(stopWatch);
             }
         }

@@ -100,7 +100,7 @@ public abstract class AbstractGraphingServlet extends HttpServlet {
                               HttpServletResponse response) throws ServletException, IOException {
         response.getWriter().println("<br><br>");
 
-        String chartUrl = chartGenerator.getChartUrl();
+        String chartUrl = (chartGenerator == null) ? null : chartGenerator.getChartUrl();
         if (chartUrl != null) {
             response.getWriter().println("<b>" + name + "</b><br>");
             response.getWriter().println("<img src=\"" + chartUrl + "\">");

@@ -55,11 +55,16 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
      */
     private final GenericAsyncCoalescingStatisticsAppender baseImplementation =
             newGenericAsyncCoalescingStatisticsAppender();
-    
+
     /**
      * The downstream appenders are contained in this AppenderAttachableImpl
      */
     private final AppenderAttachableImpl downstreamAppenders = new AppenderAttachableImpl();
+
+    /**
+     * This shutdown hook is needed to flush the appender on JVM shutdown so that all messages are logged.
+     */
+    private Thread shutdownHook = null;
 
     // --- options ---
     /**
@@ -179,35 +184,45 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
     }
 
     public synchronized void activateOptions() {
-        //The handler object just pumps statistics to the downstream appenders
-        GenericAsyncCoalescingStatisticsAppender.GroupedTimingStatisticsHandler handler =
-                new GenericAsyncCoalescingStatisticsAppender.GroupedTimingStatisticsHandler() {
-                    public void handle(GroupedTimingStatistics statistics) {
-                        LoggingEvent coalescedLoggingEvent =
-                                new LoggingEvent(Logger.class.getName(),
-                                                 Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME),
-                                                 System.currentTimeMillis(),
-                                                 downstreamLogLevel,
-                                                 statistics,
-                                                 null);
-                        try {
-                            synchronized (downstreamAppenders) {
-                                downstreamAppenders.appendLoopOnAppenders(coalescedLoggingEvent);
-                            }
-                        } catch (Exception e) {
-                            getErrorHandler().error(
-                                    "Exception calling append with GroupedTimingStatistics on downstream appender",
-                                    e, -1, coalescedLoggingEvent
-                            );
+        //Start the underlying generic appender with a handler object that pumps statistics to the downstream appenders
+        baseImplementation.start(new GenericAsyncCoalescingStatisticsAppender.GroupedTimingStatisticsHandler() {
+            public void handle(GroupedTimingStatistics statistics) {
+                LoggingEvent coalescedLoggingEvent =
+                        new LoggingEvent(Logger.class.getName(),
+                                         Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME),
+                                         System.currentTimeMillis(),
+                                         downstreamLogLevel,
+                                         statistics,
+                                         null);
+                try {
+                    synchronized (downstreamAppenders) {
+                        downstreamAppenders.appendLoopOnAppenders(coalescedLoggingEvent);
+                    }
+                } catch (Exception e) {
+                    getErrorHandler().error(
+                            "Exception calling append with GroupedTimingStatistics on downstream appender",
+                            e, -1, coalescedLoggingEvent
+                    );
+                }
+            }
+
+            public void error(String errorMessage) {
+                getErrorHandler().error(errorMessage);
+            }
+        });
+
+        //Also, we add a shutdown hook that will attempt to flush any pending log events in the queue.
+        if (shutdownHook == null) {
+            try {
+                Runtime.getRuntime().addShutdownHook(shutdownHook = new Thread("perf4j-async-stats-appender-shutdown") {
+                    public void run() {
+                        if (!closed) {
+                            close();
                         }
                     }
-
-                    public void error(String errorMessage) {
-                        getErrorHandler().error(errorMessage);
-                    }
-                };
-
-        baseImplementation.start(handler);
+                });
+            } catch (Exception e) { /* likely a security exception, nothing we can do */ }
+        }
     }
 
     // --- attributes ---

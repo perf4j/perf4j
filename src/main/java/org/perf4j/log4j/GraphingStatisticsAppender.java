@@ -27,6 +27,7 @@ import org.perf4j.StopWatch;
 import org.perf4j.chart.GoogleChartGenerator;
 import org.perf4j.chart.StatisticsChartGenerator;
 import org.perf4j.helpers.StatsValueRetriever;
+import org.perf4j.helpers.MiscUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -182,7 +183,8 @@ public class GraphingStatisticsAppender extends AppenderSkeleton implements Appe
         //create the chart generator and set the enabled tags
         GoogleChartGenerator retVal = new GoogleChartGenerator(statsValueRetriever);
         if (getTagNamesToGraph() != null) {
-            Set<String> enabledTags = new HashSet<String>(Arrays.asList(getTagNamesToGraph().split(",")));
+            Set<String> enabledTags =
+                    new HashSet<String>(Arrays.asList(MiscUtils.splitAndTrim(getTagNamesToGraph(), ",")));
             retVal.setEnabledTags(enabledTags);
         }
 

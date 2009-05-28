@@ -16,6 +16,7 @@
 package org.perf4j.servlet;
 
 import org.perf4j.chart.StatisticsChartGenerator;
+import org.perf4j.helpers.MiscUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -46,7 +47,7 @@ public abstract class AbstractGraphingServlet extends HttpServlet {
     public void init() throws ServletException {
         String graphNamesString = getInitParameter("graphNames");
         if (graphNamesString != null) {
-            graphNames = Arrays.asList(graphNamesString.split(","));
+            graphNames = Arrays.asList(MiscUtils.splitAndTrim(graphNamesString, ","));
         }
     }
 

@@ -70,16 +70,16 @@ public class GroupedTimingStatisticsCsvFormatter implements GroupedTimingStatist
     public GroupedTimingStatisticsCsvFormatter(boolean pivot, String configString) {
         this.pivot = pivot;
 
-        String[] configElements = configString.split(",");
+        String[] configElements = MiscUtils.splitAndTrim(configString, ",");
         if (pivot) {
             pivotedValueRetrievers = new GroupedTimingStatisticsValueRetriever[configElements.length];
             for (int i = 0; i < configElements.length; i++) {
-                pivotedValueRetrievers[i] = parsePivotedTimingStatsConfig(configElements[i].trim());
+                pivotedValueRetrievers[i] = parsePivotedTimingStatsConfig(configElements[i]);
             }
         } else {
             valueRetrievers = new TimingStatsValueRetriever[configElements.length];
             for (int i = 0; i < configElements.length; i++) {
-                valueRetrievers[i] = parseTimingStatsConfig(configElements[i].trim());
+                valueRetrievers[i] = parseTimingStatsConfig(configElements[i]);
             }
         }
     }

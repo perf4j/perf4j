@@ -253,7 +253,7 @@ public class StatisticsExposingMBean extends NotificationBroadcasterSupport impl
                 StatsValueRetriever statsValueRetriever = statNameAndValueRetriever.getValue();
 
                 attributes[i++] = new MBeanAttributeInfo(tagName + statName,
-                                                         statsValueRetriever.getValueClass().toString(),
+                                                         statsValueRetriever.getValueClass().getName(),
                                                          "Returns " + statName + " for tag " + tagName,
                                                          true /* readable */,
                                                          false /* not writable */,

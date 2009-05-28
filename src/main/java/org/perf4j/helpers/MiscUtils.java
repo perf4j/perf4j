@@ -92,4 +92,20 @@ public class MiscUtils {
         MiscUtils.padIntToTwoDigits(minute, retVal).append(':');
         return MiscUtils.padIntToTwoDigits(second, retVal).toString();
     }
+
+    /**
+     * Splits a string using the specified delimiter, and also trims all the resultant strings in the returned array.
+     * This is useful for setting multi-valued options on appenders.
+     *
+     * @param stringToSplit The String to be split, may not be null
+     * @param delimiter     The delimiter to use to split the string, may not be null.
+     * @return The split and trimmed Strings
+     */
+    public static String[] splitAndTrim(String stringToSplit, String delimiter) {
+        String[] retVal = stringToSplit.split(delimiter);
+        for (int i = 0; i < retVal.length; i++) {
+            retVal[i] = retVal[i].trim();
+        }
+        return retVal;
+    }
 }

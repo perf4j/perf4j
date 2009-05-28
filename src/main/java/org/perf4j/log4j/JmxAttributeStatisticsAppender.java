@@ -20,6 +20,7 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.perf4j.GroupedTimingStatistics;
 import org.perf4j.helpers.StatisticsExposingMBean;
 import org.perf4j.helpers.AcceptableRangeConfiguration;
+import org.perf4j.helpers.MiscUtils;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -148,11 +149,11 @@ public class JmxAttributeStatisticsAppender extends AppenderSkeleton {
         }
 
         //parse the options, create the mBean and register it
-        String[] tagNames = tagNamesToExpose.split(",");
+        String[] tagNames = MiscUtils.splitAndTrim(tagNamesToExpose, ",");
 
         List<AcceptableRangeConfiguration> rangeConfigs = new ArrayList<AcceptableRangeConfiguration>();
         if (notificationThresholds != null) {
-            String[] rangeConfigStrings = notificationThresholds.split(",");
+            String[] rangeConfigStrings = MiscUtils.splitAndTrim(notificationThresholds, ",");
             for (String rangeConfigString : rangeConfigStrings) {
                 rangeConfigs.add(new AcceptableRangeConfiguration(rangeConfigString));
             }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+  <!--
+    To test this shutdown bug our appender graph looks like this:
+
+    coalescingStatistics ~~~~> statsFileAppender
+                    \ \~~~~~~> graphExecutionTimes ~~~~~~> graphsFileAppender
+                     \~~~~~~~> graphExecutionTPS ~~~~~~/
+
+    Note there is a diamond dependency, which is important for testing this case
+  -->
+  <appender name="coalescingStatistics" class="org.perf4j.log4j.AsyncCoalescingStatisticsAppender">
+    <param name="TimeSlice" value="100000"/>
+    <appender-ref ref="statsFileAppender"/>
+    <appender-ref ref="graphExecutionTimes"/>
+    <appender-ref ref="graphExecutionTPS"/>
+  </appender>
+
+  <appender name="statsFileAppender" class="org.apache.log4j.FileAppender">
+    <param name="ImmediateFlush" value="true"/>
+    <param name="File" value="./target/stats-shutdownbug.log"/>  
+    <param name="Append" value="false"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%m%n"/>
+    </layout>
+  </appender>
+
+  <appender name="graphExecutionTimes" class="org.perf4j.log4j.GraphingStatisticsAppender">
+    <param name="GraphType" value="Mean"/>
+    <param name="TagNamesToGraph" value="tag1"/>
+    <appender-ref ref="graphsFileAppender"/>
+  </appender>
+
+  <appender name="graphExecutionTPS" class="org.perf4j.log4j.GraphingStatisticsAppender">
+    <param name="GraphType" value="TPS"/>
+    <param name="TagNamesToGraph" value="tag1"/>
+    <appender-ref ref="graphsFileAppender"/>
+  </appender>
+
+  <appender name="graphsFileAppender" class="org.apache.log4j.FileAppender">
+    <param name="ImmediateFlush" value="true"/>
+    <param name="File" value="./target/graphs-shutdownbug.log"/>
+    <param name="Append" value="false"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%m%n"/>
+    </layout>
+  </appender>
+
+  <logger name="org.perf4j.TimingLogger">
+    <level value="info"/>
+    <appender-ref ref="coalescingStatistics"/>
+  </logger>
+</log4j:configuration>

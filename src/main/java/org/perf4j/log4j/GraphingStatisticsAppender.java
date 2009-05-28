@@ -18,6 +18,7 @@ package org.perf4j.log4j;
 import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 import org.apache.log4j.helpers.AppenderAttachableImpl;
 import org.apache.log4j.spi.AppenderAttachable;
 import org.apache.log4j.spi.LoggingEvent;
@@ -29,6 +30,7 @@ import org.perf4j.helpers.StatsValueRetriever;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.io.Flushable;
 
 /**
  * This appender is designed to be attached to an {@link AsyncCoalescingStatisticsAppender}. It takes the incoming
@@ -39,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Alex Devine
  */
-public class GraphingStatisticsAppender extends AppenderSkeleton implements AppenderAttachable {
+public class GraphingStatisticsAppender extends AppenderSkeleton implements AppenderAttachable, Flushable {
     /**
      * This class keeps track of all appenders of this type that have been created. This allows static access to
      * the appenders from the org.perf4j.log4j.servlet.GraphingServlet class.
@@ -70,16 +72,25 @@ public class GraphingStatisticsAppender extends AppenderSkeleton implements Appe
     /**
      * The chart genertor, initialized in the <tt>activateOptions</tt> method, that stores the data for the chart.
      */
-    protected StatisticsChartGenerator chartGenerator;
+    private StatisticsChartGenerator chartGenerator;
     /**
      * Keeps track of the number of logged GroupedTimingStatistics, which is used to determine when a graph should
      * be written to any attached appenders.
      */
-    protected AtomicLong numLoggedStatistics = new AtomicLong();
+    private AtomicLong numLoggedStatistics = new AtomicLong();
+    /**
+     * Keeps track of whether there is existing data that hasn't yet been flushed to downstream appenders.
+     */
+    private volatile boolean hasUnflushedData = false;
+    /**
+     * Keeps track of the Level of the last appended event. This is just used to determine what level we send to OUR
+     * downstream events.
+     */
+    private Level lastAppendedEventLevel = Level.INFO;
     /**
      * Any downstream appenders are contained in this AppenderAttachableImpl
      */
-    protected final AppenderAttachableImpl downstreamAppenders = new AppenderAttachableImpl();
+    private final AppenderAttachableImpl downstreamAppenders = new AppenderAttachableImpl();
 
     // --- options ---
 
@@ -258,21 +269,12 @@ public class GraphingStatisticsAppender extends AppenderSkeleton implements Appe
         Object logMessage = event.getMessage();
         if (logMessage instanceof GroupedTimingStatistics && chartGenerator != null) {
             chartGenerator.appendData((GroupedTimingStatistics) logMessage);
+            hasUnflushedData = true;
+            lastAppendedEventLevel = event.getLevel();
 
             //output the graph if necessary to any attached appenders
-            if ((numLoggedStatistics.incrementAndGet() % getDataPointsPerGraph() == 0) &&
-                (downstreamAppenders.getAllAppenders() != null) /* getAllAppenders returns null when no appenders */) {
-
-                synchronized (downstreamAppenders) {
-                    downstreamAppenders.appendLoopOnAppenders(
-                            new LoggingEvent(Logger.class.getName(),
-                                             Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME),
-                                             event.timeStamp,
-                                             event.getLevel(),
-                                             chartGenerator.getChartUrl(),
-                                             null)
-                    );
-                }
+            if ((numLoggedStatistics.incrementAndGet() % getDataPointsPerGraph()) == 0) {
+                flush();
             }
         }
     }
@@ -284,9 +286,32 @@ public class GraphingStatisticsAppender extends AppenderSkeleton implements Appe
     public void close() {
         //close any downstream appenders
         synchronized (downstreamAppenders) {
+            flush();
+
             for (Enumeration enumer = downstreamAppenders.getAllAppenders();
                  enumer != null && enumer.hasMoreElements();) {
-                ((Appender) enumer.nextElement()).close();
+                Appender appender = (Appender) enumer.nextElement();
+                appender.close();
+            }
+        }
+    }
+
+    // --- Flushable method ---
+    /**
+     * This flush method writes the graph, with the data that exists at the time it is calld, to any attached appenders.
+     */
+    public void flush() {
+        synchronized(downstreamAppenders) {
+            if (hasUnflushedData && downstreamAppenders.getAllAppenders() != null) {
+                downstreamAppenders.appendLoopOnAppenders(
+                        new LoggingEvent(Logger.class.getName(),
+                                         Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME),
+                                         System.currentTimeMillis(),
+                                         lastAppendedEventLevel,
+                                         chartGenerator.getChartUrl(),
+                                         null)
+                );
+                hasUnflushedData = false;
             }
         }
     }

@@ -27,6 +27,7 @@ import org.perf4j.StopWatch;
 import org.perf4j.helpers.GenericAsyncCoalescingStatisticsAppender;
 
 import java.util.Enumeration;
+import java.io.Flushable;
 
 /**
  * This log4j Appender groups StopWatch log messages together to form GroupedTimingStatistics. At a scheduled interval
@@ -293,6 +294,21 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
 
         //close the downstream appenders
         synchronized (downstreamAppenders) {
+            //first FLUSH any flushable downstream appenders (fix for PERFFORJ-22). Note we CAN NOT just flush and
+            //close in one loop because this breaks in the case of a "diamond" relationship between appenders, where,
+            //say, this appender has 2 attached GraphingStatisticsAppenders that each write to a SINGLE attached
+            //FileAppender.
+            for (Enumeration enumer = downstreamAppenders.getAllAppenders();
+                 enumer != null && enumer.hasMoreElements();) {
+                Appender appender = (Appender) enumer.nextElement();
+                if (appender instanceof Flushable) {
+                    try {
+                        ((Flushable)appender).flush();
+                    } catch (Exception e) { /* Just eat the exception, we're closing down */ }
+                }
+            }
+
+            //THEN close them
             for (Enumeration enumer = downstreamAppenders.getAllAppenders();
                  enumer != null && enumer.hasMoreElements();) {
                 ((Appender) enumer.nextElement()).close();

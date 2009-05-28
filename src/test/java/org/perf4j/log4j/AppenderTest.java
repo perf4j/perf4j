@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.lang.reflect.Field;
 
 /**
  * This class tests the log4j appenders.
@@ -101,6 +102,36 @@ public class AppenderTest extends TestCase {
             totalCount += Integer.parseInt(scanner.match().group(1));
         }
         assertEquals(testThreads.length * TestLoggingThread.STOP_WATCH_COUNT, totalCount);
+    }
+
+    //test for http://jira.codehaus.org/browse/PERFFORJ-22
+    public void testFlushOnShutdown() throws Exception {
+        DOMConfigurator.configure(getClass().getResource("log4j-shutdownbug.xml"));
+
+        //make a bunch of logs, but not enough to go over the timeslice.
+        for (int i = 0; i < 5; i++) {
+            StopWatch stopWatch = new Log4JStopWatch("tag1");
+            Thread.sleep(10 * i);
+            stopWatch.stop();
+        }
+
+        //at this point none of the file appenders will have written anything because they haven't been flushed
+        assertEquals("", FileUtils.readFileToString(new File("target/stats-shutdownbug.log")));
+        assertEquals("", FileUtils.readFileToString(new File("target/graphs-shutdownbug.log")));
+
+        //now, to simulate shutdown, get the async appender and run the shutdown hook. We need to use reflection
+        //because the shutdown hook is private.
+        AsyncCoalescingStatisticsAppender appender =
+                (AsyncCoalescingStatisticsAppender) Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME)
+                        .getAppender("coalescingStatistics");
+        Field shutdownField = appender.getClass().getDeclaredField("shutdownHook");
+        shutdownField.setAccessible(true);
+        Thread shutdownHook = (Thread) shutdownField.get(appender);
+        shutdownHook.run();
+
+        //now there should be data in the files
+        assertFalse("".equals(FileUtils.readFileToString(new File("target/stats-shutdownbug.log"))));
+        assertFalse("".equals(FileUtils.readFileToString(new File("target/graphs-shutdownbug.log"))));
     }
 
     public void testOverflowHandling() throws Exception {
@@ -178,14 +209,13 @@ public class AppenderTest extends TestCase {
         public static final int STOP_WATCH_COUNT = 20;
 
         public void run() {
-            Logger logger = Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME);
             String loggingTag = "tag" + index.getAndIncrement();
 
             for (int i = 0; i < STOP_WATCH_COUNT; i++) {
-                StopWatch stopWatch = new StopWatch(loggingTag);
+                StopWatch stopWatch = new Log4JStopWatch(loggingTag);
                 int sleepTime = (int) (Math.random() * 400);
                 try { Thread.sleep(sleepTime); } catch (Exception e) { /*do nothing*/ }
-                logger.info(stopWatch.stop());
+                stopWatch.stop();
             }
 
             //this last sleep here seems necessary because otherwise Thread.join() above is returning before

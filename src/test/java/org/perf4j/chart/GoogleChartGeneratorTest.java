@@ -38,6 +38,11 @@ public class GoogleChartGeneratorTest extends TestCase {
         expectedChartUrls = ResourceBundle.getBundle("org/perf4j/chart/googleChartTestExpectedValues");
     }
 
+    protected void tearDown() throws Exception {
+        //reset the timezone
+        GroupedTimingStatistics.setTimeZone(TimeZone.getDefault());
+    }
+
     public void testNoData() throws Exception {
         GoogleChartGenerator chart = new GoogleChartGenerator();
 

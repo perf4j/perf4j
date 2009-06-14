@@ -15,6 +15,8 @@
  */
 package org.perf4j;
 
+import org.perf4j.helpers.MiscUtils;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -170,11 +172,11 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
     public String toString() {
         StringBuilder retVal = new StringBuilder();
         //output the time window
-        Calendar startTimeCal = new GregorianCalendar(getTimeZone());
-        startTimeCal.setTimeInMillis(startTime);
-        Calendar stopTimeCal = new GregorianCalendar(getTimeZone());
-        startTimeCal.setTimeInMillis(stopTime);
-        retVal.append(String.format("Performance Statistics   %tT - %tT%n", startTimeCal, stopTimeCal));
+        retVal.append("Performance Statistics   ")
+                .append(MiscUtils.formatDateIso8601(startTime))
+                .append(" - ")
+                .append(MiscUtils.formatDateIso8601(stopTime))
+                .append(MiscUtils.NEWLINE);
         //output the header
         retVal.append(String.format("%-48s%12s%12s%12s%12s%12s%n",
                                     "Tag", "Avg(ms)", "Min", "Max", "Std Dev", "Count"));

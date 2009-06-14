@@ -15,6 +15,8 @@
  */
 package org.perf4j.helpers;
 
+import org.perf4j.GroupedTimingStatistics;
+
 import java.util.Calendar;
 
 /**
@@ -76,7 +78,7 @@ public class MiscUtils {
     public static String formatDateIso8601(long timeInMillis) {
         StringBuilder retVal = new StringBuilder(19);
 
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(GroupedTimingStatistics.getTimeZone());
         cal.setTimeInMillis(timeInMillis);
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH);

@@ -16,10 +16,7 @@
 package org.perf4j;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Represents a set of TimingStatistics calculated for a specific time period for a set of tags.
@@ -101,6 +98,29 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
         return this;
     }
 
+    /**
+     * The TimeZone to use when displaying start/stop time information
+     */
+    private static TimeZone timeZone = TimeZone.getDefault();
+
+    /**
+     * Returns the <tt>TimeZone</tt> that should be used for display of timestamp values.
+     *
+     * @return the timezone in which the statistics should be presented
+     */
+    public static TimeZone getTimeZone() {
+        return timeZone;
+    }
+
+    /**
+     * Sets the <tt>TimeZone</tt> which should be used to present this data.
+     *
+     * @param tz the timezone to use
+     */
+    public static void setTimeZone(TimeZone tz) {
+        timeZone = tz;
+    }
+
     // --- Bean Properties ---
 
     public SortedMap<String, TimingStatistics> getStatisticsByTag() {
@@ -150,7 +170,11 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
     public String toString() {
         StringBuilder retVal = new StringBuilder();
         //output the time window
-        retVal.append(String.format("Performance Statistics   %tT - %tT%n", startTime, stopTime));
+        Calendar startTimeCal = new GregorianCalendar(getTimeZone());
+        startTimeCal.setTimeInMillis(startTime);
+        Calendar stopTimeCal = new GregorianCalendar(getTimeZone());
+        startTimeCal.setTimeInMillis(stopTime);
+        retVal.append(String.format("Performance Statistics   %tT - %tT%n", startTimeCal, stopTimeCal));
         //output the header
         retVal.append(String.format("%-48s%12s%12s%12s%12s%12s%n",
                                     "Tag", "Avg(ms)", "Min", "Max", "Std Dev", "Count"));

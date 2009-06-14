@@ -281,6 +281,7 @@ public class GoogleChartGenerator implements StatisticsChartGenerator {
         //set up the axis labels - we use the US decimal format locale to ensure the decimal separator is . and not ,
         DecimalFormat decimalFormat = new DecimalFormat("##0.0", new DecimalFormatSymbols(Locale.US));
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        dateFormat.setTimeZone(GroupedTimingStatistics.getTimeZone());
 
         //the y-axis label goes from 0 to the maximum data value
         String axisRangeParam = "&chxr=2,0," + decimalFormat.format(maxDataValue);

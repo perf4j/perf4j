@@ -919,6 +919,11 @@ simpleExample                                          727.0         599        
 
         <<<java -cp .:profiledExampleWoven.jar:$ASPECTJ_DIR/lib/aspectjrt.jar:log4j-1.2.14.jar:commons-jexl-1.1.jar:commons-logging-1.0.3.jar ProfiledExample>>>
 
+        Note that if you execute the program with perf4j-0.9.11-log4jonly.jar in the classpath you are likely to see
+        "java.lang.NoSuchMethodError: aspectOf" errors thrown in your code. This is because perf4j-0.9.11-log4jonly.jar
+        has only been compiled with javac, not the ajc compiler (compiling with the ajc compiler first would cause
+        problems with load-time weaving). Thus, if you do see this error be sure that the default perf4j jars are
+        not in your class path and that you are using the -inpath and -outjar options of ajc correctly.
   []
 
   There are a number of different ways to compile with ajc. For more information, see the

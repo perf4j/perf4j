@@ -30,6 +30,11 @@ package org.perf4j;
  */
 public class LoggingStopWatch extends StopWatch {
 
+    /**
+     * This threshold determines if a log call will be made. Only elapsed times greater than this amount will be logged.
+     */
+    private long timeThreshold = 0L;
+
     // --- Constructors ---
 
     /**
@@ -74,6 +79,45 @@ public class LoggingStopWatch extends StopWatch {
         super(startTime, elapsedTime, tag, message);
     }
 
+    // --- Bean Properties ---
+    /**
+     * Gets a threshold level, in milliseconds, below which logging calls will not be made. Defaults to 0, meaning that
+     * the log method is always called on stop or lap regardless of the elapsed time.
+     *
+     * @return The time threshold in milliseconds.
+     */
+    public long getTimeThreshold() {
+        return timeThreshold;
+    }
+
+    /**
+     * Sets a threshold level, in milliseconds, below which logging calls will not be made. You can set this to a
+     * high positive value if you only want logging to occur for abnormally slow execution times. Note, though, that
+     * you may wish to leave the threshold at 0 and attach a
+     * {@link org.perf4j.log4j.JmxAttributeStatisticsAppender} in the logging configuration to be notified when
+     * times are outside acceptable thresholds.
+     *
+     * @param timeThreshold The minimum elapsed time, in milliseconds, below which log calls will not be made.
+     * @return this instance, for use with method chaining if desired
+     * @see org.perf4j.log4j.JmxAttributeStatisticsAppender#getNotificationThresholds()
+     */
+    public LoggingStopWatch setTimeThreshold(long timeThreshold) {
+        this.timeThreshold = timeThreshold;
+        return this;
+    }
+
+    // Just overridden to make use of covariant return types
+    public LoggingStopWatch setTag(String tag) {
+        super.setTag(tag);
+        return this;
+    }
+
+    // Just overridden to make use of covariant return types
+    public LoggingStopWatch setMessage(String message) {
+        super.setMessage(message);
+        return this;
+    }
+
     // --- Stop/Lap/Helper Methods ---
     /**
      * This stop method is overridden to perform the logging itself instead of needing to make a separate call to
@@ -83,7 +127,7 @@ public class LoggingStopWatch extends StopWatch {
      */
     public String stop() {
         String retVal = super.stop();
-        log(retVal, null);
+        doLogInternal(retVal, null);
         return retVal;
     }
 
@@ -97,7 +141,7 @@ public class LoggingStopWatch extends StopWatch {
      */
     public String stop(Throwable exception) {
         String retVal = super.stop();
-        log(retVal, exception);
+        doLogInternal(retVal, exception);
         return retVal;
     }
 
@@ -184,5 +228,14 @@ public class LoggingStopWatch extends StopWatch {
 
     public LoggingStopWatch clone() {
         return (LoggingStopWatch) super.clone();
+    }
+
+    // --- Private Methods ---
+    // Helper method only calls log if elapsed time is greater than the time threshold
+    private void doLogInternal(String stopWatchAsString, Throwable exception) {
+        //in most cases timeThreshold will be 0, so just short circuit out as fast as possible
+        if (timeThreshold == 0 || getElapsedTime() >= timeThreshold) {
+            log(stopWatchAsString, exception);
+        }
     }
 }

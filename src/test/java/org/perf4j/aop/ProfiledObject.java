@@ -81,6 +81,12 @@ public class ProfiledObject {
         throw new Exception("failure");
     }
 
+    @Profiled(tag = "simpleWithThreshold", timeThreshold = 50)
+    public long simpleTestWithTimeThreshold(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+
     //this method is called using JEXL in the @Profiled tags above
     public int getBeanProp() {
         return 5;

@@ -269,8 +269,12 @@ public class Slf4JStopWatch extends LoggingStopWatch {
      * Sets the Apache Commons Logging Logused to persist StopWatch instances.
      *
      * @param logger The Logger this instance should use for persistence. May not be null.
+     * @return this instance, for use with method chaining if desired
      */
-    public void setLogger(Logger logger) { this.logger = logger; }
+    public Slf4JStopWatch setLogger(Logger logger) {
+        this.logger = logger;
+        return this;
+    }
 
     /**
      * Gets the level at which log statements will be made when one of the stop or lap methods that does NOT take an
@@ -286,8 +290,12 @@ public class Slf4JStopWatch extends LoggingStopWatch {
      *
      * @param normalPriority The level used when logging "normal" stop or lap calls. This value should be one of the
      *                       ..._LEVEL constants of this class.
+     * @return this instance, for use with method chaining if desired
      */
-    public void setNormalPriority(int normalPriority) { this.normalPriority = normalPriority; }
+    public Slf4JStopWatch setNormalPriority(int normalPriority) {
+        this.normalPriority = normalPriority;
+        return this;
+    }
 
     /**
      * Gets the level at which log statements will be made when one of the stop or lap methods that DOES take an
@@ -303,8 +311,30 @@ public class Slf4JStopWatch extends LoggingStopWatch {
      *
      * @param exceptionPriority The level used when logging "exceptional" stop or lap calls. This value should be one
      *                          of the ..._LEVEL constants of this class.
+     * @return this instance, for use with method chaining if desired
      */
-    public void setExceptionPriority(int exceptionPriority) { this.exceptionPriority = exceptionPriority; }
+    public Slf4JStopWatch setExceptionPriority(int exceptionPriority) {
+        this.exceptionPriority = exceptionPriority;
+        return this;
+    }
+
+    // Just overridden to make use of covariant return types
+    public Slf4JStopWatch setTimeThreshold(long timeThreshold) {
+        super.setTimeThreshold(timeThreshold);
+        return this;
+    }
+
+    // Just overridden to make use of covariant return types
+    public Slf4JStopWatch setTag(String tag) {
+        super.setTag(tag);
+        return this;
+    }
+
+    // Just overridden to make use of covariant return types
+    public Slf4JStopWatch setMessage(String message) {
+        super.setMessage(message);
+        return this;
+    }
 
     // --- Helper Methods ---
 

@@ -111,4 +111,13 @@ public @interface Profiled {
      * @return Whether or not failures should be logged under a separate tag, defaults to false.
      */
     boolean logFailuresSeparately() default false;
+
+    /**
+     * If the timeThreshold is set to a positive value, then the method execution time will be logged only if took
+     * more than timeThreshold milliseconds. Thus, this value can be used if you only want to log method executions that
+     * are unexpectedly slow.
+     *
+     * @return The time threshold for logging, in milliseconds.
+     */
+    long timeThreshold() default 0;
 }

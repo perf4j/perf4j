@@ -63,6 +63,8 @@ public abstract class AbstractTimingAspect {
             return pjp.proceed();
         }
 
+        stopWatch.setTimeThreshold(profiled.timeThreshold());
+
         Object retVal = null;
         Throwable exceptionThrown = null;
         try {

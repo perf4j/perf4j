@@ -248,8 +248,12 @@ public class JavaLogStopWatch extends LoggingStopWatch {
      * Sets the java.util.logging Logger used to persist StopWatch instances.
      *
      * @param logger The Logger this instance should use for persistence. May not be null.
+     * @return this instance, for use with method chaining if desired
      */
-    public void setLogger(Logger logger) { this.logger = logger; }
+    public JavaLogStopWatch setLogger(Logger logger) {
+        this.logger = logger;
+        return this;
+    }
 
     /**
      * Gets the Level at which log statements will be made when one of the stop or lap methods that does NOT take an
@@ -264,8 +268,12 @@ public class JavaLogStopWatch extends LoggingStopWatch {
      * exception is called.
      *
      * @param normalPriority The Level used when logging "normal" stop or lap calls. May not be null.
+     * @return this instance, for use with method chaining if desired
      */
-    public void setNormalPriority(Level normalPriority) { this.normalPriority = normalPriority; }
+    public JavaLogStopWatch setNormalPriority(Level normalPriority) {
+        this.normalPriority = normalPriority;
+        return this;
+    }
 
     /**
      * Gets the Level at which log statements will be made when one of the stop or lap methods that DOES take an
@@ -280,8 +288,30 @@ public class JavaLogStopWatch extends LoggingStopWatch {
      * exception is called. This should usually be at a level equal to or higher than the normal priority.
      *
      * @param exceptionPriority The Level used when logging "exceptional" stop or lap calls. May not be null.
+     * @return this instance, for use with method chaining if desired
      */
-    public void setExceptionPriority(Level exceptionPriority) { this.exceptionPriority = exceptionPriority; }
+    public JavaLogStopWatch setExceptionPriority(Level exceptionPriority) {
+        this.exceptionPriority = exceptionPriority;
+        return this;
+    }
+                                                           
+    // Just overridden to make use of covariant return types
+    public JavaLogStopWatch setTimeThreshold(long timeThreshold) {
+        super.setTimeThreshold(timeThreshold);
+        return this;
+    }
+
+    // Just overridden to make use of covariant return types
+    public JavaLogStopWatch setTag(String tag) {
+        super.setTag(tag);
+        return this;
+    }
+
+    // Just overridden to make use of covariant return types
+    public JavaLogStopWatch setMessage(String message) {
+        super.setMessage(message);
+        return this;
+    }
 
     // --- Helper Methods ---
     /**

@@ -45,7 +45,7 @@ public class LoggingStopWatchTest extends TestCase {
      * Tests the StopWatch. This method is designed in such a way that it should be used to test subclasses as well
      * if createStopWatch and checkProperties are properly implemented.
      */
-    public void testStopWatch() {
+    public void testStopWatch() throws Exception {
         checkProperties(createStopWatch(null, null, null, null, null),
                         StopWatch.DEFAULT_LOGGER_NAME, "INFO", "WARN", "", null);
         checkProperties(createStopWatch(null, null, null, "tag", null),
@@ -94,6 +94,19 @@ public class LoggingStopWatchTest extends TestCase {
         checkExpectedLogWritten("tag[poo]", "java.lang.Exception: shoe");
         stopWatch.lap("new", "mar", new Exception("rue"));
         checkExpectedLogWritten("tag[new] message[mar]", "java.lang.Exception: rue");
+
+        //test for PERFFORJ-30 - Add capability to set a time threshold in LoggingStopWatch and Profiled annotation
+        stopWatch.stop();
+        String fakeErrBefore = fakeErr.toString();
+        stopWatch.setTimeThreshold(100).start("timeThresholdCheck");
+        Thread.sleep(10);
+        stopWatch.stop();
+        assertEquals("Stopwatch log was set when it shouldn't have been", fakeErrBefore, fakeErr.toString());
+        //now it should get logged after running
+        stopWatch.start();
+        Thread.sleep(110);
+        stopWatch.stop();
+        checkExpectedLogWritten("tag[timeThresholdCheck]");
 
         customTests();
     }

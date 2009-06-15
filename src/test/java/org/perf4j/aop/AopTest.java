@@ -81,6 +81,13 @@ public class AopTest extends TestCase {
         assertTrue("Expected message not found in " + InMemoryTimingAspect.getLastLoggedString(),
                    InMemoryTimingAspect.getLastLoggedString().indexOf("message[message: 5, exception: null]") >= 0);
 
+        profiledObject.simpleTestWithTimeThreshold(5);
+        assertTrue("Should not have logged when time threshold not crossed",
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleWithThreshold]") < 0);
+        profiledObject.simpleTestWithTimeThreshold(55);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleWithThreshold]") >= 0);
+
         try {
             profiledObject.simpleTestWithJexlException(100);
         } catch (Exception e) { /* expected */ }

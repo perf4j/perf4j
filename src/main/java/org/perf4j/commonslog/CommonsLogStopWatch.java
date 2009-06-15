@@ -269,8 +269,12 @@ public class CommonsLogStopWatch extends LoggingStopWatch {
      * Sets the Apache Commons Logging Logused to persist StopWatch instances.
      *
      * @param logger The Log this instance should use for persistence. May not be null.
+     * @return this instance, for use with method chaining if desired
      */
-    public void setLogger(Log logger) { this.logger = logger; }
+    public CommonsLogStopWatch setLogger(Log logger) {
+        this.logger = logger;
+        return this;
+    }
 
     /**
      * Gets the level at which log statements will be made when one of the stop or lap methods that does NOT take an
@@ -286,8 +290,12 @@ public class CommonsLogStopWatch extends LoggingStopWatch {
      *
      * @param normalPriority The level used when logging "normal" stop or lap calls. This value should be one of the
      *                       ..._LEVEL constants of this class.
+     * @return this instance, for use with method chaining if desired
      */
-    public void setNormalPriority(int normalPriority) { this.normalPriority = normalPriority; }
+    public CommonsLogStopWatch setNormalPriority(int normalPriority) {
+        this.normalPriority = normalPriority;
+        return this;
+    }
 
     /**
      * Gets the level at which log statements will be made when one of the stop or lap methods that DOES take an
@@ -303,9 +311,31 @@ public class CommonsLogStopWatch extends LoggingStopWatch {
      *
      * @param exceptionPriority The level used when logging "exceptional" stop or lap calls. This value should be one
      *                          of the ..._LEVEL constants of this class.
+     * @return this instance, for use with method chaining if desired
      */
-    public void setExceptionPriority(int exceptionPriority) { this.exceptionPriority = exceptionPriority; }
+    public CommonsLogStopWatch setExceptionPriority(int exceptionPriority) {
+        this.exceptionPriority = exceptionPriority;
+        return this;
+    }
 
+    // Just overridden to make use of covariant return types
+    public CommonsLogStopWatch setTimeThreshold(long timeThreshold) {
+        super.setTimeThreshold(timeThreshold);
+        return this;
+    }
+
+    // Just overridden to make use of covariant return types
+    public CommonsLogStopWatch setTag(String tag) {
+        super.setTag(tag);
+        return this;
+    }
+
+    // Just overridden to make use of covariant return types
+    public CommonsLogStopWatch setMessage(String message) {
+        super.setMessage(message);
+        return this;
+    }
+    
     // --- Helper Methods ---
 
     /**

@@ -125,8 +125,12 @@ public class StopWatch implements Serializable, Cloneable {
      * Sets the grouping tag for this StopWatch instance.
      *
      * @param tag The grouping tag.
+     * @return this instance, for method chaining if desired
      */
-    public void setTag(String tag) { this.tag = tag; }
+    public StopWatch setTag(String tag) {
+        this.tag = tag;
+        return this;
+    }
 
     /**
      * Gets any additional message that was set on this StopWatch instance.
@@ -139,8 +143,12 @@ public class StopWatch implements Serializable, Cloneable {
      * Sends a message on this StopWatch instance to be printed when this instance is logged.
      *
      * @param message The message associated with this StopWatch, which may be null.
+     * @return this instance, for method chaining if desired.
      */
-    public void setMessage(String message) { this.message = message; }
+    public StopWatch setMessage(String message) {
+        this.message = message;
+        return this;
+    }
 
     // --- Start/Stop/Lap methods ---
 

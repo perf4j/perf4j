@@ -62,10 +62,7 @@ System.out.println("ms for block n was: " + (System.currentTimeMillis() - start)
 
 What's New
 
-  The recent releases of versions 0.9.10 and 0.9.11 are bug fix releases. 0.9.10 fixes a bug that was causing
-  compilation with the AspectJ ajc compiler to generate invalid bytecode that would throw AbstractMethodErrors at
-  runtime. 0.9.11 fixes a problem where the last timeslice of an AsyncCoalescingStatisticsAppender would not get logged
-  on JVM shutdown.
+  Recently released version 0.9.12, which includes a number of bug fixes and feature updates.
   
 What's Next
 

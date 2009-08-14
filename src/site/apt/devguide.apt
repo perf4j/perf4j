@@ -100,7 +100,7 @@ INFO: start[1230493239968] time[852] tag[codeBlock2.failure] message[Exception w
   to run in the perf4j jar file, so the parser can be run as follows:
 
 +-----------------------------------------------------------------------------+
-java -jar perf4j-0.9.11.jar times.log
+java -jar perf4j-0.9.12.jar times.log
 +-----------------------------------------------------------------------------+
 
   Sample output from the log parser looks like this:
@@ -128,7 +128,7 @@ codeBlock2.success                                     316.2         115        
   The log parser also supports output in comma-separated values format:
 
 +-----------------------------------------------------------------------------+
-java -jar perf4j-0.9.11.jar -f csv times.log
+java -jar perf4j-0.9.12.jar -f csv times.log
 
 "codeBlock1",2009-02-01 16:24:00,2009-02-01 16:24:30,488.15624999999994,31,962,293.98800032643766,32
 "codeBlock2.failure",2009-02-01 16:24:00,2009-02-01 16:24:30,772.6666666666667,535,962,119.15125774502854,15
@@ -144,13 +144,13 @@ java -jar perf4j-0.9.11.jar -f csv times.log
   a times.log file. The performance statistics will be written to the console as new data is written to times.log:
 
 +-----------------------------------------------------------------------------+
-tail -f times.log | java -jar perf4j-0.9.11.jar
+tail -f times.log | java -jar perf4j-0.9.12.jar
 +-----------------------------------------------------------------------------+
 
   In addition to generating performance statistics, the Perf4J log parser can also generate graphs. Here is an example:
 
 +-----------------------------------------------------------------------------+
-java -jar perf4j-0.9.11.jar --graph perfGraphs.out times.log
+java -jar perf4j-0.9.12.jar --graph perfGraphs.out times.log
 +-----------------------------------------------------------------------------+
 
   This command writes performance graphs to the perfGraphs.out file using the Google Chart API. Here are some example
@@ -607,7 +607,7 @@ secondBlock                                           1140.3         516        
   com.sun.management.jmxremote on the command line, e.g.:
 
 +-----------------------------------------------------------------------------+
-java -Dcom.sun.management.jmxremote -cp .:./perf4j-0.9.11.jar:./log4j-1.2.14.jar Perf4JAppenderExample
+java -Dcom.sun.management.jmxremote -cp .:./perf4j-0.9.12.jar:./log4j-1.2.14.jar Perf4JAppenderExample
 +-----------------------------------------------------------------------------+
 
   Once the application is running, you can view the MBeans using the jconsole tool provided with the Sun JDK. Here
@@ -846,7 +846,7 @@ public class ProfiledExample {
 
   [[1]] Compile the ProfiledExample class using javac:
 
-        <<<javac -cp perf4j-0.9.11.jar ProfiledExample.java>>>
+        <<<javac -cp perf4j-0.9.12.jar ProfiledExample.java>>>
 
   [[2]] Ensure that the log4j.xml file (you can use any of the ones defined in this guide) is in the current directory.
 
@@ -855,7 +855,7 @@ public class ProfiledExample {
   [[4]] Run the class using java, specifying the AspectJ weaver as a java agent (note the path separator should be
         ; when running in Windows, and the classpath assumes all the dependency jars are in the current directory):
         
-        <<<java -cp .:perf4j-0.9.11.jar:log4j-1.2.14.jar:aspectjrt-1.6.1.jar:commons-jexl-1.1.jar:commons-logging-1.0.3.jar -javaagent:aspectjweaver-1.6.1.jar ProfiledExample>>>
+        <<<java -cp .:perf4j-0.9.12.jar:log4j-1.2.14.jar:aspectjrt-1.6.1.jar:commons-jexl-1.1.jar:commons-logging-1.0.3.jar -javaagent:aspectjweaver-1.6.1.jar ProfiledExample>>>
 
   []
   
@@ -880,16 +880,16 @@ simpleExample                                          727.0         599        
   to {{{http://www.eclipse.org/aspectj/downloads.php}download the AspectJ toolset}} and install it first. Using the
   ProfiledExample class from above, you can integrate the aspects using the following steps.
 
-  <<IMPORTANT>> In addition to the main perf4j-0.9.11.jar file, Perf4J also provides jars that are specific to each of
+  <<IMPORTANT>> In addition to the main perf4j-0.9.12.jar file, Perf4J also provides jars that are specific to each of
   the different logging frameworks that contain only the TimingAspect specific to that framework. You can
   download the jar with the logging framework you wish to use from the {{{./downloads.html}downloads}} page. When
-  calling ajc it is <<critical>> that you do <<NOT>> use the main perf4j-0.9.11.jar in your inpath. If you do this,
+  calling ajc it is <<critical>> that you do <<NOT>> use the main perf4j-0.9.12.jar in your inpath. If you do this,
   ajc will weave ALL defined aspects into your classes, and you always only want one TimingAspect to run for each
   method you have marked with the Profiled annotation. The example steps below assume you are using log4j.
 
   [[1]] First, ensure that you have all the required files and dependencies in your current directory:
 
-        * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.11/perf4j-0.9.11-log4jonly.jar}perf4j-0.9.11-log4jonly.jar}},
+        * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.12/perf4j-0.9.12-log4jonly.jar}perf4j-0.9.12-log4jonly.jar}},
           the jar which contains only the log4j aspects and not the java.util.logging aspects
 
         * {{{http://repo1.maven.org/maven2/log4j/log4j/1.2.14/log4j-1.2.14.jar}log4j-1.2.14.jar}}, the log4j classes
@@ -908,19 +908,19 @@ simpleExample                                          727.0         599        
   [[2]] Run the ajc compiler to weave the timing aspects into the ProfiledExample class (assumes the $ASPECTJ_DIR
         environment variable points to your AspectJ tools installation directory):
 
-        <<<$ASPECTJ_DIR/bin/ajc -classpath $ASPECTJ_DIR/lib/aspectjrt.jar -1.5 -inpath perf4j-0.9.11-log4jonly.jar -outjar profiledExampleWoven.jar ProfiledExample.java>>>
+        <<<$ASPECTJ_DIR/bin/ajc -classpath $ASPECTJ_DIR/lib/aspectjrt.jar -1.5 -inpath perf4j-0.9.12-log4jonly.jar -outjar profiledExampleWoven.jar ProfiledExample.java>>>
 
         This will create a new jar named profiledExampleWoven.jar that includes the ProfiledExample class with the
         log4j TimingAspects integrated to execute around the methods with the Profiled annotation.
 
   [[3]] Execute the example using java, being sure to include the required dependencies in the classpath. Note that
-        the perf4j-0.9.11-log4jonly.jar is NOT in the classpath, as those classes have been incorporated into
+        the perf4j-0.9.12-log4jonly.jar is NOT in the classpath, as those classes have been incorporated into
         profiledExampleWoven.jar:
 
         <<<java -cp .:profiledExampleWoven.jar:$ASPECTJ_DIR/lib/aspectjrt.jar:log4j-1.2.14.jar:commons-jexl-1.1.jar:commons-logging-1.0.3.jar ProfiledExample>>>
 
-        Note that if you execute the program with perf4j-0.9.11-log4jonly.jar in the classpath you are likely to see
-        "java.lang.NoSuchMethodError: aspectOf" errors thrown in your code. This is because perf4j-0.9.11-log4jonly.jar
+        Note that if you execute the program with perf4j-0.9.12-log4jonly.jar in the classpath you are likely to see
+        "java.lang.NoSuchMethodError: aspectOf" errors thrown in your code. This is because perf4j-0.9.12-log4jonly.jar
         has only been compiled with javac, not the ajc compiler (compiling with the ajc compiler first would cause
         problems with load-time weaving). Thus, if you do see this error be sure that the default perf4j jars are
         not in your class path and that you are using the -inpath and -outjar options of ajc correctly.
@@ -1055,7 +1055,7 @@ public class SpringProfiledExample {
         (note it is usually easiest to use Maven or Ant to manage dependencies, see the
         {{{./downloads.html}downloads page}}):
 
-        * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.11/perf4j-0.9.11.jar}perf4j-0.9.11.jar}}
+        * {{{http://repository.codehaus.org/org/perf4j/perf4j/0.9.12/perf4j-0.9.12.jar}perf4j-0.9.12.jar}}
 
         * {{{http://repo1.maven.org/maven2/org/springframework/spring/2.0.6/spring-2.0.6.jar}spring-2.0.6.jar}},
           the Spring Framework jar
@@ -1086,11 +1086,11 @@ public class SpringProfiledExample {
 
   [[2]] Compile the PrimeGenerator and SpringProfiledExample classes:
 
-        <<<javac -cp perf4j-0.9.11.jar:spring-2.0.6.jar PrimeGenerator.java SpringProfiledExample.java>>>
+        <<<javac -cp perf4j-0.9.12.jar:spring-2.0.6.jar PrimeGenerator.java SpringProfiledExample.java>>>
 
   [[3]] Run SpringProfiledExample:
 
-        <<<java -cp .:perf4j-0.9.11.jar:spring-2.0.6.jar:aspectjrt-1.6.1.jar:aspectjweaver-1.6.1.jar:cglib-2.1_3.jar:asm-1.5.3.jar:log4j-1.2.14.jar:commons-jexl-1.1.jar:commons-logging-1.0.3.jar SpringProfiledExample>>>
+        <<<java -cp .:perf4j-0.9.12.jar:spring-2.0.6.jar:aspectjrt-1.6.1.jar:aspectjweaver-1.6.1.jar:cglib-2.1_3.jar:asm-1.5.3.jar:log4j-1.2.14.jar:commons-jexl-1.1.jar:commons-logging-1.0.3.jar SpringProfiledExample>>>
 
   []
 

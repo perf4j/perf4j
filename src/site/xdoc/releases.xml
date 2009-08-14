@@ -5,6 +5,44 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.12 (8/14/09)">
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-22'>PERFFORJ-22</a>]
+                    - GraphingStatisticsAppender fails to write any output for Spring AOP example in Developer Guide.</li>
+            </ol>
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-23'>PERFFORJ-23</a>]
+                    - Need to trim the TagNamesToExpose in JmxAttributeStatisticsAppender.</li>
+            </ol>
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-27'>PERFFORJ-27</a>]
+                    - Time Grouping Analytical Report Should Include Date as Well.</li>
+            </ol>
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-28'>PERFFORJ-28</a>]
+                    - Nullpointer exception on Servlet access.</li>
+            </ol>
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-29'>PERFFORJ-29</a>]
+                    - NPE on startup using AsyncCoalescingStatisticsAppender.</li>
+            </ol>
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-30'>PERFFORJ-30</a>]
+                    - Add capability to set a time threshold in LoggingStopWatch and Profiled annotation.</li>
+            </ol>
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-31'>PERFFORJ-31</a>]
+                    - JMX MBeanAttributeInfo object type parameter value is incorrect.</li>
+            </ol>
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-32'>PERFFORJ-32</a>]
+                    - GoogleChartGeneratorTest fails unless timezone is GMT-5.</li>
+            </ol>
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-36'>PERFFORJ-36</a>]
+                    - Trim should be applied to all comma delimited Appender values.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.11 (5/17/09)">
             <ol>
                 <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-21'>PERFFORJ-21</a>]

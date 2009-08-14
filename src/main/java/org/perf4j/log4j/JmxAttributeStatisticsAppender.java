@@ -58,7 +58,7 @@ public class JmxAttributeStatisticsAppender extends AppenderSkeleton {
     /**
      * This is the MBean that is registered with the MBeanServer
      */
-    private StatisticsExposingMBean mBean;
+    protected StatisticsExposingMBean mBean;
 
     // --- options ---
     /**

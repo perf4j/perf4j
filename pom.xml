@@ -156,6 +156,11 @@
             <id>Apache Incubator</id>
             <url>http://people.apache.org/repo/m2-incubating-repository/</url>
         </repository>
+        <repository>
+            <id>java.net</id>
+            <url>http://download.java.net/maven/1</url>
+            <layout>legacy</layout>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -218,7 +223,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- if you use the AOP functionality of perf4j, you must also include these following dependencies -->
+        <!-- if you use the Aspect-J based AOP functionality, you must also include these following dependencies -->
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
@@ -243,6 +248,17 @@
             <optional>true</optional>
         </dependency>
 
+        <!--
+            if you use EJB Interceptors, you DON'T need to include the following dependency as the required
+            classes shouldcome with your Java EE server
+        -->
+        <dependency>
+            <groupId>javax.ejb</groupId>
+            <artifactId>ejb-api</artifactId>
+            <version>3.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
         <!-- if you use Spring to manage the AOP funcionality, you must also include these following dependencies --> 
         <dependency>
             <groupId>org.springframework</groupId>

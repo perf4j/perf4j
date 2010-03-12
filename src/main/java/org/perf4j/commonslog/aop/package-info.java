@@ -16,8 +16,9 @@
 /**
  * Defines the concrete aspect class used to inject timing code around methods that have been marked with the
  * {@link org.perf4j.aop.Profiled} annotation. The {@link org.perf4j.commonslog.aop.TimingAspect} should be used if you
- * use Apache Commons Logging as a logging facade for your code.
- * To enable the aspects you must use AspectJ or Spring AOP.
+ * use Apache Commons Logging as a logging facade for your code. Alternatively, if using EJB interceptors, you should
+ * use the {@link org.perf4j.commonslog.aop.EjbTimingAspect} interceptor.
+ * To enable the aspects you must use AspectJ, Spring AOP or EJB interceptors.
  *
  * @see <a href="http://perf4j.codehaus.org/devguide.html#Unobtrusive_Logging_with_Profiled_and_AOP">The Perf4J Developer Guide AOP Overview</a>
  * @see <a href="http://www.eclipse.org/aspectj/doc/released/devguide/ajc-ref.html">ajc, the AspectJ compiler/weaver</a>

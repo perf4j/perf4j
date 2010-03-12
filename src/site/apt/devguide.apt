@@ -677,6 +677,10 @@ java -Dcom.sun.management.jmxremote -cp .:./perf4j-0.9.12.jar:./log4j-1.2.14.jar
   {{{http://static.springframework.org/spring/docs/2.5.x/reference/aop.html}Spring AOP}} to inject timing aspects
   into your code.
 
+  In addition, Perf4J has also added support for EJB Interceptors. In the case of EJB interceptors,
+  the Profiled annotation is optional, and only needs to be specified if you wish to override the default tag name
+  and message.
+
 ** {Adding the Profiled Annotation to Method Declarations}
 
   Adding the Profiled annotation to Java methods is a very simple and straightforward process. The following class
@@ -924,6 +928,7 @@ simpleExample                                          727.0         599        
         has only been compiled with javac, not the ajc compiler (compiling with the ajc compiler first would cause
         problems with load-time weaving). Thus, if you do see this error be sure that the default perf4j jars are
         not in your class path and that you are using the -inpath and -outjar options of ajc correctly.
+        
   []
 
   There are a number of different ways to compile with ajc. For more information, see the
@@ -1105,3 +1110,25 @@ Performance Statistics   18:47:00 - 18:47:10
 Tag                                                  Avg(ms)         Min         Max     Std Dev       Count
 nextPrime                                               31.0          24          78         7.2         223
 +-----------------------------------------------------------------------------+
+
+** {Using EJB Interceptors to Integrate Timing Aspects}
+
+  EJB 3.0 added support for interceptors, and Perf4J provides interceptors that add the timing calls when a target
+  method is invoked. Here is an example of a session bean with a method that will be profiled:
+
++-----------------------------------------------------------------------------+
+@Stateless
+public class HelloWorldBean implements HelloWorld {
+
+    @Interceptors(org.perf4j.log4j.aop.EjbTimingAspect.class)
+    public void sayHello() {
+        System.out.println("Hello!");
+    }
+}
++-----------------------------------------------------------------------------+
+
+  When the sayHello method is executed, it will be wrapped by Log4JStopWatch start/stop calls. Note that the sayHello
+  method has no Profiled annotation, and so by default the tag name used will be the method name (i.e. sayHello) and
+  there will me no message on the stop watch. You can optionally add a Profiled annotation to the method if you wish
+  to set a different tag name, or to otherwise take advantage of the configuration options that the Profiled annotation
+  provides.

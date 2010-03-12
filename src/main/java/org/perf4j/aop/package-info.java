@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 /**
- * Provides annotations that work with an aspect-oriented framework like AspectJ or Spring AOP to allow timing
- * of code blocks without explicit logging statements. The {@link org.perf4j.aop.Profiled} annotation can be added to
- * method declarations to indicate that method execution should be timed, e.g.:
+ * Provides annotations that work with an aspect-oriented framework like AspectJ, Spring AOP or EJB interceptors to
+ * allow timing of code blocks without explicit logging statements. The {@link org.perf4j.aop.Profiled} annotation can
+ * be added to method declarations to indicate that method execution should be timed, e.g.:
  * <pre>
  * &#064;Profiled(tag = "servlet{$this.servletName}_{$0.pathInfo}")
  * protected void doGet(HttpServletRequest req, HttpServletResponse res) {

@@ -62,7 +62,7 @@ System.out.println("ms for block n was: " + (System.currentTimeMillis() - start)
 
 What's New
 
-  Recently released version 0.9.12, which includes a number of bug fixes and feature updates.
+  Recently released version 0.9.13, which adds support for EJB 3.0 interceptors.
   
 What's Next
 

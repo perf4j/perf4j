@@ -5,6 +5,16 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.13 (3/12/10)">
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-42'>PERFFORJ-42</a>]
+                    - Content-Type not specified by servlets.</li>
+            </ol>
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-43'>PERFFORJ-43</a>]
+                    - Allow Perf4J to be used with EJB 3.0 Interceptors.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.12 (8/14/09)">
             <ol>
                 <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-22'>PERFFORJ-22</a>]

@@ -26,6 +26,9 @@
  * Timing code can then be enabled using the concrete subclasses of {@link org.perf4j.aop.AbstractTimingAspect}, such
  * as the log4j {@link org.perf4j.log4j.aop.TimingAspect}. You will need to use an aspect framework such as AspectJ
  * or Spring AOP to enable these aspects.
+ * <p>
+ * In addition, if you are using an aspect framework that doesn't use the AspectJ annotations, you can wrap or subclass
+ * {@link org.perf4j.aop.AgnosticTimingAspect} in a manner to work with your framework's requirements.
  *
  * @see <a href="http://perf4j.codehaus.org/devguide.html#Unobtrusive_Logging_with_Profiled_and_AOP">The Perf4J Developer Guide AOP Overview</a>
  * @see <a href="http://www.eclipse.org/aspectj/doc/released/devguide/ajc-ref.html">ajc, the AspectJ compiler/weaver</a>

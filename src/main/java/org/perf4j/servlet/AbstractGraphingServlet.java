@@ -59,6 +59,8 @@ public abstract class AbstractGraphingServlet extends HttpServlet {
             throws ServletException, IOException {
         Map<String, StatisticsChartGenerator> chartsByName = getChartGeneratorsToDisplay(request);
 
+        response.setContentType("text/html;charset=utf-8");
+        
         writeHeader(request, response);
         for (Map.Entry<String, StatisticsChartGenerator> nameAndChart : chartsByName.entrySet()) {
             writeChart(nameAndChart.getKey(), nameAndChart.getValue(), request, response);

@@ -60,6 +60,16 @@ System.out.println("ms for block n was: " + (System.currentTimeMillis() - start)
 
   See the {{{./devguide.html}Developer Guide}} to get started, or {{{./downloads.html}download}} Perf4J now.
 
+Integrated Tools
+
+  Thanks to the folks that have integrated Perf4J into other frameworks:
+
+  * {{{http://www.grails.org/plugin/perf4j}Grails Perf4j Integration Plugin}}, authored by Daniel Rinser
+
+  * {{{http://seam-perf4j.sourceforge.net/}Seam-Perf4j}}, authored by Marcin Zaj&#261;czkowski
+
+  []
+
 What's New
 
   Recently released version 0.9.13, which adds support for EJB 3.0 interceptors.

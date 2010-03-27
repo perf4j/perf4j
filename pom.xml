@@ -365,6 +365,7 @@
                         <link>http://commons.apache.org/logging/apidocs</link>
                         <link>http://www.slf4j.org/api</link>
                     </links>
+                    <charset>UTF-8</charset>
                 </configuration>
                 <executions>
                     <execution>

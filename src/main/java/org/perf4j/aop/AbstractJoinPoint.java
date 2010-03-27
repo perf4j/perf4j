@@ -7,7 +7,7 @@ package org.perf4j.aop;
  * method and log result in customizable way. Specific Join Point implementations in AOP libraries/frameworks
  * should implement it wrapping their own internal structures.
  *
- * @author Marcin Zaj?czkowski, 2010-01-14
+ * @author Marcin Zajączkowski, 2010-01-14
  *
  * @since 0.9.13
  */
@@ -22,14 +22,14 @@ public interface AbstractJoinPoint {
     public Object proceed() throws Throwable;
 
     /**
-     * An object whose method was annotated (profiled).
+     * Returns an object whose method was annotated (profiled).
      *
      * @return an object whose method was annotated
      */
     public Object getExecutingObject();
 
     /**
-     * Returns an parameters (arguments) array of prcoessing method
+     * Returns a parameters (arguments) array of processing method.
      *
      * @return array of parameters
      */

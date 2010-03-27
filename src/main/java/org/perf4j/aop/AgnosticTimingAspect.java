@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * that it delegates all functionality to this class - it just includes the necessary AspectJ annotations and wraps
  * the AspectJ-specific ProceedingJoinPoint as an {@link org.perf4j.aop.AbstractJoinPoint}.
  *
- * @author Marcin Zaj?czkowski, Alex Devine 
+ * @author Marcin Zajączkowski, Alex Devine 
  */
 public class AgnosticTimingAspect {
     /**

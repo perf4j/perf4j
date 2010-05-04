@@ -43,7 +43,10 @@ public class StopWatch implements Serializable, Cloneable {
 
     public static final String DEFAULT_LOGGER_NAME = "org.perf4j.TimingLogger";
 
+    private static final long NANOS_IN_A_MILLI = 1000000L;
+
     private long startTime;
+    private long nanoStartTime;
     private long elapsedTime;
     private String tag;
     private String message;
@@ -88,6 +91,7 @@ public class StopWatch implements Serializable, Cloneable {
      */
     public StopWatch(long startTime, long elapsedTime, String tag, String message) {
         this.startTime = startTime;
+        this.nanoStartTime = (elapsedTime == -1L) ? System.nanoTime() : -1L;
         this.elapsedTime = elapsedTime;
         this.tag = tag;
         this.message = message;
@@ -110,7 +114,7 @@ public class StopWatch implements Serializable, Cloneable {
      */
     public long getElapsedTime() {
         return (elapsedTime == -1L) ?
-               System.currentTimeMillis() - startTime :
+               (System.nanoTime() - nanoStartTime) / NANOS_IN_A_MILLI :
                elapsedTime;
     }
 
@@ -159,6 +163,7 @@ public class StopWatch implements Serializable, Cloneable {
      */
     public void start() {
         startTime = System.currentTimeMillis();
+        nanoStartTime = System.nanoTime();
         elapsedTime = -1L;
     }
 
@@ -194,7 +199,7 @@ public class StopWatch implements Serializable, Cloneable {
      * @return this.toString(), which is a message suitable for logging
      */
     public String stop() {
-        elapsedTime = System.currentTimeMillis() - startTime;
+        elapsedTime = (System.nanoTime() - nanoStartTime) / NANOS_IN_A_MILLI;
         return this.toString();
     }
 
@@ -302,6 +307,9 @@ public class StopWatch implements Serializable, Cloneable {
         if (startTime != stopWatch.startTime) {
             return false;
         }
+        if (nanoStartTime != stopWatch.nanoStartTime) {
+            return false;
+        }
         if (message != null ? !message.equals(stopWatch.message) : stopWatch.message != null) {
             return false;
         }
@@ -313,8 +321,8 @@ public class StopWatch implements Serializable, Cloneable {
     }
 
     public int hashCode() {
-        int result;
-        result = (int) (startTime ^ (startTime >>> 32));
+        int result = (int) (startTime ^ (startTime >>> 32));
+        result = 31 * result + (int) (nanoStartTime ^ (nanoStartTime >>> 32));
         result = 31 * result + (int) (elapsedTime ^ (elapsedTime >>> 32));
         result = 31 * result + (tag != null ? tag.hashCode() : 0);
         result = 31 * result + (message != null ? message.hashCode() : 0);

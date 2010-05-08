@@ -4,7 +4,7 @@
 
 Overview
 
-  Perf4J is a set of utilities for calculating and displaying perfomance statistics for Java code. For developers who
+  Perf4J is a set of utilities for calculating and displaying performance statistics for Java code. For developers who
   are familiar with logging frameworks such as log4j or java.util.logging, an analogy helps to describe Perf4J:
 
 +-----------------------------------------+

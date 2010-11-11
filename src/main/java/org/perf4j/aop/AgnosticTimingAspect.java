@@ -45,6 +45,7 @@ public class AgnosticTimingAspect {
         }
 
         stopWatch.setTimeThreshold(profiled.timeThreshold());
+        stopWatch.setNormalAndSlowSuffixesEnabled(profiled.normalAndSlowSuffixesEnabled());
 
         Object retVal = null;
         Throwable exceptionThrown = null;
@@ -143,7 +144,8 @@ public class AgnosticTimingAspect {
      * @return The evaluated string.
      * @see Profiled#el()
      */
-    protected String evaluateJexl(String text,
+    @SuppressWarnings("unchecked")
+	protected String evaluateJexl(String text,
                                   Object[] args,
                                   Object annotatedObject,
                                   Object returnValue,

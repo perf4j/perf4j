@@ -31,6 +31,7 @@ import java.util.logging.Level;
  *
  * @author Alex Devine
  */
+@SuppressWarnings("serial")
 public class JavaLogStopWatch extends LoggingStopWatch {
     private transient Logger logger;
     private Level normalPriority;
@@ -311,6 +312,24 @@ public class JavaLogStopWatch extends LoggingStopWatch {
     public JavaLogStopWatch setMessage(String message) {
         super.setMessage(message);
         return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public JavaLogStopWatch setNormalAndSlowSuffixesEnabled(boolean normalAndSlowSuffixesEnabled) {
+    	super.setNormalAndSlowSuffixesEnabled(normalAndSlowSuffixesEnabled);
+    	return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public JavaLogStopWatch setNormalSuffix(String normalSuffix) {
+    	super.setNormalSuffix(normalSuffix);
+    	return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public JavaLogStopWatch setSlowSuffix(String slowSuffix) {
+    	super.setSlowSuffix(slowSuffix);
+    	return this;
     }
 
     // --- Helper Methods ---

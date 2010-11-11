@@ -87,6 +87,18 @@ public class ProfiledObject {
         return sleepTime;
     }
 
+    @Profiled(tag = "simpleWithSuffixesNoThreshold", normalAndSlowSuffixesEnabled = true)
+    public long simpleTestWithSuffixesNoThreshold(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+
+    @Profiled(tag = "simpleWithSuffixes", timeThreshold = 50, normalAndSlowSuffixesEnabled = true)
+    public long simpleTestWithSuffixes(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+
     //this method is called using JEXL in the @Profiled tags above
     public int getBeanProp() {
         return 5;

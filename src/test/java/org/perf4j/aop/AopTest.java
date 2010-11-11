@@ -88,6 +88,20 @@ public class AopTest extends TestCase {
         assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
                    InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleWithThreshold]") >= 0);
 
+        profiledObject.simpleTestWithSuffixesNoThreshold(5);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleWithSuffixesNoThreshold.slow]") >= 0);
+        profiledObject.simpleTestWithSuffixesNoThreshold(55);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleWithSuffixesNoThreshold.slow]") >= 0);
+
+        profiledObject.simpleTestWithSuffixes(5);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleWithSuffixes.normal]") >= 0);
+        profiledObject.simpleTestWithSuffixes(55);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleWithSuffixes.slow]") >= 0);
+
         try {
             profiledObject.simpleTestWithJexlException(100);
         } catch (Exception e) { /* expected */ }

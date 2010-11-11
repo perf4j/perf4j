@@ -40,8 +40,9 @@ import java.io.Serializable;
  * @author Alex Devine
  */
 public class StopWatch implements Serializable, Cloneable {
+	private static final long serialVersionUID = 8453041765823416495L;
 
-    public static final String DEFAULT_LOGGER_NAME = "org.perf4j.TimingLogger";
+	public static final String DEFAULT_LOGGER_NAME = "org.perf4j.TimingLogger";
 
     private static final long NANOS_IN_A_MILLI = 1000000L;
 
@@ -275,12 +276,13 @@ public class StopWatch implements Serializable, Cloneable {
     }
 
     // --- Object Methods ---
-
+    
     public String toString() {
-        return "start[" + startTime +
-               "] time[" + getElapsedTime() +
-               "] tag[" + tag +
-               ((message == null) ? "]" : "] message[" + message + "]");
+    	String message = getMessage();
+    	return "start[" + getStartTime() +
+        "] time[" + getElapsedTime() +
+        "] tag[" + getTag() +
+        ((message == null) ? "]" : "] message[" + message + "]");
     }
 
     public StopWatch clone() {

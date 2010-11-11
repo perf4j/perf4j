@@ -120,4 +120,12 @@ public @interface Profiled {
      * @return The time threshold for logging, in milliseconds.
      */
     long timeThreshold() default 0;
+    
+    /**
+     * Default is false. When set to true, normalSuffix and slowSuffix values are appended to tags
+     * based on whether the tags' elapsed time &gt;= timeThreshold or not.
+     * 
+     * @return
+     */
+    boolean normalAndSlowSuffixesEnabled() default false;
 }

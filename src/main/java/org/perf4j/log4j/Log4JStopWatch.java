@@ -15,13 +15,13 @@
  */
 package org.perf4j.log4j;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.perf4j.LoggingStopWatch;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.perf4j.LoggingStopWatch;
 
 /**
  * This LoggingStopWatch uses a log4j Logger to persist the StopWatch messages. The various constructors allow you
@@ -31,6 +31,7 @@ import java.io.ObjectOutputStream;
  *
  * @author Alex Devine
  */
+@SuppressWarnings("serial")
 public class Log4JStopWatch extends LoggingStopWatch {
     private transient Logger logger;
     private Level normalPriority;
@@ -310,6 +311,24 @@ public class Log4JStopWatch extends LoggingStopWatch {
     public Log4JStopWatch setMessage(String message) {
         super.setMessage(message);
         return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public Log4JStopWatch setNormalAndSlowSuffixesEnabled(boolean normalAndSlowSuffixesEnabled) {
+    	super.setNormalAndSlowSuffixesEnabled(normalAndSlowSuffixesEnabled);
+    	return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public Log4JStopWatch setNormalSuffix(String normalSuffix) {
+    	super.setNormalSuffix(normalSuffix);
+    	return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public Log4JStopWatch setSlowSuffix(String slowSuffix) {
+    	super.setSlowSuffix(slowSuffix);
+    	return this;
     }
 
     // --- Helper Methods ---

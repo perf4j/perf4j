@@ -24,6 +24,7 @@ import org.perf4j.LoggingStopWatch;
  *
  * @author Alex Devine
  */
+@SuppressWarnings("serial")
 public class CommonsLogStopWatch extends LoggingStopWatch {
     /**
      * Specifying this level will cause the <tt>trace()</tt> method to be used for logging.
@@ -334,6 +335,24 @@ public class CommonsLogStopWatch extends LoggingStopWatch {
     public CommonsLogStopWatch setMessage(String message) {
         super.setMessage(message);
         return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public CommonsLogStopWatch setNormalAndSlowSuffixesEnabled(boolean normalAndSlowSuffixesEnabled) {
+    	super.setNormalAndSlowSuffixesEnabled(normalAndSlowSuffixesEnabled);
+    	return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public CommonsLogStopWatch setNormalSuffix(String normalSuffix) {
+    	super.setNormalSuffix(normalSuffix);
+    	return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public CommonsLogStopWatch setSlowSuffix(String slowSuffix) {
+    	super.setSlowSuffix(slowSuffix);
+    	return this;
     }
     
     // --- Helper Methods ---

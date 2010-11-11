@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
  * interceptors). See the code for {@link org.perf4j.aop.AbstractEjbTimingAspect} for an example of how this is
  * used.
  */
+@SuppressWarnings("all")
 public class DefaultProfiled implements Profiled {
     public static final DefaultProfiled INSTANCE = new DefaultProfiled();
 
@@ -28,6 +29,8 @@ public class DefaultProfiled implements Profiled {
     public boolean logFailuresSeparately() { return false; }
 
     public long timeThreshold() { return 0; }
-
+    
+    public boolean normalAndSlowSuffixesEnabled() { return false; }
+    
     public Class<? extends Annotation> annotationType() { return getClass(); }
 }

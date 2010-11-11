@@ -15,19 +15,20 @@
  */
 package org.perf4j.slf4j;
 
-import org.perf4j.LoggingStopWatch;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import org.perf4j.LoggingStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This LoggingStopWatch uses an SLF4J Logger instance to persist the StopWatch messages.
  *
  * @author Alex Devine
  */
+@SuppressWarnings("serial")
 public class Slf4JStopWatch extends LoggingStopWatch {
     /**
      * Specifying this level will cause the <tt>trace()</tt> method to be used for logging.
@@ -334,6 +335,24 @@ public class Slf4JStopWatch extends LoggingStopWatch {
     public Slf4JStopWatch setMessage(String message) {
         super.setMessage(message);
         return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public Slf4JStopWatch setNormalAndSlowSuffixesEnabled(boolean normalAndSlowSuffixesEnabled) {
+    	super.setNormalAndSlowSuffixesEnabled(normalAndSlowSuffixesEnabled);
+    	return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public Slf4JStopWatch setNormalSuffix(String normalSuffix) {
+    	super.setNormalSuffix(normalSuffix);
+    	return this;
+    }
+    
+    // Just overridden to make use of covariant return types
+    public Slf4JStopWatch setSlowSuffix(String slowSuffix) {
+    	super.setSlowSuffix(slowSuffix);
+    	return this;
     }
 
     // --- Helper Methods ---

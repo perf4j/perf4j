@@ -15,12 +15,11 @@
  */
 package org.perf4j.log4j.aop;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.aspectj.lang.annotation.Aspect;
 import org.perf4j.aop.AbstractTimingAspect;
-import org.perf4j.LoggingStopWatch;
 import org.perf4j.log4j.Log4JStopWatch;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
 
 /**
  * This TimingAspect implementation uses Log4j to persist StopWatch log messages.

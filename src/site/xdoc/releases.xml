@@ -5,6 +5,12 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.14 (11/16/2010)">
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-51'>PERFFORJ-51</a>]
+                    - Stopwatches support .slow or .normal suffixes when time threshold is set.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.13 (3/12/10)">
             <ol>
                 <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-42'>PERFFORJ-42</a>]

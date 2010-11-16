@@ -3,7 +3,7 @@
 
     <groupId>org.perf4j</groupId>
     <artifactId>perf4j</artifactId>
-    <version>0.9.14</version>
+    <version>0.9.15-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Perf4J</name>
@@ -134,9 +134,9 @@
     </contributors>
 
     <scm>
-        <connection>scm:svn:http://svn.codehaus.org/perf4j/tags/perf4j-0.9.14</connection>
-        <developerConnection>scm:svn:https://svn.codehaus.org/perf4j/tags/perf4j-0.9.14</developerConnection>
-        <url>http://fisheye.codehaus.org/browse/perf4j/tags/perf4j-0.9.14</url>
+        <connection>scm:svn:http://svn.codehaus.org/perf4j/</connection>
+        <developerConnection>scm:svn:https://svn.codehaus.org/perf4j/</developerConnection>
+        <url>http://fisheye.codehaus.org/browse/perf4j</url>
     </scm>
 
     <repositories>

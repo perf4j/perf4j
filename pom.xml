@@ -134,9 +134,9 @@
     </contributors>
 
     <scm>
-        <connection>scm:svn:http://svn.codehaus.org/perf4j/</connection>
-        <developerConnection>scm:svn:https://svn.codehaus.org/perf4j/</developerConnection>
-        <url>http://fisheye.codehaus.org/browse/perf4j</url>
+        <url>http://github.com/perf4j/perf4j</url>
+        <connection>scm:git:git://github.com/perf4j/perf4j.git</connection>
+        <developerConnection>scm:git:git://github.com/perf4j/perf4j.git</developerConnection>
     </scm>
 
     <repositories>

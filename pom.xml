@@ -325,16 +325,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Specify Java 1.5 when running 'mvn idea:idea' -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-idea-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <jdkName>1.5</jdkName>
-                </configuration>
-            </plugin>
-
             <!-- When deploying tell Maven not to create unique binaries for each snapshot -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -410,19 +400,10 @@
                         <configuration>
                             <tasks>
                                 <mkdir dir="${project.build.directory}" />
-                                <exec executable="svn" output="${project.build.directory}/version.properties">
-                                    <arg value="info" />
-                                    <arg value="." />
-                                    <redirector>
-                                        <outputfilterchain>
-                                            <linecontains>
-                                                <contains value="Revision" />
-                                            </linecontains>
-                                            <tokenfilter>
-                                                <replacestring from="Revision: " to="perf4j.revision=" />
-                                            </tokenfilter>
-                                        </outputfilterchain>
-                                    </redirector>
+                                <exec executable="git" output="${project.build.directory}/version.properties">
+                                    <arg value="log" />
+                                    <arg value="-1" />
+                                    <arg value="--pretty=perf4j.revision=%H"/>
                                 </exec>
                                 <echo file="${project.build.directory}/version.properties" append="true">
                                     perf4j.version=${project.version}

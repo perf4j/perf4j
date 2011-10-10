@@ -19,10 +19,10 @@ public abstract class AbstractEjbTimingAspect extends AgnosticTimingAspect {
      *
      * @param ctx The InvocationContext will be passed in by the Java EE server.
      * @return The return value from the executed method.
-     * @throws Throwable Any exceptions thrown by the executed method will bubble up.
+     * @throws Exception Any exceptions thrown by the executed method will bubble up.
      */
     @AroundInvoke
-    public Object doPerfLogging(final InvocationContext ctx) throws Throwable {
+    public Object doPerfLogging(final InvocationContext ctx) throws Exception {
         final Method executingMethod = ctx.getMethod();
 
         //need to get the Profiled annotation off the method, otherwise use a default
@@ -33,21 +33,37 @@ public abstract class AbstractEjbTimingAspect extends AgnosticTimingAspect {
             profiled = DefaultProfiled.INSTANCE;
         }
 
-        return runProfiledMethod(
-                new AbstractJoinPoint() {
-                    public Object proceed() throws Throwable { return ctx.proceed(); }
+        //note - the EJB 3.0 Interceptor spec requires that we only throw Exception, NOT throwable, but
+        //runProfiledMethod throws Throwable.
+        try {
+            return runProfiledMethod(
+                    new AbstractJoinPoint() {
+                        public Object proceed() throws Throwable { return ctx.proceed(); }
 
-                    public Object getExecutingObject() { return ctx.getTarget(); }
+                        public Object getExecutingObject() { return ctx.getTarget(); }
 
-                    public Object[] getParameters() { return ctx.getParameters(); }
+                        public Object[] getParameters() { return ctx.getParameters(); }
 
-                    public String getMethodName() {
-                        return (executingMethod == null) ? "null" : executingMethod.getName();
-                    }
-                },
-                profiled,
-                newStopWatch(profiled.logger(), profiled.level())
-        );
+                        public String getMethodName() {
+                            return (executingMethod == null) ? "null" : executingMethod.getName();
+                        }
+                    },
+                    profiled,
+                    newStopWatch(profiled.logger(), profiled.level())
+            );
+        } catch (Exception e) {
+            throw e;
+        } catch (Error e) {
+            throw e;
+        } catch (Throwable t) {
+            //in practice this should rarely happen, as in standard usage Throwables fall under Exception or Error.
+            //However, by the Java spec, ONLY RuntimeExceptions and Errors are unchecked, so the compiler prevents us
+            //from executing "throw t" at this point. This seems like a poor design decision of the EJB spec, as all
+            //interceptors that wish to call a method that throws Throwable need to do something special like this.
+            //The best we can do here is wrap the Throwable as a RuntimeException, even though this could potentially
+            //change the semantics from the callers point of view.
+            throw new RuntimeException(t);
+        }
     }
 
     /**

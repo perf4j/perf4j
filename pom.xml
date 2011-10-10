@@ -188,8 +188,8 @@
 
     <properties>
         <!-- this property is used by the apt files in src/site/apt -->
-        <currentProductionVersion>0.9.14</currentProductionVersion>
-        <currentSnapshotVersion>0.9.15-SNAPSHOT</currentSnapshotVersion>
+        <currentProductionVersion>0.9.15</currentProductionVersion>
+        <currentSnapshotVersion>0.9.16-SNAPSHOT</currentSnapshotVersion>
     </properties>
 
     <dependencies>

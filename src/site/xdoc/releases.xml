@@ -5,6 +5,12 @@
     </properties>
 
     <body>
+        <section name="Release 0.9.15 (10/09/2011)">
+            <ol>
+                <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-48'>PERFFORJ-48</a>]
+                    - EJB3 interceptor doesn't deploy under JBoss.</li>
+            </ol>
+        </section>
         <section name="Release 0.9.14 (11/16/2010)">
             <ol>
                 <li>[<a href='http://jira.codehaus.org/browse/PERFFORJ-51'>PERFFORJ-51</a>]

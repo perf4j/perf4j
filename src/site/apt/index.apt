@@ -74,7 +74,7 @@ Integrated Tools
 
 What's New
 
-  Recently released version 0.9.13, which adds support for EJB 3.0 interceptors.
+  Recently released version 0.9.15, which fixed an issue with EJB interceptors in JBoss.
   
 What's Next
 

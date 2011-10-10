@@ -3,7 +3,7 @@
 
     <groupId>org.perf4j</groupId>
     <artifactId>perf4j</artifactId>
-    <version>0.9.15-SNAPSHOT</version>
+    <version>0.9.15</version>
     <packaging>jar</packaging>
 
     <name>Perf4J</name>
@@ -418,7 +418,7 @@
                                 <exec executable="git" output="${project.build.directory}/version.properties">
                                     <arg value="log" />
                                     <arg value="-1" />
-                                    <arg value="--pretty=perf4j.revision=%H"/>
+                                    <arg value="--pretty=perf4j.revision=%H" />
                                 </exec>
                                 <echo file="${project.build.directory}/version.properties" append="true">
                                     perf4j.version=${project.version}

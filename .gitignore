@@ -1,0 +1,18 @@
+#############################################################################################
+# Desciption of file layout: http://www.kernel.org/pub/software/scm/git/docs/gitignore.html #
+#############################################################################################
+
+# Build output
+/target/
+/logs/
+
+# Eclipse files
+/.classpath
+/.project
+/.settings/
+
+# Intellij files
+*.iml
+*.ipr
+*.iws
+.idea/

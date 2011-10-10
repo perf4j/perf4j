@@ -186,6 +186,11 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <properties>
+        <!-- this property is used by the apt files in src/site/apt -->
+        <currentProductionVersion>0.9.14</currentProductionVersion>
+        <currentSnapshotVersion>0.9.15-SNAPSHOT</currentSnapshotVersion>
+    </properties>
 
     <dependencies>
         <!-- if you use the log4j implementation of perf4j, you must also include this dependency -->
@@ -319,6 +324,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
@@ -329,6 +335,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
                 <inherited>true</inherited>
                 <configuration>
                     <uniqueVersion>false</uniqueVersion>
@@ -374,6 +381,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
@@ -429,6 +437,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.2</version>
                 <!--
                   The main jar includes all classes and generates a META-INF manifest file that species
                   LogParser as the jar's main class
@@ -533,6 +542,12 @@
                 </configuration>
             </plugin>
 
+            <!-- For the the perf4j site generation, tack the site plugin to 3.0 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.0</version>
+            </plugin>
         </plugins>
 
         <extensions>
@@ -550,6 +565,7 @@
             <!-- Add the javadoc to the reporting section in the maven site -->
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8</version>
                 <configuration>
                     <attach>true</attach>
                     <links>
@@ -566,18 +582,24 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>emma-maven-plugin</artifactId>
+                <version>1.0-alpha-1</version>
             </plugin>
 
             <!-- Add the test results to the site -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.9</version>
+                <configuration>
+                    <argLine>-Xmx512m</argLine>
+                </configuration>
             </plugin>
 
             <!-- Create a javadoc-style source reference on the site -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.3</version>
             </plugin>
         </plugins>
     </reporting>

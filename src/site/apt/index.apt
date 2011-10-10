@@ -78,14 +78,10 @@ What's New
   
 What's Next
 
-  Perf4J is undergoing active development and new features are added frequently. Here's what we're currently working on:
-
-  * A custom log4j JDBC appender to save performance data to a database.
-
-  * More graphing options.
-
-  * The ability to add StopWatch logs using the AspectJ load-time weaving even if the classes to be profiled don't
-    have the @Profiled annotation.
+  Perf4J has been on hiatus for a while, but we are now starting back up with development, hoping to add more community
+  involvement. To help with this effort, we've recently moved the code repository to GitHub,
+  {{https://github.com/perf4j/perf4j}}, the main goal being to make it easier for contributors and maintainers to
+  branch and merge code patches.
 
   []
 

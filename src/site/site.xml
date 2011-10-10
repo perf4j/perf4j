@@ -46,7 +46,7 @@
             <item name="Javadoc" href="apidocs/index.html"/>
         </menu>
 
-        ${reports}
+        <menu ref="reports" />
     </body>
 
     <poweredBy>

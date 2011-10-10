@@ -331,6 +331,13 @@
                 </configuration>
             </plugin>
 
+            <!-- need to use later version of release plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.2.1</version>
+            </plugin>
+
             <!-- When deploying tell Maven not to create unique binaries for each snapshot -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

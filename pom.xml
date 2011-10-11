@@ -405,7 +405,7 @@
                 </executions>
             </plugin>
 
-            <!-- Tell maven to generate a version.properties files from SVN --><!--
+            <!-- Tell maven to generate a version.properties files from SVN -->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
@@ -433,7 +433,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
 
             <!--
               Tell the Maven jar plugin to generate multiple jars: one with all the files, then ones that JUST contain

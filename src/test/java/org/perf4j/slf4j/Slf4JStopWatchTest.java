@@ -27,9 +27,6 @@ import ch.qos.logback.core.ConsoleAppender;
  * Tests the Slf4JStopWatch. See the superclass for the test method that is run.
  */
 public class Slf4JStopWatchTest extends LoggingStopWatchTest {
-
-    // No need to override setUp/tearDown because since slf4j-simple.jar is in the classpath, the simple logger
-    // automatically writes to stderr
     
     private ch.qos.logback.classic.Logger rootLogger;
     private ConsoleAppender<LoggingEvent> consoleAppender;

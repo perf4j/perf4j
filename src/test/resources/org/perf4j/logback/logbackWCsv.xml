@@ -1,0 +1,29 @@
+<configuration debug="true">
+
+  <appender name="statistics" class="ch.qos.logback.core.FileAppender">
+    <file>./target/statisticsLog.csv</file>
+    <append>false</append>
+    <layout class="org.perf4j.logback.StatisticsCsvLayout">
+      <columns>tag,start,stop,mean,min,max,stddev,count,tps</columns>
+    </layout>
+  </appender>
+
+  <appender name="pivotedStatistics" class="ch.qos.logback.core.FileAppender">
+    <file>./target/pivotedStatisticsLog.csv</file>
+    <append>false</append>
+    <layout class="org.perf4j.logback.StatisticsCsvLayout">
+      <pivot>true</pivot>
+      <columns>start,stop,csvTestMean,notThereMean</columns>
+    </layout>
+  </appender>
+  
+  <appender name="coalescingStatistics" class="org.perf4j.logback.AsyncCoalescingStatisticsAppender">
+    <timeSlice>1000</timeSlice>
+	<appender-ref ref="statistics"/>
+	<appender-ref ref="pivotedStatistics" />
+  </appender>
+    
+  <logger name="org.perf4j.CsvAppenderTest" level="info">
+  	<appender-ref ref="coalescingStatistics" />
+  </logger>	
+</configuration>

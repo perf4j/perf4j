@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
 
     <name>Perf4J</name>
-    <description>Performance statistics logging and monitoring toolkit extension to log4j and the java.util.logging framework.</description>
+    <description>Performance statistics logging and monitoring toolkit extension to log4j, logback and the java.util.logging framework.</description>
     <url>http://www.perf4j.org</url>
     <inceptionYear>2008</inceptionYear>
 
@@ -106,7 +106,7 @@
             <organization>perf4j.org</organization>
             <timezone>-6</timezone>
             <roles>
-                <role>despot</role> 
+                <role>despot</role>
                 <role>developer</role>
             </roles>
         </developer>
@@ -220,6 +220,15 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- if you use logback as slf4j impl, you must also include this dependency -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.15</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+
         <!-- If you use the graphing servlets of perf4j, the servlet package should be provided by your container -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -263,8 +272,8 @@
             <version>3.0</version>
             <scope>provided</scope>
         </dependency>
-        
-        <!-- if you use Spring to manage the AOP funcionality, you must also include these following dependencies --> 
+
+        <!-- if you use Spring to manage the AOP funcionality, you must also include these following dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring</artifactId>
@@ -280,7 +289,7 @@
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
-      
+
         <!-- The following dependencies are required for testing only -->
         <dependency>
             <groupId>junit</groupId>
@@ -307,13 +316,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>1.3.2</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.5.6</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -403,7 +405,7 @@
                 </executions>
             </plugin>
 
-            <!-- Tell maven to generate a version.properties files from SVN -->
+            <!-- Tell maven to generate a version.properties files from SVN --><!--
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
@@ -418,7 +420,7 @@
                                 <exec executable="git" output="${project.build.directory}/version.properties">
                                     <arg value="log" />
                                     <arg value="-1" />
-                                    <arg value="--pretty=perf4j.revision=%H" />
+                                    <arg value="- -pretty=perf4j.revision=%H" />
                                 </exec>
                                 <echo file="${project.build.directory}/version.properties" append="true">
                                     perf4j.version=${project.version}
@@ -431,7 +433,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
 
             <!--
               Tell the Maven jar plugin to generate multiple jars: one with all the files, then ones that JUST contain
@@ -472,6 +474,7 @@
                                 <exclude>**/javalog/**</exclude>
                                 <exclude>**/commonslog/**</exclude>
                                 <exclude>**/slf4j/**</exclude>
+                                <exclude>**/logback/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -488,6 +491,7 @@
                                 <exclude>**/log4j/**</exclude>
                                 <exclude>**/commonslog/**</exclude>
                                 <exclude>**/slf4j/**</exclude>
+                                <exclude>**/logback/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -504,6 +508,7 @@
                                 <exclude>**/log4j/**</exclude>
                                 <exclude>**/javalog/**</exclude>
                                 <exclude>**/slf4j/**</exclude>
+                                <exclude>**/logback/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -516,6 +521,23 @@
                         </goals>
                         <configuration>
                             <classifier>slf4jonly</classifier>
+                            <excludes>
+                                <exclude>**/log4j/**</exclude>
+                                <exclude>**/javalog/**</exclude>
+                                <exclude>**/commonslog/**</exclude>
+                                <exclude>**/logback/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <!-- This jar includes the slf4j and logback classes and NOT the other logging framework classes -->
+                    <execution>
+                        <id>logbackAspects</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>logbackonly</classifier>
                             <excludes>
                                 <exclude>**/log4j/**</exclude>
                                 <exclude>**/javalog/**</exclude>

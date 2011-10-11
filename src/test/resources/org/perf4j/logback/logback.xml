@@ -1,0 +1,21 @@
+<configuration debug="true">
+
+  <appender name="statistics" class="ch.qos.logback.core.FileAppender">
+    <file>./target/statisticsLog.log</file>
+    <append>false</append>
+    <layout>
+      <pattern>%msg%n</pattern>
+    </layout>
+  </appender>
+
+  <appender name="coalescingStatistics" class="org.perf4j.logback.AsyncCoalescingStatisticsAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <timeSlice>1000</timeSlice>
+	<appender-ref ref="statistics"/>
+  </appender>
+    
+  <logger name="org.perf4j.TimingLogger" level="info">
+  	<appender-ref ref="coalescingStatistics" />
+  </logger>	
+</configuration>

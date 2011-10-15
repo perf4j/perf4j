@@ -73,7 +73,7 @@ public class StatisticsCsvLayout extends LayoutBase<LoggingEvent> {
 
     // --- contained objects ---
     /**
-     * The csvFormatter is created in the {@link #activateOptions} method. The work of actually formatting the
+     * The csvFormatter is created in the {@link #start} method. The work of actually formatting the
      * GroupedTimingStatistics object is delegated to this object.
      */
     protected GroupedTimingStatisticsCsvFormatter csvFormatter;
@@ -136,7 +136,7 @@ public class StatisticsCsvLayout extends LayoutBase<LoggingEvent> {
         } catch (ClassCastException cce) {
             //then it's not a GroupedTimingStatistics object
             if (isPrintNonStatistics()) {
-                return MiscUtils.escapeStringForCsv(event.getMessage().toString(), new StringBuilder())
+                return MiscUtils.escapeStringForCsv(event.getFormattedMessage(), new StringBuilder())
                         .append(MiscUtils.NEWLINE).toString();
             } else {
                 return "";

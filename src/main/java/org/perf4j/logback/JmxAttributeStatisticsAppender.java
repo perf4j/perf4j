@@ -151,8 +151,7 @@ public class JmxAttributeStatisticsAppender extends AppenderBase<LoggingEvent> {
         super.start();
 
         if (tagNamesToExpose == null) {
-            throw new RuntimeException(
-                "You must set the TagNamesToExpose option before activating this appender");
+            throw new RuntimeException("You must set the TagNamesToExpose option before activating this appender");
         }
 
         //parse the options, create the mBean and register it
@@ -161,24 +160,20 @@ public class JmxAttributeStatisticsAppender extends AppenderBase<LoggingEvent> {
         List<AcceptableRangeConfiguration> rangeConfigs = new ArrayList<AcceptableRangeConfiguration>();
 
         if (notificationThresholds != null) {
-            String[] rangeConfigStrings = MiscUtils.splitAndTrim(notificationThresholds,
-                    ",");
+            String[] rangeConfigStrings = MiscUtils.splitAndTrim(notificationThresholds, ",");
 
             for (String rangeConfigString : rangeConfigStrings) {
-                rangeConfigs.add(new AcceptableRangeConfiguration(
-                        rangeConfigString));
+                rangeConfigs.add(new AcceptableRangeConfiguration(rangeConfigString));
             }
         }
 
-        mBean = new StatisticsExposingMBean(mBeanName,
-                Arrays.asList(tagNames), rangeConfigs);
+        mBean = new StatisticsExposingMBean(mBeanName, Arrays.asList(tagNames), rangeConfigs);
 
         try {
             MBeanServer mBeanServer = getMBeanServer();
             mBeanServer.registerMBean(mBean, new ObjectName(mBeanName));
         } catch (Exception e) {
-            throw new RuntimeException(
-                "Error registering statistics MBean: " + e.getMessage(), e);
+            throw new RuntimeException("Error registering statistics MBean: " + e.getMessage(), e);
         }
     }
 

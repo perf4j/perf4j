@@ -43,11 +43,6 @@ import ch.qos.logback.core.spi.AppenderAttachableImpl;
  * @author Xu Huisheng
  */
 public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent> implements AppenderAttachable<LoggingEvent> {
-
-    LoggerContext getLoggerContext() {
-        return (LoggerContext)getContext();
-    }
-    
     // --- configuration options ---
     // note most configuration options are provided by the GenericAsyncCoalescingStatisticsAppender
     /**
@@ -281,9 +276,9 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
             //close in one loop because this breaks in the case of a "diamond" relationship between appenders, where,
             //say, this appender has 2 attached GraphingStatisticsAppenders that each write to a SINGLE attached
             //FileAppender.
-            for ( Iterator<Appender<LoggingEvent>> enumer = downstreamAppenders.iteratorForAppenders();
-                 enumer != null && enumer.hasNext();) {
-                Appender<LoggingEvent> appender = (Appender<LoggingEvent>) enumer.next();
+            for (Iterator<Appender<LoggingEvent>> iter = downstreamAppenders.iteratorForAppenders();
+                 iter != null && iter.hasNext();) {
+                Appender<LoggingEvent> appender = iter.next();
                 if (appender instanceof Flushable) {
                     try {
                         ((Flushable)appender).flush();
@@ -292,9 +287,9 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
             }
 
             //THEN close them
-            for ( Iterator<Appender<LoggingEvent>> enumer = downstreamAppenders.iteratorForAppenders();
-                enumer != null && enumer.hasNext();) {
-                ((Appender<LoggingEvent>) enumer.next()).stop();
+            for (Iterator<Appender<LoggingEvent>> iter = downstreamAppenders.iteratorForAppenders();
+                iter != null && iter.hasNext();) {
+                iter.next().stop();
             }
         }
         super.stop();
@@ -308,6 +303,15 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
      */
     protected GenericAsyncCoalescingStatisticsAppender newGenericAsyncCoalescingStatisticsAppender() {
         return new GenericAsyncCoalescingStatisticsAppender();
+    }
+
+    /**
+     * Returns the LoggerContext that logback will set for this appender
+     *
+     * @return The LoggerContext
+     */
+    LoggerContext getLoggerContext() {
+        return (LoggerContext)getContext();
     }
 
 

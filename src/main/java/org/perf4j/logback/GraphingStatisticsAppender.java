@@ -57,7 +57,7 @@ public class GraphingStatisticsAppender extends AppenderBase<LoggingEvent>
      * This class keeps track of all appenders of this type that have been created. This allows static access to
      * the appenders from the org.perf4j.logback.servlet.GraphingServlet class.
      */
-    protected static final Map<String, GraphingStatisticsAppender> APPENDERS_BY_NAME =
+    protected final static Map<String, GraphingStatisticsAppender> APPENDERS_BY_NAME =
         Collections.synchronizedMap(new LinkedHashMap<String, GraphingStatisticsAppender>());
 
     // --- configuration options ---
@@ -66,8 +66,7 @@ public class GraphingStatisticsAppender extends AppenderBase<LoggingEvent>
      * constant name from the {@link org.perf4j.helpers.StatsValueRetriever} class, such as Mean, Min, Max, Count,
      * StdDev or TPS.
      */
-    private String graphType = StatsValueRetriever.MEAN_VALUE_RETRIEVER
-        .getValueName();
+    private String graphType = StatsValueRetriever.MEAN_VALUE_RETRIEVER.getValueName();
 
     /**
      * A comma-separated list of the tag names that should be graphed. If not set then a separate series will be
@@ -169,10 +168,8 @@ public class GraphingStatisticsAppender extends AppenderBase<LoggingEvent>
      */
     public void setDataPointsPerGraph(int dataPointsPerGraph) {
         if (dataPointsPerGraph <= 0) {
-            throw new IllegalArgumentException(
-                "The DataPointsPerGraph option must be positive");
+            throw new IllegalArgumentException("The DataPointsPerGraph option must be positive");
         }
-
         this.dataPointsPerGraph = dataPointsPerGraph;
     }
 
@@ -207,21 +204,17 @@ public class GraphingStatisticsAppender extends AppenderBase<LoggingEvent>
      * @return A newly created StatisticsChartGenerator.
      */
     protected StatisticsChartGenerator createChartGenerator() {
-        StatsValueRetriever statsValueRetriever = StatsValueRetriever.DEFAULT_RETRIEVERS
-            .get(getGraphType());
-
+        StatsValueRetriever statsValueRetriever = StatsValueRetriever.DEFAULT_RETRIEVERS.get(getGraphType());
         if (statsValueRetriever == null) {
-            throw new RuntimeException("Unknown GraphType: "
-                + getGraphType()
-                + ". See the StatsValueRetriever class for the list of acceptable types.");
+            throw new RuntimeException("Unknown GraphType: " + getGraphType() +
+                                       ". See the StatsValueRetriever class for the list of acceptable types.");
         }
 
         //create the chart generator and set the enabled tags
         GoogleChartGenerator retVal = new GoogleChartGenerator(statsValueRetriever);
-
         if (getTagNamesToGraph() != null) {
-            Set<String> enabledTags = new HashSet<String>(Arrays.asList(
-                        MiscUtils.splitAndTrim(getTagNamesToGraph(), ",")));
+            Set<String> enabledTags =
+                    new HashSet<String>(Arrays.asList(MiscUtils.splitAndTrim(getTagNamesToGraph(), ",")));
             retVal.setEnabledTags(enabledTags);
         }
 
@@ -245,8 +238,7 @@ public class GraphingStatisticsAppender extends AppenderBase<LoggingEvent>
      * @param appenderName the name of the GraphingStatisticsAppender to return
      * @return the specified GraphingStatisticsAppender, or null if not found
      */
-    public static GraphingStatisticsAppender getAppenderByName(
-        String appenderName) {
+    public static GraphingStatisticsAppender getAppenderByName(String appenderName) {
         return APPENDERS_BY_NAME.get(appenderName);
     }
 
@@ -309,8 +301,7 @@ public class GraphingStatisticsAppender extends AppenderBase<LoggingEvent>
                 && (event.getArgumentArray().length > 0)) {
             Object logMessage = event.getArgumentArray()[0];
 
-            if (logMessage instanceof GroupedTimingStatistics
-                    && (chartGenerator != null)) {
+            if (logMessage instanceof GroupedTimingStatistics && chartGenerator != null) {
                 chartGenerator.appendData((GroupedTimingStatistics) logMessage);
                 hasUnflushedData = true;
                 lastAppendedEventLevel = event.getLevel();
@@ -332,8 +323,7 @@ public class GraphingStatisticsAppender extends AppenderBase<LoggingEvent>
             if (hasUnflushedData) {
                 downstreamAppenders.appendLoopOnAppenders(new LoggingEvent(
                         Logger.class.getName(),
-                        (Logger) LoggerFactory.getLogger(
-                            StopWatch.DEFAULT_LOGGER_NAME),
+                        (Logger) LoggerFactory.getLogger(StopWatch.DEFAULT_LOGGER_NAME),
                         lastAppendedEventLevel,
                         chartGenerator.getChartUrl(), null, null));
                 hasUnflushedData = false;

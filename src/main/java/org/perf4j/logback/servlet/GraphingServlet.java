@@ -45,8 +45,7 @@ public class GraphingServlet extends AbstractGraphingServlet {
      * @return The specified chart generator, or null if no appender with the specified name was found.
      */
     protected StatisticsChartGenerator getGraphByName(String name) {
-        GraphingStatisticsAppender appender = GraphingStatisticsAppender
-            .getAppenderByName(name);
+        GraphingStatisticsAppender appender = GraphingStatisticsAppender.getAppenderByName(name);
 
         return (appender == null) ? null : appender.getChartGenerator();
     }
@@ -59,8 +58,7 @@ public class GraphingServlet extends AbstractGraphingServlet {
     protected List<String> getAllKnownGraphNames() {
         List<String> retVal = new ArrayList<String>();
 
-        for (GraphingStatisticsAppender appender : GraphingStatisticsAppender
-            .getAllGraphingStatisticsAppenders()) {
+        for (GraphingStatisticsAppender appender : GraphingStatisticsAppender.getAllGraphingStatisticsAppenders()) {
             retVal.add(appender.getName());
         }
 

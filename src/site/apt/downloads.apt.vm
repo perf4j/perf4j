@@ -26,9 +26,16 @@ Download Project Artifacts
       ({{{http://repository.codehaus.org/org/perf4j/perf4j/${currentProductionVersion}/perf4j-${currentProductionVersion}-commonslogonly.jar.md5}MD5}})
       This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the Apache Commons Logging aspects.
 
+    * {{{http://repository.codehaus.org/org/perf4j/perf4j/${currentProductionVersion}/perf4j-${currentProductionVersion}-logbackonly.jar}JAR archive containing SLF4J aspects AND logback extensions but NOT extensions for other frameworks}}
+      ({{{http://repository.codehaus.org/org/perf4j/perf4j/${currentProductionVersion}/perf4j-${currentProductionVersion}-logbackonly.jar.md5}MD5}})
+      This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the SLF4J aspects and you
+      are using any of the custom logback appenders.
+
     * {{{http://repository.codehaus.org/org/perf4j/perf4j/${currentProductionVersion}/perf4j-${currentProductionVersion}-slf4jonly.jar}JAR archive containing SLF4J aspects and extensions but NOT extensions for other logging frameworks}}
       ({{{http://repository.codehaus.org/org/perf4j/perf4j/${currentProductionVersion}/perf4j-${currentProductionVersion}-slf4jonly.jar.md5}MD5}})
-      This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the SLF4J aspects.
+      This jar is necessary when using the ajc AspectJ compiler and you want to only weave in the SLF4J aspects. This
+      jar does NOT contain the logback appenders, so it should only be used if you are using SLF4J as the logging
+      interface but using a different framework for the underlying appender implementation.
 
   []
 
@@ -39,21 +46,10 @@ Download Project Artifacts
 
   * <<${currentSnapshotVersion}>>
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}.jar}JAR archive}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}.jar.md5}MD5}})
+    * Artifacts available at {{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/}}.
+      Unfortunately, Maven 3 no longer supports non-unique snapshot deployments, so to get the most recent snapshot
+      you should pull the most recent timestamped version from this directory.
 
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}-log4jonly.jar}JAR archive containing log4j aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}-log4jonly.jar.md5}MD5}})
-
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}-javalogonly.jar}JAR archive containing java.util.logging aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}-javalogonly.jar.md5}MD5}})
-
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}-commonslogonly.jar}JAR archive containing Apache Commons Logging aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}-commonslogonly.jar.md5}MD5}})
-
-    * {{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}-slf4jonly.jar}JAR archive containing SLF4J aspects}}
-      ({{{http://snapshots.repository.codehaus.org/org/perf4j/perf4j/${currentSnapshotVersion}/perf4j-${currentSnapshotVersion}-slf4jonly.jar.md5}MD5}})
-       
 * Maven Dependencies and Ant
 
   If you are using Perf4J in a project built with Maven, you will need to add the following entries to the dependencies
@@ -90,6 +86,15 @@ Download Project Artifacts
         <artifactId>slf4j-api</artifactId>
         <version>1.5.6</version>
         <scope>compile</scope>
+    </dependency>
+
+    <!-- if you use also use logback as the SLF4J underlying impl, you must also include this dependency -->
+    <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>0.9.15</version>
+        <scope>compile</scope>
+        <optional>true</optional>
     </dependency>
 
     <!-- if you use the AOP functionality of Perf4J, you must also include these 2 dependencies -->
@@ -138,6 +143,8 @@ Download Project Artifacts
         <dependency groupId="commons-logging" artifactId="commons-logging" version="1.0.3" scope="compile"/>
         <!-- This dependency is only required if using slf4j extensions in perf4j -->
         <dependency groupId="org.slf4j" artifactId="slf4j-api" version="1.5.6" scope="compile"/>
+        <!-- This dependency is only required if using logback extensions in perf4j -->
+        <dependency groupId="ch.qos.logback" artifactId="logback-classic" version="0.9.15" scope="compile"/>
         <!-- These 2 dependencies only required if using AOP functionality in perf4j -->
         <dependency groupId="org.aspectj" artifactId="aspectjrt" version="1.6.1" scope="runtime"/>
         <dependency groupId="commons-jexl" artifactId="commons-jexl" version="1.1" scope="runtime"/>
@@ -145,7 +152,7 @@ Download Project Artifacts
         <dependency groupId="org.springframework" artifactId="spring" version="2.0.6" scope="runtime"/>
         <dependency groupId="cglib" artifactId="cglib" version="2.1_3" scope="runtime"/>
 
-        <!-- Declare the remore repositories from where dependencies are pulled -->
+        <!-- Declare the remote repositories from where dependencies are pulled -->
         <remoteRepository url="http://repository.codehaus.org/"/>
         <remoteRepository url="http://repo1.maven.org/maven2/"/>
     </artifact:dependencies>

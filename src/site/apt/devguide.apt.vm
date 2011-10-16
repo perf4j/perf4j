@@ -164,11 +164,15 @@ java -jar perf4j-${currentProductionVersion}.jar --graph perfGraphs.out times.lo
 * {Using the log4j Appenders to Generate Real-Time Performance Information}
 
   One of the main benefits of Perf4J is that it allows performance analysis and monitoring on live production
-  applications through extensions to common logging frameworks like log4j (custom java.util.logging handler coming
-  soon). These custom log4j appenders can be configured through the standard configuration mechanisms to add
-  functionality without requiring changes to code. Note that all of the examples given below assume that you have the
+  applications through extensions to common logging frameworks like log4j and logback. These custom log4j appenders can
+  be configured through the standard configuration mechanisms to add functionality without requiring changes to code.
+  Note that all of the examples given below assume that you have the
   {{{http://repo1.maven.org/maven2/log4j/log4j/1.2.14/log4j-1.2.14.jar}log4j jar}}, version 1.2.14 or higher,
   in your classpath.
+
+  <<Important note for logback users:>> Support for the {{{http://logback.qos.ch/}logback}} logging framework was
+  added in Perf4J 0.9.16. All of the log4j appenders mentioned in the examples below have corresponding logback
+  versions. See the {{{./apidocs/index.html?org/perf4j/logback/package-summary.html}javadoc}} for more information.
 
   The most important Perf4J appender is the
   {{{./apidocs/org/perf4j/log4j/AsyncCoalescingStatisticsAppender.html}AsyncCoalescingStatisticsAppender}}. This
@@ -663,7 +667,10 @@ java -Dcom.sun.management.jmxremote -cp .:./perf4j-${currentProductionVersion}.j
   The GraphingServlet accesses the in-memory graph representations from the GraphingStatisticsAppenders when displaying
   the graphs, and thus it always displays the most up-to-date data. Also, you may find with the GraphingServlet that
   you no longer have a need for the GraphingStatisticsAppenders to write to a file. In that case you can remove any
-  file appenders attached to the GraphingStatisticsAppenders in the log4j.xml file. 
+  file appenders attached to the GraphingStatisticsAppenders in the log4j.xml file.
+
+  Note that as with the logback appenders, there is also a logback version of the
+  {{{./apidocs/org/perf4j/logback/servlet/GraphingServlet.html}GraphingServlet}}.
 
 * {Unobtrusive Logging with @Profiled and AOP}
 
@@ -809,7 +816,10 @@ public class ProfiledExample {
   * {{{http://repo1.maven.org/maven2/org/aspectj/aspectjrt/1.6.1/aspectjrt-1.6.1.jar}aspectjrt-1.6.1.jar}}, the
     AspectJ runtime
 
-  * {{{http://repo1.maven.org/maven2/log4j/log4j/1.2.14/log4j-1.2.14.jar}log4j-1.2.14.jar}}, the log4j classes
+  * {{{http://repo1.maven.org/maven2/log4j/log4j/1.2.14/log4j-1.2.14.jar}log4j-1.2.14.jar}}, the log4j classes (note
+    if you are using the SLF4J/logback aspects you should use the
+    {{{http://repo1.maven.org/maven2/ch/qos/logback/logback-classic/logback-classic-0.9.15.jar}logback-classic-0.9.15.jar}}
+    and {{{http://repo1.maven.org/maven2/org/slf4j/slf4j-api/slf4j-api-1.5.6.jar}slf4j-api-1.5.6.jar}} jar files)
 
   * {{{http://repo1.maven.org/maven2/commons-jexl/commons-jexl/1.1/commons-jexl-1.1.jar}commons-jexl-1.1.jar}},
     the Jakarta Commons Java Expression Language (JEXL) runtime, which is used by the aspects when examining the
@@ -834,6 +844,7 @@ public class ProfiledExample {
   -->
   <aspects>
     <aspect name="org.perf4j.log4j.aop.TimingAspect"/>
+    <!-- if SLF4J/logback use org.perf4j.slf4j.aop.TimingAspect instead -->
   </aspects>
 
   <weaver options="-verbose -showWeaveInfo">
@@ -897,6 +908,9 @@ simpleExample                                          727.0         599        
           the jar which contains only the log4j aspects and not the java.util.logging aspects
 
         * {{{http://repo1.maven.org/maven2/log4j/log4j/1.2.14/log4j-1.2.14.jar}log4j-1.2.14.jar}}, the log4j classes
+          (again, if you are using the SLF4J/logback aspects you should use the
+          {{{http://repo1.maven.org/maven2/ch/qos/logback/logback-classic/logback-classic-0.9.15.jar}logback-classic-0.9.15.jar}}
+          and {{{http://repo1.maven.org/maven2/org/slf4j/slf4j-api/slf4j-api-1.5.6.jar}slf4j-api-1.5.6.jar}} jar files)
 
         * {{{http://repo1.maven.org/maven2/commons-jexl/commons-jexl/1.1/commons-jexl-1.1.jar}commons-jexl-1.1.jar}},
           the Jakarta Commons Java Expression Language (JEXL) runtime, which is used by the aspects when examining the

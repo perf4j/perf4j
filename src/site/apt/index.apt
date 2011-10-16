@@ -5,7 +5,7 @@
 Overview
 
   Perf4J is a set of utilities for calculating and displaying performance statistics for Java code. For developers who
-  are familiar with logging frameworks such as log4j or java.util.logging, an analogy helps to describe Perf4J:
+  are familiar with logging frameworks such as log4j or logback, an analogy helps to describe Perf4J:
 
 +-----------------------------------------+
 Perf4J is to System.currentTimeMillis() as log4j is to System.out.println()
@@ -32,7 +32,8 @@ System.out.println("ms for block n was: " + (System.currentTimeMillis() - start)
   Later on, though, these developers find they want more information, such as aggregated performance statistics like
   mean, minimum, maximum, standard deviation and transactions per second over a set time span. They would like graphs
   of these values in real time to detect problems on a running server, or they would like to expose performance metrics
-  through JMX. In addition, they want their timing statements to work with the common logging frameworks like log4j.
+  through JMX. In addition, they want their timing statements to work with the common logging frameworks like log4j
+  (and, more recently, SLF4J).
 
   Perf4J provides these features and more:
 
@@ -41,10 +42,9 @@ System.out.println("ms for block n was: " + (System.currentTimeMillis() - start)
   * A command line tool for parsing log files that generates aggregated statistics and performance graphs.
 
   * Easy integration with the most common logging frameworks and facades: log4j, java.util.logging, Apache Commons
-    Logging and SLF4J.
+    Logging and SLF4J (including logback).
     
-  * Custom log4j appenders to generate statistics and graphs in a running application
-    (custom java.util.logging handlers coming soon).
+  * Custom log4j and logback appenders to generate statistics and graphs in a running application.
 
   * The ability to expose performance statistics as JMX attributes, and to send notifications when statistics
     exceed specified thresholds.
@@ -74,7 +74,8 @@ Integrated Tools
 
 What's New
 
-  Recently released version 0.9.15, which fixed an issue with EJB interceptors in JBoss.
+  Recently released version 0.9.16, the major new feature being custom logback appenders. Logback is now supported
+  with the same level of functionality as log4j. Thanks to Xu Huisheng for the submission!
   
 What's Next
 

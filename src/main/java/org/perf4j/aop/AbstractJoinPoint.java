@@ -41,4 +41,12 @@ public interface AbstractJoinPoint {
      * @return processing method name
      */
     public String getMethodName();
+
+    
+    /**
+     * Returns the runtime class of the advised code.
+     *
+     * @return runtime class of the advised code
+     */
+    public Class<?> getExecutingClass();
 }

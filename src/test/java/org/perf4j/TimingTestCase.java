@@ -26,7 +26,7 @@ import java.io.PrintWriter;
 /**
  * Base test class just sets up some simple StopWatches and a dummy log of those stop watches.
  */
-public class TimingTestCase extends TestCase {
+public abstract class TimingTestCase extends TestCase {
     protected List<StopWatch> testStopWatches;
     protected String testLog;
 

@@ -87,8 +87,10 @@ public class AgnosticTimingAspect {
             tag = joinPoint.getMethodName();
         } else if (profiled.el() && profiled.tag().indexOf("{") >= 0) {
             tag = evaluateJexl(profiled.tag(),
+                               joinPoint.getMethodName(),
                                joinPoint.getParameters(),
                                joinPoint.getExecutingObject(),
+                               joinPoint.getExecutingClass(),
                                returnValue,
                                exceptionThrown);
         } else {
@@ -116,8 +118,10 @@ public class AgnosticTimingAspect {
         String message;
         if (profiled.el() && profiled.message().indexOf("{") >= 0) {
             message = evaluateJexl(profiled.message(),
+                                   joinPoint.getMethodName(),
                                    joinPoint.getParameters(),
                                    joinPoint.getExecutingObject(),
+                                   joinPoint.getExecutingClass(),
                                    returnValue,
                                    exceptionThrown);
             if ("".equals(message)) {
@@ -146,8 +150,10 @@ public class AgnosticTimingAspect {
      */
     @SuppressWarnings("unchecked")
 	protected String evaluateJexl(String text,
+	                              String methodName,
                                   Object[] args,
                                   Object annotatedObject,
+                                  Class<?> annotatedClass,
                                   Object returnValue,
                                   Throwable exceptionThrown) {
         StringBuilder retVal = new StringBuilder(text.length());
@@ -157,7 +163,9 @@ public class AgnosticTimingAspect {
         for (int i = 0; i < args.length; i++) {
             jexlContext.getVars().put("$" + i, args[i]);
         }
+        jexlContext.getVars().put("$methodName", methodName);
         jexlContext.getVars().put("$this", annotatedObject);
+        jexlContext.getVars().put("$class", annotatedClass);
         jexlContext.getVars().put("$return", returnValue);
         jexlContext.getVars().put("$exception", exceptionThrown);
 

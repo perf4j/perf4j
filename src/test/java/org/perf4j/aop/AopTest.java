@@ -33,6 +33,10 @@ public class AopTest extends TestCase {
     }
 
     public void testAspects() throws Exception {
+        ProfiledObject.simpleTestDefaultTagStatic(50);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleTestDefaultTagStatic]") >= 0);
+
         profiledObject.simpleTestDefaultTag(50);
         assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
                    InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleTestDefaultTag]") >= 0);
@@ -64,6 +68,12 @@ public class AopTest extends TestCase {
                    InMemoryTimingAspect.getLastLoggedString().indexOf("tag[expressionTest_50_Alex_32]") >= 0);
         assertTrue("Expected message not found in " + InMemoryTimingAspect.getLastLoggedString(),
                    InMemoryTimingAspect.getLastLoggedString().indexOf("message[message_50_Alex_32]") >= 0);
+
+        profiledObject.simpleTestWithJexlTagAndMessageClassMethod(50, new ProfiledObject.SimpleBean("Alex", 32));
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("tag[expressionTest_org.perf4j.aop.ProfiledObject#simpleTestWithJexlTagAndMessageClassMethod]") >= 0);
+        assertTrue("Expected message not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                   InMemoryTimingAspect.getLastLoggedString().indexOf("message_simpleTestWithJexlTagAndMessageClassMethod(50,Alex_32)") >= 0);
 
         profiledObject.simpleTestWithJexlMessageOnly(50, new ProfiledObject.SimpleBean("Alex", 32));
         assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),

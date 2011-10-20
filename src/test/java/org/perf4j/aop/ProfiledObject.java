@@ -20,6 +20,12 @@ package org.perf4j.aop;
  */
 public class ProfiledObject {
     @Profiled
+    public static long simpleTestDefaultTagStatic(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+
+    @Profiled
     public long simpleTestDefaultTag(long sleepTime) throws Exception {
         Thread.sleep(sleepTime);
         return sleepTime;
@@ -58,6 +64,12 @@ public class ProfiledObject {
         return sleepTime;
     }
 
+    @Profiled(tag = "expressionTest_{$class.name}#{$methodName}", message = "message_{$methodName}({$0},{$1.name}_{$1.age})")
+    public long simpleTestWithJexlTagAndMessageClassMethod(long sleepTime, SimpleBean bean) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+    
     @Profiled(tag = "expressionTest", message = "message_{$0}_{$1.name}_{$1.age}")
     public long simpleTestWithJexlMessageOnly(long sleepTime, SimpleBean bean) throws Exception {
         Thread.sleep(sleepTime);

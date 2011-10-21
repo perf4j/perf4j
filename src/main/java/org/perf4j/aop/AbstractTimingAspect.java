@@ -52,7 +52,7 @@ public abstract class AbstractTimingAspect extends AgnosticTimingAspect {
 
                     public String getMethodName() { return pjp.getSignature().getName(); }
                     
-                    public Class<?> getExecutingClass() { return pjp.getSignature().getDeclaringType() ; }
+                    public Class<?> getDeclaringClass() { return pjp.getSignature().getDeclaringType(); }
                 },
                 profiled,
                 newStopWatch(profiled.logger() + "", profiled.level())

@@ -89,6 +89,17 @@
  *        --&gt;
  *    &lt;/appender&gt;
  *
+ *    &lt;!-- This file appender is used to output aggregated performance statistics --&gt;
+ *    &lt;appender name="perf4jFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender"&gt;
+ *        &lt;File&gt;target/perf4j.log&lt;/File&gt;
+ *        &lt;encoder&gt;
+ *            &lt;Pattern&gt;%date %-5level [%thread] %logger{36} [%file:%line] %msg%n&lt;/Pattern&gt;
+ *        &lt;/encoder&gt;
+ *        &lt;rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"&gt;
+ *            &lt;FileNamePattern&gt;target/perf4j.%d{yyyy-MM-dd}.log&lt;/FileNamePattern&gt;
+ *        &lt;/rollingPolicy&gt;
+ *    &lt;/appender&gt;
+ *
  *    &lt;!-- Loggers --&gt;
  *    &lt;!--
  *      The Perf4J logger. Note that org.perf4j.TimingLogger is the value of the
@@ -102,17 +113,6 @@
  *        &lt;appender-ref ref="CoalescingStatistics"/&gt;
  *        &lt;appender-ref ref="perf4jFileAppender"/&gt;
  *    &lt;/logger&gt;
- *
- *    &lt;!-- This file appender is used to output aggregated performance statistics --&gt;
- *    &lt;appender name="perf4jFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender"&gt;
- *        &lt;File&gt;target/perf4j.log&lt;/File&gt;
- *        &lt;encoder&gt;
- *            &lt;Pattern&gt;%date %-5level [%thread] %logger{36} [%file:%line] %msg%n&lt;/Pattern&gt;
- *        &lt;/encoder&gt;
- *        &lt;rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"&gt;
- *            &lt;FileNamePattern&gt;target/perf4j.%d{yyyy-MM-dd}.log&lt;/FileNamePattern&gt;
- *        &lt;/rollingPolicy&gt;
- *    &lt;/appender&gt;
  *&lt;/configuration&gt;
  * <pre>
  *

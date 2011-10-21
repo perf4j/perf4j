@@ -748,10 +748,12 @@ public class ProfiledExample {
      *
      * $this - the object whose method is being called.
      * $return - the return value from the method (this will be null if the method
-     *           has a void return type or if the method throws an exception)
+     *           has a void return type or if the method throws an exception).
+     * $class - the Class instance of the class owning the method being called.
+     * $methodName - the name of the method being called.
      * $exception - if the method completes by throwing an exception, the $exception
      *              variable can be used to access the exception (this will be null
-     *              if the method completes normlly)
+     *              if the method completes normlly).
      *
      */
     @Profiled(tag = "dynamicTag_{$0}")

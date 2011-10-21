@@ -42,11 +42,10 @@ public interface AbstractJoinPoint {
      */
     public String getMethodName();
 
-    
     /**
-     * Returns the runtime class of the advised code.
+     * Returns the declaring class of the method that was annotated.
      *
-     * @return runtime class of the advised code
+     * @return the declaring class of the method that was annotated
      */
-    public Class<?> getExecutingClass();
+    public Class<?> getDeclaringClass();
 }

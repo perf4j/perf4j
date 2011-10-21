@@ -90,7 +90,7 @@ public class AgnosticTimingAspect {
                                joinPoint.getMethodName(),
                                joinPoint.getParameters(),
                                joinPoint.getExecutingObject(),
-                               joinPoint.getExecutingClass(),
+                               joinPoint.getDeclaringClass(),
                                returnValue,
                                exceptionThrown);
         } else {
@@ -121,7 +121,7 @@ public class AgnosticTimingAspect {
                                    joinPoint.getMethodName(),
                                    joinPoint.getParameters(),
                                    joinPoint.getExecutingObject(),
-                                   joinPoint.getExecutingClass(),
+                                   joinPoint.getDeclaringClass(),
                                    returnValue,
                                    exceptionThrown);
             if ("".equals(message)) {
@@ -138,9 +138,11 @@ public class AgnosticTimingAspect {
      * JEXL.
      *
      * @param text            The text to be parsed.
+     * @param methodName      The name of the method that was annotated.
      * @param args            The args that were passed to the method to be profiled.
      * @param annotatedObject The value of the object whose method was profiled. Will be null if a class method was
      *                        profiled.
+     * @param annotatedClass  The declaring class of the method that was annotated.
      * @param returnValue     The value returned from the execution of the profiled method, or null if the method
      *                        returned void or an exception was thrown.
      * @param exceptionThrown The exception thrown, if any, by the profiled method. Will be null if the method

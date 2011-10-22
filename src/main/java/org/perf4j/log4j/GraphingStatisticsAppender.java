@@ -229,6 +229,7 @@ public class GraphingStatisticsAppender extends AppenderSkeleton implements Appe
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public Enumeration getAllAppenders() {
         synchronized (downstreamAppenders) {
             return downstreamAppenders.getAllAppenders();
@@ -285,6 +286,7 @@ public class GraphingStatisticsAppender extends AppenderSkeleton implements Appe
         return false;
     }
 
+    @SuppressWarnings("rawtypes")
     public void close() {
         //close any downstream appenders
         synchronized (downstreamAppenders) {

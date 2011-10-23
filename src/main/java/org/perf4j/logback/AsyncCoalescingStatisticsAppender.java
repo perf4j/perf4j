@@ -261,10 +261,10 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
             return downstreamAppenders.detachAppender(name);
         }
     }
-    
+
     // --- appender methods ---
     protected void append(LoggingEvent event) {
-        baseImplementation.append(String.valueOf(event.getMessage()));
+        baseImplementation.append(event.getFormattedMessage());
     }
 
     public void stop() {

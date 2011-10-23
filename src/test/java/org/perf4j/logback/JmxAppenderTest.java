@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.perf4j.log4j;
+package org.perf4j.logback;
 
 import junit.framework.TestCase;
-import org.apache.log4j.Logger;
-import org.apache.log4j.xml.DOMConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 import org.perf4j.StopWatch;
 import org.perf4j.helpers.StatisticsExposingMBean;
 
@@ -33,7 +35,13 @@ import java.lang.management.ManagementFactory;
  */
 public class JmxAppenderTest extends TestCase {
     public void testJmxAppender() throws Exception {
-        DOMConfigurator.configure(getClass().getResource("log4jWJmx.xml"));
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        JoranConfigurator configurator = new JoranConfigurator();
+        configurator.setContext(lc);
+        // the context was probably already configured by default configuration
+        // rules
+        lc.reset();
+        configurator.doConfigure(getClass().getResource("logbackWJmx.xml"));
 
         MBeanServer server = ManagementFactory.getPlatformMBeanServer();
         ObjectName statisticsMBeanName = new ObjectName(StatisticsExposingMBean.DEFAULT_MBEAN_NAME);
@@ -43,10 +51,10 @@ public class JmxAppenderTest extends TestCase {
         server.addNotificationListener(statisticsMBeanName, notificationListener, null, null);
 
         //log a bunch of messages
-        Logger logger = Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME);
+        Logger logger = LoggerFactory.getLogger(StopWatch.DEFAULT_LOGGER_NAME);
         for (int i = 0; i < 20; i++) {
             long time = (i % 2) == 0 ? 100L : 200L;
-            logger.info(new StopWatch(System.currentTimeMillis(), time, "tag" + (i % 2), "logging"));
+            logger.info("{}", new StopWatch(System.currentTimeMillis(), time, "tag" + (i % 2), "logging"));
             Thread.sleep(110);
         }
 
@@ -76,9 +84,9 @@ public class JmxAppenderTest extends TestCase {
                                            new String[] {String.class.getName()}));
 
         //now at a stopwatch that should trigger a notification
-        logger.info(new StopWatch(System.currentTimeMillis(), 20000L, "tag0", "logging"));
+        logger.info("{}", new StopWatch(System.currentTimeMillis(), 20000L, "tag0", "logging"));
         Thread.sleep(1100L); //go over the next time slice boundary
-        logger.info(new StopWatch(System.currentTimeMillis(), 20000L, "tag0", "logging"));
+        logger.info("{}", new StopWatch(System.currentTimeMillis(), 20000L, "tag0", "logging"));
 
         //check for the notification - need the wait loop as it takes time for the notification to appear
         for (int i = 0; i <= 200; i++) {
@@ -106,7 +114,7 @@ public class JmxAppenderTest extends TestCase {
         try {
             JmxAttributeStatisticsAppender appender = new JmxAttributeStatisticsAppender();
             appender.setTagNamesToExpose("donothing1,donothing2,donothing3");
-            appender.activateOptions();
+            appender.start();
             fail("should cause an exception");
         } catch(Exception ex) {
             assertTrue(true);
@@ -128,7 +136,7 @@ public class JmxAppenderTest extends TestCase {
         JmxAttributeStatisticsAppender appender = new JmxAttributeStatisticsAppender();
         appender.setTagNamesToExpose("replace1,replace2,replace3,replace4");
         appender.setCollision(StatisticsExposingMBean.COLLISION_REPLACE);
-        appender.activateOptions();
+        appender.start();
 
         mbeanInfo = server.getMBeanInfo(statisticsMBeanName);
         // if mbean had bean replaced, the count of attrs should be 24.
@@ -146,7 +154,7 @@ public class JmxAppenderTest extends TestCase {
         JmxAttributeStatisticsAppender appender = new JmxAttributeStatisticsAppender();
         appender.setTagNamesToExpose("ignore1,ignore2,ignore3,ignore4,ignore5");
         appender.setCollision(StatisticsExposingMBean.COLLISION_IGNORE);
-        appender.activateOptions();
+        appender.start();
 
         mbeanInfo = server.getMBeanInfo(statisticsMBeanName);
         // if mbean had bean replaced, the count of attrs should be 30.
@@ -157,7 +165,7 @@ public class JmxAppenderTest extends TestCase {
         JmxAttributeStatisticsAppender appender = new JmxAttributeStatisticsAppender();
         appender.setTagNamesToExpose("x");
         appender.setCollision(StatisticsExposingMBean.COLLISION_REPLACE);
-        appender.activateOptions();
+        appender.start();
     }
 
     protected static class DummyNotificationListener implements NotificationListener {

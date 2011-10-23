@@ -1,0 +1,18 @@
+<configuration debug="true">
+
+  <appender name="jmx" class="org.perf4j.logback.JmxAttributeStatisticsAppender">
+    <collision>REPLACE</collision>
+    <param name="TagNamesToExpose" value="tag0,tag1"/>
+    <param name="NotificationThresholds" value="tag0Max(0-10000)"/>
+  </appender>
+
+  <appender name="coalescingStatistics" class="org.perf4j.logback.AsyncCoalescingStatisticsAppender">
+    <param name="TimeSlice" value="1000"/>
+    <appender-ref ref="jmx"/>
+  </appender>
+
+  <logger name="org.perf4j.TimingLogger">
+    <level value="info"/>
+    <appender-ref ref="coalescingStatistics"/>
+  </logger>
+</configuration>

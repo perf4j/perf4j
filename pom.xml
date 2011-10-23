@@ -420,7 +420,7 @@
                         <configuration>
                             <tasks>
                                 <mkdir dir="${project.build.directory}" />
-                                <exec executable="git" output="${project.build.directory}/version.properties">
+                                <exec executable="git" output="${project.build.directory}/version.properties" failifexecutionfails="false">
                                     <arg value="log" />
                                     <arg value="-1" />
                                     <arg value="--pretty=perf4j.revision=%H" />

@@ -16,11 +16,8 @@
 package org.perf4j.javalog.aop;
 
 import org.aspectj.lang.annotation.Aspect;
-import org.perf4j.aop.AbstractTimingAspect;
-import org.perf4j.javalog.JavaLogStopWatch;
+import org.aspectj.lang.annotation.Pointcut;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * This TimingAspect implementation uses java.util.logging to persist StopWatch log messages.
@@ -28,9 +25,16 @@ import java.util.logging.Level;
  * @author Alex Devine
  */
 @Aspect
-public class TimingAspect extends AbstractTimingAspect {
-    protected JavaLogStopWatch newStopWatch(String loggerName, String levelName) {
-        Level level = JavaLogStopWatch.mapLevelName(levelName);
-        return new JavaLogStopWatch(Logger.getLogger(loggerName), level, level);
+public class TimingAspect extends ScopedTimingAspect {
+
+    @Override
+    @Pointcut("if(false)")
+    public void scope() {
     }
+
+    @Override
+    @Pointcut("if(true)")
+    public void useProfiled() {
+    }
+
 }

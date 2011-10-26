@@ -16,30 +16,22 @@
 package org.perf4j.aop;
 
 import org.aspectj.lang.annotation.Aspect;
-import org.apache.log4j.Level;
-import org.perf4j.LoggingStopWatch;
+import org.aspectj.lang.annotation.Pointcut;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * This class is used by the AOP tests to check when the aspect was called
  */
 @Aspect
-public class InMemoryTimingAspect extends AbstractTimingAspect {
-    public static List<String> logStrings = Collections.synchronizedList(new ArrayList<String>());
+public class InMemoryTimingAspect extends ScopedInMemoryTimingAspect {
+    @Override
+    @Pointcut("if(true)")
+    public void useProfiled() {
+    }
 
-    protected LoggingStopWatch newStopWatch(final String loggerName, final String levelName) {
-        return new LoggingStopWatch() {
-            public boolean isLogging() {
-                return Level.toLevel(levelName).toInt() >= Level.INFO_INT;
-            }
-
-            protected void log(String stopWatchAsString, Throwable exception) {
-                InMemoryTimingAspect.logStrings.add(stopWatchAsString);
-            }
-        };
+    @Override
+    @Pointcut("if(false)")
+    public void scope() {
     }
 
     public static String getLastLoggedString() {

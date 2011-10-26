@@ -1,7 +1,7 @@
 <configuration debug="true">
 
   <appender name="statistics" class="ch.qos.logback.core.FileAppender">
-    <file>./target/statisticsLog.csv</file>
+    <file>./target/statisticsLogback.csv</file>
     <append>false</append>
     <layout class="org.perf4j.logback.StatisticsCsvLayout">
       <columns>tag,start,stop,mean,min,max,stddev,count,tps</columns>

@@ -15,10 +15,8 @@
  */
 package org.perf4j.commonslog.aop;
 
-import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.annotation.Aspect;
-import org.perf4j.aop.AbstractTimingAspect;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.aspectj.lang.annotation.Pointcut;
 
 /**
  * This TimingAspect implementation uses an Apache Commons Logging Log instance to persist StopWatch log messages.
@@ -26,9 +24,16 @@ import org.perf4j.commonslog.CommonsLogStopWatch;
  * @author Alex Devine
  */
 @Aspect
-public class TimingAspect extends AbstractTimingAspect {
-    protected CommonsLogStopWatch newStopWatch(String loggerName, String levelName) {
-        int levelInt = CommonsLogStopWatch.mapLevelName(levelName);
-        return new CommonsLogStopWatch(LogFactory.getLog(loggerName), levelInt, levelInt);
+public class TimingAspect extends ScopedTimingAspect {
+
+    @Override
+    @Pointcut("if(false)")
+    public void scope() {
     }
+
+    @Override
+    @Pointcut("if(true)")
+    public void useProfiled() {
+    }
+
 }

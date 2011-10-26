@@ -111,6 +111,16 @@ public class ProfiledObject {
         return sleepTime;
     }
 
+    public long simpleTestUnprofiled(long sleepTime) throws Exception {
+	    Thread.sleep(sleepTime);
+        return sleepTime;
+	}
+
+    public long simpleTestUnprofiledNotAdvised(long sleepTime) throws Exception {
+	    Thread.sleep(sleepTime);
+        return sleepTime;
+	}
+
     //this method is called using JEXL in the @Profiled tags above
     public int getBeanProp() {
         return 5;

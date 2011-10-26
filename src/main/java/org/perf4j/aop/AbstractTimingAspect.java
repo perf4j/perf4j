@@ -18,6 +18,7 @@ package org.perf4j.aop;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.perf4j.LoggingStopWatch;
 
 /**
@@ -30,6 +31,17 @@ import org.perf4j.LoggingStopWatch;
  */
 @Aspect
 public abstract class AbstractTimingAspect extends AgnosticTimingAspect {
+
+    @Pointcut("@annotation(profiled)")
+    public void profiled(Profiled profiled) {
+    };
+
+    @Pointcut
+    public abstract void scope();
+
+    @Pointcut
+    public abstract void useProfiled();
+
     /**
      * This advice is used to add the StopWatch logging statements around method executions that have been tagged
      * with the Profiled annotation.
@@ -39,8 +51,22 @@ public abstract class AbstractTimingAspect extends AgnosticTimingAspect {
      * @return The return value from the method that was executed.
      * @throws Throwable Any exceptions thrown by the underlying method.
      */
-    @Around(value = "execution(* *(..)) && @annotation(profiled)", argNames = "pjp,profiled")
+    @Around("execution(* *(..)) && profiled(profiled) && useProfiled()")
     public Object doPerfLogging(final ProceedingJoinPoint pjp, Profiled profiled) throws Throwable {
+
+        if (profiled == null) {
+            profiled = DefaultProfiled.INSTANCE;
+        }
+
+        return runProfiledMethod(pjp, profiled);
+    }
+
+    @Around(value = "scope()")
+    public Object doPerfLoggingNotProfiled(final ProceedingJoinPoint pjp) throws Throwable {
+        return runProfiledMethod(pjp, DefaultProfiled.INSTANCE);
+    }
+
+    protected Object runProfiledMethod(final ProceedingJoinPoint pjp, Profiled profiled) throws Throwable {
         //We just delegate to the super class, wrapping the AspectJ-specific ProceedingJoinPoint as an AbstractJoinPoint
         return runProfiledMethod(
                 new AbstractJoinPoint() {

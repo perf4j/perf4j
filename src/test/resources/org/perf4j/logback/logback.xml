@@ -15,7 +15,14 @@
 	<appender-ref ref="statistics"/>
   </appender>
     
+  <appender name="listAppender" class="ch.qos.logback.core.read.ListAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <timeSlice>1000</timeSlice>
+  </appender>
+  
   <logger name="org.perf4j.TimingLogger" level="info">
   	<appender-ref ref="coalescingStatistics" />
+    <appender-ref ref="listAppender"/>
   </logger>	
 </configuration>

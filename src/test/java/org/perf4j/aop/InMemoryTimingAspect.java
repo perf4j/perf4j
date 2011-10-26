@@ -27,7 +27,7 @@ import java.util.Collections;
  * This class is used by the AOP tests to check when the aspect was called
  */
 @Aspect
-public class InMemoryTimingAspect extends AbstractTimingAspect {
+public class InMemoryTimingAspect extends ProfiledTimingAspect {
     public static List<String> logStrings = Collections.synchronizedList(new ArrayList<String>());
 
     protected LoggingStopWatch newStopWatch(final String loggerName, final String levelName) {

@@ -5,9 +5,30 @@
 <aspectj>
     <weaver options="-verbose -showWeaveInfo">
         <include within="org.perf4j.aop.ProfiledObject"/>
+        <include within="org.perf4j.aop.InMemoryTimingAspect"/>
+        <include within="org.perf4j.aop.ScopedInMemoryTimingAspect"/>
+        <include within="org.perf4j.log4j.aop.*"/>
+        <include within="org.perf4j.slf4j.aop.*"/>
+        <include within="org.perf4j.javalog.aop.*"/>
     </weaver>
 
     <aspects>
         <aspect name="org.perf4j.aop.InMemoryTimingAspect"/>
+        <aspect name="org.perf4j.aop.ScopedInMemoryTimingAspect"/>
+        <aspect name="org.perf4j.log4j.aop.TimingAspect"/>
+        <aspect name="org.perf4j.slf4j.aop.TimingAspect"/>
+        <aspect name="org.perf4j.javalog.aop.TimingAspect"/>
+        <concrete-aspect name="org.perf4j.aop.__ScopedInMemoryTimingAspect" extends="org.perf4j.aop.ScopedInMemoryTimingAspect">
+            <pointcut name="scope" expression="!@annotation(org.perf4j.aop.Profiled) AND execution(* simpleTestUnprofiled(..))"/>
+        </concrete-aspect>
+        <concrete-aspect name="org.perf4j.log4j.aop.__ScopedTimingAspect" extends="org.perf4j.log4j.aop.ScopedTimingAspect">
+            <pointcut name="scope" expression="!@annotation(org.perf4j.aop.Profiled) AND execution(* simpleTestUnprofiled(..))"/>
+        </concrete-aspect>
+        <concrete-aspect name="org.perf4j.slf4j.aop.__ScopedTimingAspect" extends="org.perf4j.slf4j.aop.ScopedTimingAspect">
+            <pointcut name="scope" expression="!@annotation(org.perf4j.aop.Profiled) AND execution(* simpleTestUnprofiled(..))"/>
+        </concrete-aspect>
+        <concrete-aspect name="org.perf4j.javalog.aop.__ScopedTimingAspect" extends="org.perf4j.javalog.aop.ScopedTimingAspect">
+            <pointcut name="scope" expression="!@annotation(org.perf4j.aop.Profiled) AND execution(* simpleTestUnprofiled(..))"/>
+        </concrete-aspect>
     </aspects>
 </aspectj>

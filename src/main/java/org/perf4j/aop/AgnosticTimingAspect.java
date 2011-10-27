@@ -5,6 +5,7 @@ import org.apache.commons.jexl.ExpressionFactory;
 import org.apache.commons.jexl.JexlContext;
 import org.apache.commons.jexl.context.HashMapContext;
 import org.perf4j.LoggingStopWatch;
+import org.perf4j.helpers.Perf4jProperties;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,9 +83,24 @@ public class AgnosticTimingAspect {
                                      Throwable exceptionThrown) {
         String tag;
         if (Profiled.DEFAULT_TAG_NAME.equals(profiled.tag())) {
+            // look for properties-based default
             // if the tag name is not explicitly set on the Profiled annotation,
-            // use the name of the method being annotated.
-            tag = joinPoint.getMethodName();
+            final StringBuilder sb = new StringBuilder("tag.").append(joinPoint.getDeclaringClass().getName())
+                    .append('.').append(joinPoint.getMethodName());
+            tag = Perf4jProperties.INSTANCE.getProperty(sb.toString());
+
+            if (tag == null) {
+                // fall back to using the name of the method being annotated.
+                tag = joinPoint.getMethodName();
+            } else if (tag.indexOf("{") >= 0) {
+                tag = evaluateJexl(tag,
+                        joinPoint.getMethodName(),
+                        joinPoint.getParameters(),
+                        joinPoint.getExecutingObject(),
+                        joinPoint.getDeclaringClass(),
+                        returnValue,
+                        exceptionThrown);
+            }
         } else if (profiled.el() && profiled.tag().indexOf("{") >= 0) {
             tag = evaluateJexl(profiled.tag(),
                                joinPoint.getMethodName(),
@@ -116,7 +132,28 @@ public class AgnosticTimingAspect {
                                          Object returnValue,
                                          Throwable exceptionThrown) {
         String message;
-        if (profiled.el() && profiled.message().indexOf("{") >= 0) {
+        if (profiled.message().length() == 0) {
+            // look for properties-based default
+            // if the message name is not explicitly set on the Profiled annotation,
+            final StringBuilder sb = new StringBuilder("message.").append(joinPoint.getDeclaringClass().getName())
+                    .append('.').append(joinPoint.getMethodName());
+            message = Perf4jProperties.INSTANCE.getProperty(sb.toString());
+
+            if (message == null) {
+                // may be null, that's OK
+                return message;
+            } else {
+                if (message.indexOf("{") >= 0) {
+                    message = evaluateJexl(message,
+                            joinPoint.getMethodName(),
+                            joinPoint.getParameters(),
+                            joinPoint.getExecutingObject(),
+                            joinPoint.getDeclaringClass(),
+                            returnValue,
+                            exceptionThrown);
+                }
+            }
+        } else if (profiled.el() && profiled.message().indexOf("{") >= 0) {
             message = evaluateJexl(profiled.message(),
                                    joinPoint.getMethodName(),
                                    joinPoint.getParameters(),
@@ -128,7 +165,7 @@ public class AgnosticTimingAspect {
                 message = null;
             }
         } else {
-            message = "".equals(profiled.message()) ? null : profiled.message();
+            message = profiled.message();
         }
         return message;
     }

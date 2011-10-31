@@ -196,6 +196,7 @@
         <currentProductionVersion>0.9.16</currentProductionVersion>
         <currentSnapshotVersion>0.9.17-SNAPSHOT</currentSnapshotVersion>
         <git.executable>git</git.executable>
+        <aspectjVersion>1.6.11</aspectjVersion>
     </properties>
 
     <profiles>
@@ -210,8 +211,38 @@
                 <git.executable>git.cmd</git.executable>
             </properties>
         </profile>
+        <profile>
+            <id>ajc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>aspectj-maven-plugin</artifactId>
+                        <version>1.4</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.aspectj</groupId>
+                                <artifactId>aspectjtools</artifactId>
+                                <version>${aspectjVersion}</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                                <source>1.5</source>
+                                <target>1.5</target>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>compile</goal>       <!-- use this goal to weave all your main classes -->
+                                    <goal>test-compile</goal>  <!-- use this goal to weave all your test classes -->
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
-
 
     <dependencies>
         <!-- if you use the log4j implementation of perf4j, you must also include this dependency -->
@@ -262,7 +293,7 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
-            <version>1.6.1</version>
+            <version>${aspectjVersion}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -270,7 +301,7 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.6.1</version>
+            <version>${aspectjVersion}</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -582,7 +613,7 @@
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
-                    <argLine>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/1.6.1/aspectjweaver-1.6.1.jar</argLine>
+                    <argLine>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectjVersion}/aspectjweaver-${aspectjVersion}.jar</argLine>
                     <systemProperties>
                         <property>
                             <name>log4j.debug</name>

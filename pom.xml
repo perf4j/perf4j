@@ -134,6 +134,9 @@
         <contributor>
             <name>Xu Huisheng</name>
         </contributor>
+        <contributor>
+            <name>Thomas Buckel</name>
+        </contributor>
     </contributors>
 
     <scm>
@@ -161,8 +164,7 @@
         </repository>
         <repository>
             <id>java.net</id>
-            <url>http://download.java.net/maven/1</url>
-            <layout>legacy</layout>
+            <url>http://download.java.net/maven/2/</url>
         </repository>
     </repositories>
 
@@ -193,7 +195,23 @@
         <!-- this property is used by the apt files in src/site/apt -->
         <currentProductionVersion>0.9.16</currentProductionVersion>
         <currentSnapshotVersion>0.9.17-SNAPSHOT</currentSnapshotVersion>
+        <git.executable>git</git.executable>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>Windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <git.executable>git.cmd</git.executable>
+            </properties>
+        </profile>
+    </profiles>
+
 
     <dependencies>
         <!-- if you use the log4j implementation of perf4j, you must also include this dependency -->
@@ -420,7 +438,7 @@
                         <configuration>
                             <tasks>
                                 <mkdir dir="${project.build.directory}" />
-                                <exec executable="git" output="${project.build.directory}/version.properties">
+                                <exec executable="${git.executable}" output="${project.build.directory}/version.properties">
                                     <arg value="log" />
                                     <arg value="-1" />
                                     <arg value="--pretty=perf4j.revision=%H" />

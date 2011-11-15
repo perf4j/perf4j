@@ -32,6 +32,8 @@ public class InMemoryTimingAspect extends AbstractTimingAspect {
 
     protected LoggingStopWatch newStopWatch(final String loggerName, final String levelName) {
         return new LoggingStopWatch() {
+            private static final long serialVersionUID = -1537100122960737661L;
+
             public boolean isLogging() {
                 return Level.toLevel(levelName).toInt() >= Level.INFO_INT;
             }

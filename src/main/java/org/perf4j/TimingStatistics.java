@@ -24,6 +24,7 @@ import java.io.Serializable;
  * @author Alex Devine
  */
 public class TimingStatistics implements Serializable, Cloneable {
+    private static final long serialVersionUID = 2854670870560621993L;
     private double mean;
     private double runningQ; //for keeping running standard deviation
     private long max;

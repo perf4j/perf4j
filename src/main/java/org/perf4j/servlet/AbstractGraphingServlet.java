@@ -36,7 +36,10 @@ import java.util.Map;
  * @author Alex Devine
  */
 public abstract class AbstractGraphingServlet extends HttpServlet {
-    /**
+
+	private static final long serialVersionUID = 7877125631806499443L;
+
+	/**
      * Setting an init parameter "graphNames" to a comma-separated list of the names of graphs to display by default
      * sets this member variable. Subclass implementations determine how graphs are named. For example, the
      * {@link org.perf4j.log4j.servlet.GraphingServlet} uses the names of

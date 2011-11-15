@@ -33,7 +33,7 @@ public abstract class StatsValueRetriever {
             return (timingStats == null) ? 0.0 : timingStats.getMean();
         }
 
-        public Class getValueClass() { return Double.class; }
+        public Class<Double> getValueClass() { return Double.class; }
 
         public String getValueName() { return "Mean"; }
     };
@@ -43,7 +43,7 @@ public abstract class StatsValueRetriever {
             return (timingStats == null) ? 0.0 : timingStats.getStandardDeviation();
         }
 
-        public Class getValueClass() { return Double.class; }
+        public Class<Double> getValueClass() { return Double.class; }
 
         public String getValueName() { return "StdDev"; }
     };
@@ -53,7 +53,7 @@ public abstract class StatsValueRetriever {
             return (timingStats == null) ? 0L : timingStats.getMin();
         }
 
-        public Class getValueClass() { return Long.class; }
+        public Class<Long> getValueClass() { return Long.class; }
 
         public String getValueName() { return "Min"; }
     };
@@ -63,7 +63,7 @@ public abstract class StatsValueRetriever {
             return (timingStats == null) ? 0L : timingStats.getMax();
         }
 
-        public Class getValueClass() { return Long.class; }
+        public Class<Long> getValueClass() { return Long.class; }
 
         public String getValueName() { return "Max"; }
     };
@@ -73,7 +73,7 @@ public abstract class StatsValueRetriever {
             return (timingStats == null) ? 0 : timingStats.getCount();
         }
 
-        public Class getValueClass() { return Integer.class; }
+        public Class<Integer> getValueClass() { return Integer.class; }
 
         public String getValueName() { return "Count"; }
     };
@@ -85,7 +85,7 @@ public abstract class StatsValueRetriever {
                    ((double) timingStats.getCount()) / (((double) windowLength) / 1000.0);
         }
 
-        public Class getValueClass() { return Double.class; }
+        public Class<Double> getValueClass() { return Double.class; }
 
         public String getValueName() { return "TPS"; }
     };
@@ -121,7 +121,7 @@ public abstract class StatsValueRetriever {
      *
      * @return The value class.
      */
-    public abstract Class getValueClass();
+    public abstract Class<? extends Number> getValueClass();
 
     /**
      * Returns the name of the value, such as "Mean" or "Max".

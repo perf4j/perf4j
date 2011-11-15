@@ -244,6 +244,7 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public Enumeration getAllAppenders() {
         synchronized (downstreamAppenders) {
             return downstreamAppenders.getAllAppenders();
@@ -289,6 +290,7 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
         return false;
     }
 
+    @SuppressWarnings("rawtypes")
     public void close() {
         baseImplementation.stop();
 

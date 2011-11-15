@@ -15,6 +15,8 @@ public class EjbInMemoryTimingAspect extends AbstractEjbTimingAspect {
 
     protected LoggingStopWatch newStopWatch(final String loggerName, final String levelName) {
         return new LoggingStopWatch() {
+            private static final long serialVersionUID = -8258832873829050541L;
+
             public boolean isLogging() {
                 return Level.toLevel(levelName).toInt() >= Level.INFO_INT;
             }

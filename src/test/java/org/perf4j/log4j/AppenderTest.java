@@ -39,7 +39,7 @@ public class AppenderTest extends TestCase {
 
         AsyncCoalescingStatisticsAppender appender =
                 (AsyncCoalescingStatisticsAppender) Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME)
-                        .getAppender("coalescingStatistics");
+                .getAppender("coalescingStatistics");
 
         //log from a bunch of threads
         TestLoggingThread[] testThreads = new TestLoggingThread[10];
@@ -67,15 +67,15 @@ public class AppenderTest extends TestCase {
         }
         assertEquals(testThreads.length * TestLoggingThread.STOP_WATCH_COUNT, totalCount);
     }
-    
+
     // http://jira.codehaus.org/browse/PERFFORJ-21
     public void testAppendersTimesliceOver() throws Exception {
-    	// need to do immediateflush on the fileappender since close will not be called
+        // need to do immediateflush on the fileappender since close will not be called
         DOMConfigurator.configure(getClass().getResource("log4j-timeslicebug.xml"));
 
         AsyncCoalescingStatisticsAppender appender =
                 (AsyncCoalescingStatisticsAppender) Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME)
-                        .getAppender("coalescingStatistics");
+                .getAppender("coalescingStatistics");
 
         //log from a bunch of threads
         TestLoggingThread[] testThreads = new TestLoggingThread[10];
@@ -87,7 +87,7 @@ public class AppenderTest extends TestCase {
         for (TestLoggingThread testThread : testThreads) {
             testThread.join();
         }
-        
+
         // we should see all the logging after waiting this long
         Thread.sleep(2*appender.getTimeSlice());
 
@@ -123,15 +123,24 @@ public class AppenderTest extends TestCase {
         //because the shutdown hook is private.
         AsyncCoalescingStatisticsAppender appender =
                 (AsyncCoalescingStatisticsAppender) Logger.getLogger(StopWatch.DEFAULT_LOGGER_NAME)
-                        .getAppender("coalescingStatistics");
+                .getAppender("coalescingStatistics");
         Field shutdownField = appender.getClass().getDeclaredField("shutdownHook");
         shutdownField.setAccessible(true);
-        Thread shutdownHook = (Thread) shutdownField.get(appender);
+        AsyncCoalescingStatisticsAppender.ShutdownHook shutdownHook = (AsyncCoalescingStatisticsAppender.ShutdownHook) shutdownField.get(appender);
+        assertNotNull("shutdownHook should not be null", shutdownHook);
+        assertNotNull("shutdownHook appender should not be null", shutdownHook.getAppender());
         shutdownHook.run();
 
         //now there should be data in the files
         assertFalse("".equals(FileUtils.readFileToString(new File("target/stats-shutdownbug.log"))));
         assertFalse("".equals(FileUtils.readFileToString(new File("target/graphs-shutdownbug.log"))));
+
+        // closing should remove shutdown hook
+        appender.close();
+
+        // hard to test hook removal, but we set it to null at the same time, so we'll rely on that
+        shutdownHook = (AsyncCoalescingStatisticsAppender.ShutdownHook) shutdownField.get(appender);
+        assertNull("shutdownHook should be null", shutdownHook);
     }
 
     public void testOverflowHandling() throws Exception {

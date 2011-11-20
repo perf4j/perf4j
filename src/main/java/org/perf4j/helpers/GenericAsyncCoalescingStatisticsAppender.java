@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class provides the implementation for the AsyncCoalescingStatisticsAppenders made available for different
- * logging frameworks. This class itself is generic in that it does not use any logging-framework-sppecific APIs, but
+ * logging frameworks. This class itself is generic in that it does not use any logging-framework-specific APIs, but
  * is intended to be wrapped by classes that DO use those specific APIs.
  *
  * @see org.perf4j.log4j.AsyncCoalescingStatisticsAppender
@@ -74,6 +74,10 @@ public class GenericAsyncCoalescingStatisticsAppender {
      * The QueueSize option, used to set the capacity of the loggedMessages queue
      */
     private int queueSize = 1024;
+    /**
+     * Wait time for queue to clear when shutting down, in milliseconds.
+     */
+    private long shutdownWaitMillis = 10000L;
     /**
      * The fully qualified class name of the class to use for StopWatch parsing, defaults to the standard
      * org.perf4j.helpers.StopWatchParser
@@ -194,6 +198,28 @@ public class GenericAsyncCoalescingStatisticsAppender {
     }
 
     /**
+     * The <b>ShutdownWaitMillis</b> option is used to control how long this class will block, waiting for the queue
+     * to drain, when shutting-down the Appender.
+     *
+     * After this timeout expires, no new messages will be drained from the log queue, the log queue will be
+     * truncated and shutdown of the Appender will complete.
+     *
+     * @return The ShutdownWaitMillis option.
+     */
+    public long getShutdownWaitMillis() {
+        return shutdownWaitMillis;
+    }
+
+    /**
+     * Sets the value of the <b>ShutdownWaitMillis</b> option.
+     *
+     * @param shutdownWaitMillis The new ShutdownWaitMillis option.
+     */
+    public void setShutdownWaitMillis(long shutdownWaitMillis) {
+        this.shutdownWaitMillis = shutdownWaitMillis;
+    }
+
+    /**
      * The <b>StopWatchParserClassName</b> option is used to determine the class used to parse stop watch messages
      * into StopWatch instances. This defaults to the standard "org.perf4j.helpers.StopWatchParser" class.
      *
@@ -278,10 +304,16 @@ public class GenericAsyncCoalescingStatisticsAppender {
             //pushing an empty string on the queue tells the draining thread that we're closing
             loggedMessages.put("");
             //wait for the draining thread to finish
-            drainingThread.join(10000L);
+            drainingThread.join(shutdownWaitMillis);
+            drainingThread.interrupt();
+            if (loggedMessages.size() > 0) {
+                handler.error("Shutdown, queued/undrained stopwatch count: " + loggedMessages.size());
+            }
         } catch (Exception e) {
             handler.error("Unexpected error stopping AsyncCoalescingStatisticsAppender draining thread: "
-                          + e.getMessage());
+                    + e.getMessage());
+        } finally {
+            loggedMessages.clear();
         }
     }
 

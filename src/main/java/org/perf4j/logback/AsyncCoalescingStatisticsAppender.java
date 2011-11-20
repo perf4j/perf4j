@@ -85,6 +85,28 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
     }
 
     /**
+     * The <b>ShutdownWaitMillis</b> option represents the length of time, in milliseconds,
+     * that the appender should wait after the logging system shutdown commences, before forcibly
+     * clearing asynchronous logging queues and interrupting the background queue-processing thread.
+     *
+     * If not set explicitly, the default shutdown timeout is 10 seconds.
+     *
+     * @return the ShutdownWaitMillis option.
+     */
+    public long getShutdownWaitMillis() {
+        return baseImplementation.getShutdownWaitMillis();
+    }
+
+    /**
+     * Sets the value of the <b>ShutdownWaitMillis</b> option.
+     *
+     * @param shutdownWaitMillis The new ShutdownWaitMillis option, in milliseconds.
+     */
+    public void setShutdownWaitMillis(long shutdownWaitMillis) {
+        baseImplementation.setShutdownWaitMillis(shutdownWaitMillis);
+    }
+
+    /**
      * The <b>DownstreamLogLevel</b> option gets the Level of the GroupedTimingStatistics LoggingEvent that is sent to
      * downstream appenders. Since each GroupedTimingStatistics represents a view of a collection of single StopWatch
      * timing event, each of which may have been logged at different levels, this appender needs to decide on a single

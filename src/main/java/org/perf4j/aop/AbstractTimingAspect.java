@@ -17,7 +17,6 @@ package org.perf4j.aop;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
 import org.perf4j.LoggingStopWatch;
 
 /**

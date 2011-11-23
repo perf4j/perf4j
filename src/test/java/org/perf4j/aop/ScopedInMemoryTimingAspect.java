@@ -20,15 +20,17 @@ import org.aspectj.lang.annotation.Aspect;
 import org.perf4j.LoggingStopWatch;
 
 /**
- * 
+ *
  * @author Brett Randall
- * 
+ *
  */
 @Aspect
 public abstract class ScopedInMemoryTimingAspect extends ScopedTimingAspect {
 
     protected LoggingStopWatch newStopWatch(final String loggerName, final String levelName) {
         return new LoggingStopWatch() {
+            private static final long serialVersionUID = -4675363294385184089L;
+
             public boolean isLogging() {
                 return Level.toLevel(levelName).toInt() >= Level.INFO_INT;
             }

@@ -129,6 +129,18 @@ public class AopTest extends TestCase {
         profiledObject.simpleTestUnprofiledNotAdvised(50);
         assertFalse("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
                 InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleTestUnprofiledNotAdvised]") >= 0);
+        profiledObject.simpleTestDefaultTagMessageFromProperties(5);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("tag[customTag]") >= 0);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("message[customMessage]") >= 0);
+
+        profiledObject.simpleTestDefaultTagMessageFromPropertiesJexl(5);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("tag[org.perf4j.aop.ProfiledObject#simpleTestDefaultTagMessageFromPropertiesJexl]") >= 0);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("message[simpleTestDefaultTagMessageFromPropertiesJexl(5)]") >= 0);
+
     }
 
     public void testConcurrentCalls() throws Exception {

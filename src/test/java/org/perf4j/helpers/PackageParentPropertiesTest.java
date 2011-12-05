@@ -29,19 +29,36 @@ public class PackageParentPropertiesTest extends TestCase {
         assertEquals("some message", properties.get("message." + getClass().getName()));
     }
 
+    public void testFullPathGetProperty() {
+        assertEquals("some tag", properties.getProperty("tag." + getClass().getName()));
+        assertEquals("some message", properties.getProperty("message." + getClass().getName()));
+    }
+
     public void testParentPath() {
         assertEquals("parent tag", properties.get("tag.org.perf4j.helpers.ClassNotInProperties"));
         assertEquals("parent message", properties.get("message.org.perf4j.helpers.ClassNotInProperties"));
     }
 
-    public void testAncestorPath() {
-        assertEquals("ancestor tag", properties.get("tag.org.perf4j"));
-        assertEquals("ancestor message", properties.get("message.org.perf4j"));
+    public void testParentPathGetProperty() {
+        assertEquals("parent tag", properties.getProperty("tag.org.perf4j.helpers.ClassNotInProperties"));
+        assertEquals("parent message", properties.getProperty("message.org.perf4j.helpers.ClassNotInProperties"));
     }
 
-
     public void testDefaultPath() {
-        assertEquals("default tag", properties.get("tag.no.common.path.MyClass"));
-        assertEquals("default message", properties.get("message.no.common.path.MyClass"));
+        assertEquals("{$methodName}", properties.get("tag.no.common.path.MyClass"));
+        assertEquals("", properties.get("message.no.common.path.MyClass"));
+    }
+
+    public void testDefaultPathGetProperty() {
+        assertEquals("{$methodName}", properties.getProperty("tag.no.common.path.MyClass"));
+        assertEquals("", properties.getProperty("message.no.common.path.MyClass"));
+    }
+
+    public void testNoDefaults() {
+        assertNull(properties.getProperty("nomatch"));
+    }
+
+    public void testDefaultProperty() {
+        assertEquals("default", properties.getProperty("nomatch", "default"));
     }
 }

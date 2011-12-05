@@ -62,4 +62,16 @@ public class PackageParentProperties extends Properties {
         }
     }
 
+    @Override
+    public String getProperty(String key) {
+        Object oval = get(key);
+        String sval = (oval instanceof String) ? (String)oval : null;
+        return ((sval == null) && (defaults != null)) ? defaults.getProperty(key) : sval;
+    }
+
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        String val = getProperty(key);
+        return (val == null) ? defaultValue : val;
+    }
 }

@@ -30,13 +30,13 @@ public class Perf4jProperties {
             try {
                 INSTANCE.load(is);
             } catch (IOException e) {
-                System.err.println("Failed to load perf4j.properties");
+                System.err.println("Failed to load perf4j.properties " + e.getMessage());
+                e.printStackTrace();
             } finally {
                 if (is != null) {
                     try {
                         is.close();
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }

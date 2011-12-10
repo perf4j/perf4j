@@ -18,4 +18,31 @@ public class EjbProfiledObject implements EjbProfiledObjectInterface {
         Thread.sleep(sleepTime);
         return sleepTime;
     }
+
+    /**
+     * See perf4j.properties for expected tag and message
+     * @param sleepTime
+     * @return
+     * @throws Exception
+     */
+    @Interceptors(EjbInMemoryTimingAspect.class)
+    @Profiled
+    public long simpleTestDefaultTagMessageFromProperties(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+
+    /**
+     * See perf4j.properties for expected tag and message
+     * @param sleepTime
+     * @return
+     * @throws Exception
+     */
+    @Interceptors(EjbInMemoryTimingAspect.class)
+    @Profiled
+    public long simpleTestDefaultTagMessageFromPropertiesJexl(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+
 }

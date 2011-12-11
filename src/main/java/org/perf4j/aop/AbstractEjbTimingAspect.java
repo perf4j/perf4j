@@ -5,6 +5,7 @@ import org.perf4j.LoggingStopWatch;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * This is the base class for TimingAspects that use the EJB interceptor framework.
@@ -49,6 +50,10 @@ public abstract class AbstractEjbTimingAspect extends AgnosticTimingAspect {
                         }
                         
                         public Class<?> getDeclaringClass() { return (executingMethod == null) ? null : executingMethod.getDeclaringClass() ; }
+
+                        public Map<String,Object> getContextData() {
+                            return ctx.getContextData();
+                        }
                     },
                     profiled,
                     newStopWatch(profiled.logger(), profiled.level())

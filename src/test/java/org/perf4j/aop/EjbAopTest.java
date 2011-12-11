@@ -72,7 +72,11 @@ public class EjbAopTest extends TestCase {
 
                                 public void setParameters(Object[] objects) { /* not supported */ }
 
-                                public Map<String, Object> getContextData() { return new HashMap<String, Object>(); }
+                                public Map<String, Object> getContextData() {
+                                    final HashMap<String, Object> contextData = new HashMap<String, Object>();
+                                    contextData.put("whateverYouNeed", "allIWant");
+                                    return contextData;
+                                }
 
                                 public Object proceed() throws Exception { return method.invoke(beanInstance, args); }
                             };
@@ -91,5 +95,9 @@ public class EjbAopTest extends TestCase {
 
         assertEquals(100, profiledObject.simpleTestWithProfiled(100));
         assertTrue(EjbInMemoryTimingAspect.getLastLoggedString().contains("tag[usingProfiled]"));
+
+        profiledObject.simpleTestTagMessageFromContextData(5);
+        assertTrue("Expected tag not found in " + EjbInMemoryTimingAspect.getLastLoggedString(),
+                EjbInMemoryTimingAspect.getLastLoggedString().contains("tag[allIWant]"));
     }
 }

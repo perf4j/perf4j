@@ -15,6 +15,10 @@
  */
 package org.perf4j.aop;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -53,6 +57,10 @@ public abstract class AbstractTimingAspect extends AgnosticTimingAspect {
                     public String getMethodName() { return pjp.getSignature().getName(); }
                     
                     public Class<?> getDeclaringClass() { return pjp.getSignature().getDeclaringType(); }
+
+                    public Map<String, Object> getContextData() {
+                        return Collections.emptyMap();
+                    }
                 },
                 profiled,
                 newStopWatch(profiled.logger() + "", profiled.level())

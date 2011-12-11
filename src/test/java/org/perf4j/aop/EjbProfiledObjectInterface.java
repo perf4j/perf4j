@@ -7,4 +7,7 @@ public interface EjbProfiledObjectInterface {
     long simpleTest(long sleepTime) throws Exception;
 
     long simpleTestWithProfiled(long sleepTime) throws Exception;
+
+    long simpleTestTagMessageFromContextData(long sleepTime) throws Exception;
+
 }

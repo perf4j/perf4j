@@ -18,4 +18,17 @@ public class EjbProfiledObject implements EjbProfiledObjectInterface {
         Thread.sleep(sleepTime);
         return sleepTime;
     }
+
+    /**
+     * See contextData from InvocationContext for expected tag
+     * @param sleepTime
+     * @return
+     * @throws Exception
+     */
+    @Interceptors(EjbInMemoryTimingAspect.class)
+    @Profiled(tag = "{$contextData.get(\"whateverYouNeed\")}")
+    public long simpleTestTagMessageFromContextData(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
 }

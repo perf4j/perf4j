@@ -30,29 +30,49 @@ import java.util.regex.Pattern;
  * exposed through JMX.
  *
  * @author Alex Devine
+ * @author Xu Huisheng
  */
 public class StatisticsExposingMBean extends NotificationBroadcasterSupport implements DynamicMBean {
     /**
      * Logging classes use this as the default ObjectName of this MBean when registering it with an MBeanServer.
      */
     public static final String DEFAULT_MBEAN_NAME = "org.perf4j:type=StatisticsExposingMBean,name=Perf4J";
+
     /**
      * The type of the Notifications sent when a statistics value is outside of the acceptable range.
      */
     public static final String OUT_OF_RANGE_NOTIFICATION_TYPE = "org.perf4j.threshold.exceeded";
 
     /**
+     * When mbean was deployed multi-times, just throw an Exception.
+     */
+    public static final String COLLISION_DONOTHING = "DONOTHING";
+
+    /**
+     * When mbean was deployed multi-times, using the new one to replace the old one.
+     */
+    public static final String COLLISION_REPLACE = "REPLACE";
+
+    /**
+     * When mbean was deployed multi-times, ignore the new one, still using the old one.
+     */
+    public static final String COLLISION_IGNORE = "IGNORE";
+
+    /**
      * The name under which this MBean is registered in the MBean server.
      */
     protected ObjectName mBeanName;
+
     /**
      * This MBeanInfo exposes this MBean's management interface to the MBeanServer.
      */
     protected MBeanInfo managementInterface;
+
     /**
      * The tags whose statistics values are being exposed.
      */
     protected Collection<String> tagsToExpose;
+
     /**
      * These AcceptableRangeConfigurations force a notification to be sent if a statistic is updated to a value
      * outside the allowable range. This Map maps acceptable ranges to whether or not the LAST check of the attribute

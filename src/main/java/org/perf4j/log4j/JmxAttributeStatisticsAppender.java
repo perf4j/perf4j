@@ -15,19 +15,19 @@
  */
 package org.perf4j.log4j;
 
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.perf4j.GroupedTimingStatistics;
-import org.perf4j.helpers.StatisticsExposingMBean;
 import org.perf4j.helpers.AcceptableRangeConfiguration;
 import org.perf4j.helpers.MiscUtils;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
+import org.perf4j.helpers.StatisticsExposingMBean;
 
 /**
  * This appender is designed to be attached to an {@link AsyncCoalescingStatisticsAppender}. It takes the incoming
@@ -37,6 +37,7 @@ import java.util.ArrayList;
  * the mean time for a specific value is too high).
  *
  * @author Alex Devine
+ * @author Xu Huisheng
  */
 public class JmxAttributeStatisticsAppender extends AppenderSkeleton {
     // --- configuration options ---
@@ -44,15 +45,22 @@ public class JmxAttributeStatisticsAppender extends AppenderSkeleton {
      * The object name of the MBean exposed through the JMX server.
      */
     private String mBeanName = StatisticsExposingMBean.DEFAULT_MBEAN_NAME;
+
     /**
      * A comma separated list of the tag names to be exposed as JMX attributes.
      */
     private String tagNamesToExpose;
+
     /**
      * A comma separated list of the notification thresholds, which controls whether JMX notifications are sent
      * when attribute values fall outside acceptable ranges.
      */
     private String notificationThresholds;
+
+    /**
+     * When deploy log4j multi-times, default collision resolving behavior is do nothing and throw an Exception.
+     */
+    private String collision = StatisticsExposingMBean.COLLISION_DONOTHING;
 
     // --- state variables ---
     /**
@@ -143,6 +151,25 @@ public class JmxAttributeStatisticsAppender extends AppenderSkeleton {
         this.notificationThresholds = notificationThresholds;
     }
 
+    /**
+     * the way to resolve mbean collision.
+     *
+     * @return DONOTHING, REPLACE, IGNORE
+     */
+    public String getCollision() {
+        return collision;
+    }
+
+    /**
+     * the way to resolve mbean collision.
+     *
+     * @param collision DONOTHING, REPLACE, IGNORE
+     */
+    public void setCollision(String collision) {
+        this.collision = collision;
+    }
+
+    @Override
     public void activateOptions() {
         if (tagNamesToExpose == null) {
             throw new RuntimeException("You must set the TagNamesToExpose option before activating this appender");
@@ -158,12 +185,39 @@ public class JmxAttributeStatisticsAppender extends AppenderSkeleton {
                 rangeConfigs.add(new AcceptableRangeConfiguration(rangeConfigString));
             }
         }
-        
-        mBean = new StatisticsExposingMBean(mBeanName, Arrays.asList(tagNames), rangeConfigs);
 
+        this.mBean = new StatisticsExposingMBean(mBeanName, Arrays.asList(tagNames), rangeConfigs);
+
+        this.checkAndRegisterMBean();
+    }
+
+    protected void checkAndRegisterMBean() {
         try {
             MBeanServer mBeanServer = getMBeanServer();
-            mBeanServer.registerMBean(mBean, new ObjectName(mBeanName));
+            ObjectName oName = new ObjectName(mBeanName);
+
+            if (StatisticsExposingMBean.COLLISION_DONOTHING.equals(this.collision)) {
+                // DONOTHING. Dont check whether oName had bean existed.
+                // if there was collision, just throw an Exception.
+                mBeanServer.registerMBean(mBean, oName);
+
+            } else if (StatisticsExposingMBean.COLLISION_REPLACE.equals(this.collision)) {
+                // REPLACE. using new mBean to replace old one.
+                if (mBeanServer.isRegistered(oName)) {
+                    mBeanServer.unregisterMBean(oName);
+                }
+                mBeanServer.registerMBean(mBean, oName);
+
+            } else if (StatisticsExposingMBean.COLLISION_IGNORE.equals(this.collision)) {
+                // IGNORE. if there was collision, still using old one, and dont throw Exception.
+                if (!mBeanServer.isRegistered(oName)) {
+                    mBeanServer.registerMBean(mBean, oName);
+                }
+
+            } else {
+                throw new RuntimeException("dont know have to handle collision type : ["
+                + this.collision + "]. The valid options are DONOTHING, REPLACE, IGNORE.");
+            }
         } catch (Exception e) {
             throw new RuntimeException("Error registering statistics MBean: " + e.getMessage(), e);
         }
@@ -171,6 +225,7 @@ public class JmxAttributeStatisticsAppender extends AppenderSkeleton {
 
     // --- appender interface methods ---
 
+    @Override
     protected void append(LoggingEvent event) {
         Object logMessage = event.getMessage();
         if (logMessage instanceof GroupedTimingStatistics && mBean != null) {
@@ -178,10 +233,12 @@ public class JmxAttributeStatisticsAppender extends AppenderSkeleton {
         }
     }
 
+    @Override
     public boolean requiresLayout() {
         return false;
     }
 
+    @Override
     public void close() {
         try {
             MBeanServer mBeanServer = getMBeanServer();

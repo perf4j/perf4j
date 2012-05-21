@@ -235,6 +235,7 @@ public class GoogleChartGenerator implements StatisticsChartGenerator {
      *
      * @return the chart parameters that encode all of the data necessary to display the chart.
      */
+    @SuppressWarnings("unchecked")
     protected String generateGoogleChartParams() {
         long minTimeValue = Long.MAX_VALUE;
         long maxTimeValue = Long.MIN_VALUE;

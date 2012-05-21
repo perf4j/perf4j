@@ -67,7 +67,7 @@ public class AppenderTest extends TestCase {
         //tagName  avg           min     max     std dev       count, which is group 1
         String regex = "tag\\d\\s*\\d+\\.\\d\\s*\\d+\\s*\\d+\\s*\\d+\\.\\d\\s*(\\d+)";
         Pattern statLinePattern = Pattern.compile(regex);
-        Scanner scanner = new Scanner(new File("target/statisticsLog.log"));
+        Scanner scanner = new Scanner(new File("target/statisticsLogback.log"));
 
         int totalCount = 0;
         while (scanner.findWithinHorizon(statLinePattern, 0) != null) {
@@ -121,7 +121,8 @@ public class AppenderTest extends TestCase {
 
         //verify the statisticsLog.csv file
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        for (Object line : FileUtils.readLines(new File("./target/statisticsLog.csv"))) {
+        for (Object line : FileUtils.readLines(new File(
+                "./target/statisticsLogback.csv"))) {
             String[] values = line.toString().split(",");
             //first column is the tag
             assertEquals("\"csvTest\"", values[0]);

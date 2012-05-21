@@ -36,6 +36,9 @@ import org.perf4j.logback.GraphingStatisticsAppender;
  * @author Xu Huisheng
  */
 public class GraphingServlet extends AbstractGraphingServlet {
+
+    private static final long serialVersionUID = 6378412967662499268L;
+
     /**
      * Finds the specified graph by using the
      * {@link org.perf4j.logback.GraphingStatisticsAppender#getAppenderByName(String)} method to find the appender with

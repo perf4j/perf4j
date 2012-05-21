@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
  * @author Alex Devine
  */
 public class AcceptableRangeConfiguration implements Serializable, Cloneable {
+    private static final long serialVersionUID = -1386668939617425680L;
     private String attributeName;
     private double minValue = Double.NEGATIVE_INFINITY;
     private double maxValue = Double.POSITIVE_INFINITY;

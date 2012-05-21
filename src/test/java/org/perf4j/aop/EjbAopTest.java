@@ -24,6 +24,7 @@ public class EjbAopTest extends TestCase {
         profiledObject = wrapBean(EjbProfiledObjectInterface.class, EjbProfiledObject.class);
     }
 
+    @SuppressWarnings("unchecked")
     protected <T> T wrapBean(Class<T> beanInterface, final Class<? extends T> beanClass) throws Exception {
         //intercept the methods on the bean class as necessary
         final Map<String, Object> methodNameToInterceptorMap = new HashMap<String, Object>();

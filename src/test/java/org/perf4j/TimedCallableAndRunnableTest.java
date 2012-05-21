@@ -56,6 +56,9 @@ public class TimedCallableAndRunnableTest extends TestCase {
     }
 
     public static class TestTask implements Runnable, Callable<Long>, Serializable {
+
+        private static final long serialVersionUID = 7370796726390725584L;
+
         public boolean wasRun = false;
 
         public void run() {

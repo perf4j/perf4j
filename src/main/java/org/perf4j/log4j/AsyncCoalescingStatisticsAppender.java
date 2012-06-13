@@ -42,6 +42,35 @@ import java.io.Flushable;
  * @author Alex Devine
  */
 public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implements AppenderAttachable {
+
+    protected static class ShutdownHook extends Thread {
+
+        private AsyncCoalescingStatisticsAppender appender;
+
+        public ShutdownHook(AsyncCoalescingStatisticsAppender appender) {
+            super("perf4j-async-stats-appender-shutdown");
+            this.appender = appender;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (appender != null && !appender.closed)
+                    appender.close();
+            } finally {
+                appender = null;
+            }
+        }
+
+        public AsyncCoalescingStatisticsAppender getAppender() {
+            return appender;
+        }
+
+        public void setAppender(AsyncCoalescingStatisticsAppender appender) {
+            this.appender = appender;
+        }
+    }
+
     // --- configuration options ---
     // note most configuration options are provided by the GenericAsyncCoalescingStatisticsAppender
     /**
@@ -65,7 +94,7 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
     /**
      * This shutdown hook is needed to flush the appender on JVM shutdown so that all messages are logged.
      */
-    private Thread shutdownHook = null;
+    private ShutdownHook shutdownHook = null;
 
     // --- options ---
     /**
@@ -86,6 +115,28 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
      */
     public void setTimeSlice(long timeSlice) {
         baseImplementation.setTimeSlice(timeSlice);
+    }
+
+    /**
+     * The <b>ShutdownWaitMillis</b> option represents the length of time, in milliseconds,
+     * that the appender should wait after the logging system shutdown commences, before forcibly
+     * clearing asynchronous logging queues and interrupting the background queue-processing thread.
+     *
+     * If not set explicitly, the default shutdown timeout is 10 seconds.
+     *
+     * @return the ShutdownWaitMillis option.
+     */
+    public long getShutdownWaitMillis() {
+        return baseImplementation.getShutdownWaitMillis();
+    }
+
+    /**
+     * Sets the value of the <b>ShutdownWaitMillis</b> option.
+     *
+     * @param shutdownWaitMillis The new ShutdownWaitMillis option, in milliseconds.
+     */
+    public void setShutdownWaitMillis(long shutdownWaitMillis) {
+        baseImplementation.setShutdownWaitMillis(shutdownWaitMillis);
     }
 
     /**
@@ -215,13 +266,7 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
         //Also, we add a shutdown hook that will attempt to flush any pending log events in the queue.
         if (shutdownHook == null) {
             try {
-                Runtime.getRuntime().addShutdownHook(shutdownHook = new Thread("perf4j-async-stats-appender-shutdown") {
-                    public void run() {
-                        if (!closed) {
-                            close();
-                        }
-                    }
-                });
+                Runtime.getRuntime().addShutdownHook(shutdownHook = new ShutdownHook(this));
             } catch (Exception e) { /* likely a security exception, nothing we can do */ }
         }
     }
@@ -292,32 +337,46 @@ public class AsyncCoalescingStatisticsAppender extends AppenderSkeleton implemen
 
     @SuppressWarnings("rawtypes")
     public void close() {
-        baseImplementation.stop();
+        try {
+            baseImplementation.stop();
 
-        //close the downstream appenders
-        synchronized (downstreamAppenders) {
-            //first FLUSH any flushable downstream appenders (fix for PERFFORJ-22). Note we CAN NOT just flush and
-            //close in one loop because this breaks in the case of a "diamond" relationship between appenders, where,
-            //say, this appender has 2 attached GraphingStatisticsAppenders that each write to a SINGLE attached
-            //FileAppender.
-            for (Enumeration enumer = downstreamAppenders.getAllAppenders();
-                 enumer != null && enumer.hasMoreElements();) {
-                Appender appender = (Appender) enumer.nextElement();
-                if (appender instanceof Flushable) {
-                    try {
-                        ((Flushable)appender).flush();
-                    } catch (Exception e) { /* Just eat the exception, we're closing down */ }
+            //close the downstream appenders
+            synchronized (downstreamAppenders) {
+                //first FLUSH any flushable downstream appenders (fix for PERFFORJ-22). Note we CAN NOT just flush and
+                //close in one loop because this breaks in the case of a "diamond" relationship between appenders, where,
+                //say, this appender has 2 attached GraphingStatisticsAppenders that each write to a SINGLE attached
+                //FileAppender.
+                for (Enumeration enumer = downstreamAppenders.getAllAppenders();
+                        enumer != null && enumer.hasMoreElements();) {
+                    Appender appender = (Appender) enumer.nextElement();
+                    if (appender instanceof Flushable) {
+                        try {
+                            ((Flushable)appender).flush();
+                        } catch (Exception e) { /* Just eat the exception, we're closing down */ }
+                    }
+                }
+
+                //THEN close them
+                for (Enumeration enumer = downstreamAppenders.getAllAppenders();
+                        enumer != null && enumer.hasMoreElements();) {
+                    ((Appender) enumer.nextElement()).close();
                 }
             }
 
-            //THEN close them
-            for (Enumeration enumer = downstreamAppenders.getAllAppenders();
-                 enumer != null && enumer.hasMoreElements();) {
-                ((Appender) enumer.nextElement()).close();
+            // remove shutdown hook
+            if (shutdownHook != null) {
+                try {
+                    Runtime.getRuntime().removeShutdownHook(shutdownHook);
+                } catch (Exception e) { /* likely a security exception, nothing we can do */ }
             }
+        } finally {
+            // dereference this appender in the shutdown hook, allow it to be gc()ed even if removal fails
+            if (shutdownHook != null) {
+                shutdownHook.setAppender(null);
+                shutdownHook = null;
+            }
+            this.closed = true;
         }
-
-        this.closed = true;
     }
 
     // --- helper methods ---

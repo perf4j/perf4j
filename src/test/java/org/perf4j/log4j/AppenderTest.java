@@ -126,12 +126,21 @@ public class AppenderTest extends TestCase {
                         .getAppender("coalescingStatistics");
         Field shutdownField = appender.getClass().getDeclaredField("shutdownHook");
         shutdownField.setAccessible(true);
-        Thread shutdownHook = (Thread) shutdownField.get(appender);
+        AsyncCoalescingStatisticsAppender.ShutdownHook shutdownHook = (AsyncCoalescingStatisticsAppender.ShutdownHook) shutdownField.get(appender);
+        assertNotNull("shutdownHook should not be null", shutdownHook);
+        assertNotNull("shutdownHook appender should not be null", shutdownHook.getAppender());
         shutdownHook.run();
 
         //now there should be data in the files
         assertFalse("".equals(FileUtils.readFileToString(new File("target/stats-shutdownbug.log"))));
         assertFalse("".equals(FileUtils.readFileToString(new File("target/graphs-shutdownbug.log"))));
+
+        // closing should remove shutdown hook
+        appender.close();
+
+        // hard to test hook removal, but we set it to null at the same time, so we'll rely on that
+        shutdownHook = (AsyncCoalescingStatisticsAppender.ShutdownHook) shutdownField.get(appender);
+        assertNull("shutdownHook should be null", shutdownHook);
     }
 
     public void testOverflowHandling() throws Exception {

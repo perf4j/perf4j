@@ -172,6 +172,9 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
 
     public String toString() {
         StringBuilder retVal = new StringBuilder();
+        
+        int paddingToAllowForLongestTag = Math.max(getLongestTag(statisticsByTag.keySet()), "Tag".length());
+        
         //output the time window
         retVal.append("Performance Statistics   ")
                 .append(MiscUtils.formatDateIso8601(startTime))
@@ -179,22 +182,36 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
                 .append(MiscUtils.formatDateIso8601(stopTime))
                 .append(MiscUtils.NEWLINE);
         //output the header
-        retVal.append(String.format("%-48s%12s%12s%12s%12s%12s%n",
-                                    "Tag", "Avg(ms)", "Min", "Max", "Std Dev", "Count"));
+        retVal.append(String.format("%-" + paddingToAllowForLongestTag + "s%12s%12s%12s%12s%12s%12s%n",
+                                    "Tag", "Avg(ms)", "Min", "Max", "Std-Dev", "Count", "Total"));
         //output each statistics
         for (Map.Entry<String, TimingStatistics> tagWithTimingStatistics : statisticsByTag.entrySet()) {
             String tag = tagWithTimingStatistics.getKey();
             TimingStatistics timingStatistics = tagWithTimingStatistics.getValue();
-            retVal.append(String.format("%-48s%12.1f%12d%12d%12.1f%12d%n",
+            double totalTimeForTag = timingStatistics.getCount() * timingStatistics.getMean();
+            retVal.append(String.format("%-" + paddingToAllowForLongestTag + "s%12.1f%12d%12d%12.1f%12d%12.0f%n",
                                         tag,
                                         timingStatistics.getMean(),
                                         timingStatistics.getMin(),
                                         timingStatistics.getMax(),
                                         timingStatistics.getStandardDeviation(),
-                                        timingStatistics.getCount()));
+                                        timingStatistics.getCount(),
+                                        totalTimeForTag));
         }
 
         return retVal.toString();
+        
+    }
+
+    private int getLongestTag(Set<String> keySet) {
+        int longestLength = 0;
+        for (String tag : keySet) {
+            if (tag.length() > longestLength) {
+                longestLength = tag.length();
+            }
+        }
+        
+        return longestLength;
     }
 
     public GroupedTimingStatistics clone() {

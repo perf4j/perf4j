@@ -21,13 +21,13 @@ import java.util.Arrays;
 import java.util.List;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
+import ch.qos.logback.core.AppenderBase;
+import ch.qos.logback.classic.spi.LoggingEvent;
 import org.perf4j.GroupedTimingStatistics;
 import org.perf4j.helpers.AcceptableRangeConfiguration;
 import org.perf4j.helpers.MiscUtils;
 import org.perf4j.helpers.StatisticsExposingMBean;
-import ch.qos.logback.classic.spi.LoggingEvent;
-import ch.qos.logback.core.AppenderBase;
-
 
 /**
  * This appender is designed to be attached to an {@link AsyncCoalescingStatisticsAppender}. It takes the incoming
@@ -56,6 +56,11 @@ public class JmxAttributeStatisticsAppender extends AppenderBase<LoggingEvent> {
      * when attribute values fall outside acceptable ranges.
      */
     private String notificationThresholds;
+
+    /**
+     * When deploy log4j multi-times, default collision resolving behavior is do nothing and throw an Exception.
+     */
+    private String collision = StatisticsExposingMBean.COLLISION_DONOTHING;
 
     // --- state variables ---
     /**
@@ -146,6 +151,24 @@ public class JmxAttributeStatisticsAppender extends AppenderBase<LoggingEvent> {
         this.notificationThresholds = notificationThresholds;
     }
 
+    /**
+     * the way to resolve mbean collision.
+     *
+     * @return DONOTHING, REPLACE, IGNORE
+     */
+    public String getCollision() {
+        return collision;
+    }
+
+    /**
+     * the way to resolve mbean collision.
+     *
+     * @param collision DONOTHING, REPLACE, IGNORE
+     */
+    public void setCollision(String collision) {
+        this.collision = collision;
+    }
+
     @Override
     public void start() {
         super.start();
@@ -167,14 +190,9 @@ public class JmxAttributeStatisticsAppender extends AppenderBase<LoggingEvent> {
             }
         }
 
-        mBean = new StatisticsExposingMBean(mBeanName, Arrays.asList(tagNames), rangeConfigs);
+        this.mBean = new StatisticsExposingMBean(mBeanName, Arrays.asList(tagNames), rangeConfigs);
 
-        try {
-            MBeanServer mBeanServer = getMBeanServer();
-            mBeanServer.registerMBean(mBean, new ObjectName(mBeanName));
-        } catch (Exception e) {
-            throw new RuntimeException("Error registering statistics MBean: " + e.getMessage(), e);
-        }
+        this.checkAndRegisterMBean();
     }
 
     @Override
@@ -195,7 +213,6 @@ public class JmxAttributeStatisticsAppender extends AppenderBase<LoggingEvent> {
         if ((event.getArgumentArray() != null)
                 && (event.getArgumentArray().length > 0)) {
             Object logMessage = event.getArgumentArray()[0];
-
             if (logMessage instanceof GroupedTimingStatistics
                     && (mBean != null)) {
                 mBean.updateCurrentTimingStatistics((GroupedTimingStatistics) logMessage);
@@ -212,5 +229,37 @@ public class JmxAttributeStatisticsAppender extends AppenderBase<LoggingEvent> {
      */
     protected MBeanServer getMBeanServer() {
         return ManagementFactory.getPlatformMBeanServer();
+    }
+
+    protected void checkAndRegisterMBean() {
+        try {
+            MBeanServer mBeanServer = getMBeanServer();
+            ObjectName oName = new ObjectName(mBeanName);
+
+            if (StatisticsExposingMBean.COLLISION_DONOTHING.equals(this.collision)) {
+                // DONOTHING. Dont check whether oName had bean existed.
+                // if there was collision, just throw an Exception.
+                mBeanServer.registerMBean(mBean, oName);
+
+            } else if (StatisticsExposingMBean.COLLISION_REPLACE.equals(this.collision)) {
+                // REPLACE. using new mBean to replace old one.
+                if (mBeanServer.isRegistered(oName)) {
+                    mBeanServer.unregisterMBean(oName);
+                }
+                mBeanServer.registerMBean(mBean, oName);
+
+            } else if (StatisticsExposingMBean.COLLISION_IGNORE.equals(this.collision)) {
+                // IGNORE. if there was collision, still using old one, and dont throw Exception.
+                if (!mBeanServer.isRegistered(oName)) {
+                    mBeanServer.registerMBean(mBean, oName);
+                }
+
+            } else {
+                throw new RuntimeException("dont know have to handle collision type : ["
+                + this.collision + "]. The valid options are DONOTHING, REPLACE, IGNORE.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error registering statistics MBean: " + e.getMessage(), e);
+        }
     }
 }

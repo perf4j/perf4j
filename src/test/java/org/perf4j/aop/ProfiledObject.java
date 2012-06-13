@@ -30,7 +30,31 @@ public class ProfiledObject {
         Thread.sleep(sleepTime);
         return sleepTime;
     }
-    
+
+    /**
+     * See perf4j.properties for expected tag and message
+     * @param sleepTime
+     * @return
+     * @throws Exception
+     */
+    @Profiled
+    public long simpleTestDefaultTagMessageFromProperties(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+
+    /**
+     * See perf4j.properties for expected tag and message
+     * @param sleepTime
+     * @return
+     * @throws Exception
+     */
+    @Profiled
+    public long simpleTestDefaultTagMessageFromPropertiesJexl(long sleepTime) throws Exception {
+        Thread.sleep(sleepTime);
+        return sleepTime;
+    }
+
     @Profiled(tag = "simple")
     public long simpleTest(long sleepTime) throws Exception {
         Thread.sleep(sleepTime);
@@ -110,6 +134,16 @@ public class ProfiledObject {
         Thread.sleep(sleepTime);
         return sleepTime;
     }
+
+    public long simpleTestUnprofiled(long sleepTime) throws Exception {
+	    Thread.sleep(sleepTime);
+        return sleepTime;
+	}
+
+    public long simpleTestUnprofiledNotAdvised(long sleepTime) throws Exception {
+	    Thread.sleep(sleepTime);
+        return sleepTime;
+	}
 
     //this method is called using JEXL in the @Profiled tags above
     public int getBeanProp() {

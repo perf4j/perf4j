@@ -1,4 +1,4 @@
-/* Copyright (c) 2008-2009 HomeAway, Inc.
+/* Copyright (c) 2011 Brett Randall.
  * All rights reserved.  http://www.perf4j.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,24 +15,21 @@
  */
 package org.perf4j.aop;
 
-import org.aspectj.lang.annotation.Aspect;
 import org.apache.log4j.Level;
+import org.aspectj.lang.annotation.Aspect;
 import org.perf4j.LoggingStopWatch;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-
 /**
- * This class is used by the AOP tests to check when the aspect was called
+ *
+ * @author Brett Randall
+ *
  */
 @Aspect
-public class InMemoryTimingAspect extends ProfiledTimingAspect {
-    public static List<String> logStrings = Collections.synchronizedList(new ArrayList<String>());
+public abstract class ScopedInMemoryTimingAspect extends ScopedTimingAspect {
 
     protected LoggingStopWatch newStopWatch(final String loggerName, final String levelName) {
         return new LoggingStopWatch() {
-            private static final long serialVersionUID = -1537100122960737661L;
+            private static final long serialVersionUID = -4675363294385184089L;
 
             public boolean isLogging() {
                 return Level.toLevel(levelName).toInt() >= Level.INFO_INT;
@@ -44,11 +41,4 @@ public class InMemoryTimingAspect extends ProfiledTimingAspect {
         };
     }
 
-    public static String getLastLoggedString() {
-        if (logStrings.size() > 0) {
-            return logStrings.get(logStrings.size() - 1);
-        } else {
-            return null;
-        }
-    }
 }

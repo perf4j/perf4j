@@ -17,7 +17,7 @@ package org.perf4j.commonslog.aop;
 
 import org.apache.commons.logging.LogFactory;
 import org.aspectj.lang.annotation.Aspect;
-import org.perf4j.aop.AbstractTimingAspect;
+import org.perf4j.aop.ProfiledTimingAspect;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 
 /**
@@ -26,9 +26,11 @@ import org.perf4j.commonslog.CommonsLogStopWatch;
  * @author Alex Devine
  */
 @Aspect
-public class TimingAspect extends AbstractTimingAspect {
+public class TimingAspect extends ProfiledTimingAspect {
+
     protected CommonsLogStopWatch newStopWatch(String loggerName, String levelName) {
         int levelInt = CommonsLogStopWatch.mapLevelName(levelName);
         return new CommonsLogStopWatch(LogFactory.getLog(loggerName), levelInt, levelInt);
     }
+
 }

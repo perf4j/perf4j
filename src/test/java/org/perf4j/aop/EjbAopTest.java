@@ -91,5 +91,17 @@ public class EjbAopTest extends TestCase {
 
         assertEquals(100, profiledObject.simpleTestWithProfiled(100));
         assertTrue(EjbInMemoryTimingAspect.getLastLoggedString().contains("tag[usingProfiled]"));
+
+        profiledObject.simpleTestDefaultTagMessageFromProperties(5);
+        assertTrue("Expected tag not found in " + EjbInMemoryTimingAspect.getLastLoggedString(),
+                EjbInMemoryTimingAspect.getLastLoggedString().indexOf("tag[customTag]") >= 0);
+        assertTrue("Expected tag not found in " + EjbInMemoryTimingAspect.getLastLoggedString(),
+                EjbInMemoryTimingAspect.getLastLoggedString().indexOf("message[customMessage]") >= 0);
+
+        profiledObject.simpleTestDefaultTagMessageFromPropertiesJexl(5);
+        assertTrue("Expected tag not found in " + EjbInMemoryTimingAspect.getLastLoggedString(),
+                EjbInMemoryTimingAspect.getLastLoggedString().indexOf("tag[org.perf4j.aop.EjbProfiledObject#simpleTestDefaultTagMessageFromPropertiesJexl]") >= 0);
+        assertTrue("Expected tag not found in " + EjbInMemoryTimingAspect.getLastLoggedString(),
+                EjbInMemoryTimingAspect.getLastLoggedString().indexOf("message[simpleTestDefaultTagMessageFromPropertiesJexl(5)]") >= 0);
     }
 }

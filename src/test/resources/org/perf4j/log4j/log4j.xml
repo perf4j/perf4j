@@ -15,8 +15,11 @@
     </layout> 
   </appender>
 
+  <appender name="listAppender" class="org.perf4j.log4j.ListAppender" />
+
   <logger name="org.perf4j.TimingLogger">
     <level value="info"/>
     <appender-ref ref="coalescingStatistics"/>
+    <appender-ref ref="listAppender"/>
   </logger>
 </log4j:configuration>

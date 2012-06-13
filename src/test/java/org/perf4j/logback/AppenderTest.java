@@ -42,9 +42,8 @@ public class AppenderTest extends TestCase {
         configurator.setContext(lc);
         // the context was probably already configured by default configuration 
         // rules
-        lc.reset(); 
+        lc.reset();
         configurator.doConfigure(getClass().getResource("logback.xml"));
-        
 
         AsyncCoalescingStatisticsAppender appender = (AsyncCoalescingStatisticsAppender) 
             lc.getLogger(StopWatch.DEFAULT_LOGGER_NAME).getAppender("coalescingStatistics");
@@ -105,7 +104,7 @@ public class AppenderTest extends TestCase {
         configurator.setContext(lc);
         // the context was probably already configured by default configuration 
         // rules
-        lc.reset(); 
+        lc.reset();
         configurator.doConfigure(getClass().getResource("logbackWCsv.xml"));
 
         Logger logger = lc.getLogger("org.perf4j.CsvAppenderTest");

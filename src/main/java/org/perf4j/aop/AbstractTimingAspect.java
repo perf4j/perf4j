@@ -16,7 +16,6 @@
 package org.perf4j.aop;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.perf4j.LoggingStopWatch;
 
@@ -30,17 +29,8 @@ import org.perf4j.LoggingStopWatch;
  */
 @Aspect
 public abstract class AbstractTimingAspect extends AgnosticTimingAspect {
-    /**
-     * This advice is used to add the StopWatch logging statements around method executions that have been tagged
-     * with the Profiled annotation.
-     *
-     * @param pjp      The ProceedingJoinPoint encapulates the method around which this aspect advice runs.
-     * @param profiled The profiled annotation that was attached to the method.
-     * @return The return value from the method that was executed.
-     * @throws Throwable Any exceptions thrown by the underlying method.
-     */
-    @Around(value = "execution(* *(..)) && @annotation(profiled)", argNames = "pjp,profiled")
-    public Object doPerfLogging(final ProceedingJoinPoint pjp, Profiled profiled) throws Throwable {
+
+    protected Object runProfiledMethod(final ProceedingJoinPoint pjp, Profiled profiled) throws Throwable {
         //We just delegate to the super class, wrapping the AspectJ-specific ProceedingJoinPoint as an AbstractJoinPoint
         return runProfiledMethod(
                 new AbstractJoinPoint() {
@@ -51,12 +41,12 @@ public abstract class AbstractTimingAspect extends AgnosticTimingAspect {
                     public Object[] getParameters() { return pjp.getArgs(); }
 
                     public String getMethodName() { return pjp.getSignature().getName(); }
-                    
+
                     public Class<?> getDeclaringClass() { return pjp.getSignature().getDeclaringType(); }
                 },
                 profiled,
                 newStopWatch(profiled.logger() + "", profiled.level())
-        );
+                );
     }
 
     /**

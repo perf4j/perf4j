@@ -119,6 +119,28 @@ public class AopTest extends TestCase {
                    InMemoryTimingAspect.getLastLoggedString().indexOf("expressionTest_null]") >= 0);
         assertTrue("Expected message not found in " + InMemoryTimingAspect.getLastLoggedString(),
                    InMemoryTimingAspect.getLastLoggedString().indexOf("message[message: 5, exception: java.lang.Exception: failure]") >= 0);
+
+        // additionalScope, not @Profiled, see concrete aspect in aop.xml
+        profiledObject.simpleTestUnprofiled(50);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleTestUnprofiled]") >= 0);
+
+        // false assertion - this method should not be advised/logged, see aop.xml
+        profiledObject.simpleTestUnprofiledNotAdvised(50);
+        assertFalse("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("tag[simpleTestUnprofiledNotAdvised]") >= 0);
+        profiledObject.simpleTestDefaultTagMessageFromProperties(5);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("tag[customTag]") >= 0);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("message[customMessage]") >= 0);
+
+        profiledObject.simpleTestDefaultTagMessageFromPropertiesJexl(5);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("tag[org.perf4j.aop.ProfiledObject#simpleTestDefaultTagMessageFromPropertiesJexl]") >= 0);
+        assertTrue("Expected tag not found in " + InMemoryTimingAspect.getLastLoggedString(),
+                InMemoryTimingAspect.getLastLoggedString().indexOf("message[simpleTestDefaultTagMessageFromPropertiesJexl(5)]") >= 0);
+
     }
 
     public void testConcurrentCalls() throws Exception {

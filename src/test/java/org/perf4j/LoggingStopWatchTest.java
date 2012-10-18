@@ -16,6 +16,8 @@
 package org.perf4j;
 
 import junit.framework.TestCase;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import java.io.ByteArrayInputStream;
@@ -160,15 +162,19 @@ public class LoggingStopWatchTest extends TestCase {
         LoggingStopWatch cloneCopy = stopWatch.clone();
         assertEquals(stopWatch, cloneCopy);
 
+        ObjectOutputStream os = null;
         try {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            new ObjectOutputStream(os).writeObject(stopWatch);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            os = new ObjectOutputStream(bos);
+            os.writeObject(stopWatch);
             LoggingStopWatch serializedCopy =
-                    (LoggingStopWatch) new ObjectInputStream(new ByteArrayInputStream(os.toByteArray())).readObject();
+                    (LoggingStopWatch) new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray())).readObject();
             assertEquals(stopWatch, serializedCopy);
             assertEquals(cloneCopy, serializedCopy);
         } catch (Exception e) {
             fail("Unexpected Exception: " + e);
+        } finally {
+            IOUtils.closeQuietly(os);
         }
     }
 

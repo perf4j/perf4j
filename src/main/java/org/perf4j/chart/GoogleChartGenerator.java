@@ -15,16 +15,16 @@
  */
 package org.perf4j.chart;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import org.perf4j.GroupedTimingStatistics;
 import org.perf4j.TimingStatistics;
 import org.perf4j.helpers.StatsValueRetriever;
-
-import java.util.*;
-import java.net.URLEncoder;
-import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.text.DecimalFormatSymbols;
 
 /**
  * This implementation of StatisticsChartGenerator creates a chart URL in the format expected by the Google Chart API.
@@ -248,7 +248,7 @@ public class GoogleChartGenerator implements StatisticsChartGenerator {
         for (GroupedTimingStatistics groupedTimingStatistics : data) {
             Map<String, TimingStatistics> statsByTag = groupedTimingStatistics.getStatisticsByTag();
             long windowStartTime = groupedTimingStatistics.getStartTime();
-            long windowLength = groupedTimingStatistics.getStopTime() - windowStartTime;
+            long windowLength = groupedTimingStatistics.getWindowLength();
             //keep track of the min/max time value, this is needed for scaling the chart parameters
             minTimeValue = Math.min(minTimeValue, windowStartTime);
             maxTimeValue = Math.max(maxTimeValue, windowStartTime);

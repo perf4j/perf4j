@@ -195,7 +195,7 @@ public class StatisticsExposingMBean extends NotificationBroadcasterSupport impl
             String statisticName = matcher.group(2);
 
             TimingStatistics timingStats = currentTimingStatistics.getStatisticsByTag().get(tagName);
-            long windowLength = currentTimingStatistics.getStopTime() - currentTimingStatistics.getStartTime();
+            long windowLength = currentTimingStatistics.getWindowLength();
 
             return getStatsValueRetrievers().get(statisticName).getStatsValue(timingStats, windowLength);
         } else {
@@ -242,7 +242,8 @@ public class StatisticsExposingMBean extends NotificationBroadcasterSupport impl
         return managementInterface;
     }
 
-    public MBeanNotificationInfo[] getNotificationInfo() {
+    @Override
+	public MBeanNotificationInfo[] getNotificationInfo() {
         return managementInterface.getNotifications();
     }
 

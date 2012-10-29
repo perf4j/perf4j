@@ -15,10 +15,10 @@
  */
 package org.perf4j;
 
-import org.perf4j.helpers.MiscUtils;
-
 import java.io.Serializable;
 import java.util.*;
+
+import org.perf4j.helpers.MiscUtils;
 
 /**
  * Represents a set of TimingStatistics calculated for a specific time period for a set of tags.
@@ -100,7 +100,16 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
 
         return this;
     }
-
+    
+    /**
+     * The length of time, in milliseconds, of the data window
+     *  
+     * @return length of time, in milliseconds, of the data window
+     */
+    public long getWindowLength() {
+        return stopTime - startTime;
+    }
+    
     /**
      * The TimeZone to use when displaying start/stop time information
      */
@@ -170,7 +179,8 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
 
     // --- Object Methods ---
 
-    public String toString() {
+    @Override
+	public String toString() {
         StringBuilder retVal = new StringBuilder();
         
         int paddingToAllowForLongestTag = Math.max(getLongestTag(statisticsByTag.keySet()), "Tag".length());
@@ -214,7 +224,8 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
         return longestLength;
     }
 
-    public GroupedTimingStatistics clone() {
+    @Override
+	public GroupedTimingStatistics clone() {
         try {
             GroupedTimingStatistics retVal = (GroupedTimingStatistics) super.clone();
             retVal.statisticsByTag = new TreeMap<String, TimingStatistics>(retVal.statisticsByTag);
@@ -227,7 +238,8 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
         }
     }
 
-    public boolean equals(Object o) {
+    @Override
+	public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -242,7 +254,8 @@ public class GroupedTimingStatistics implements Serializable, Cloneable {
                statisticsByTag.equals(that.statisticsByTag);
     }
 
-    public int hashCode() {
+    @Override
+	public int hashCode() {
         int result;
         result = statisticsByTag.hashCode();
         result = 31 * result + (int) (startTime ^ (startTime >>> 32));

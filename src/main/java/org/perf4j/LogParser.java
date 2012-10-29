@@ -15,15 +15,15 @@
  */
 package org.perf4j;
 
-import org.perf4j.helpers.*;
-import org.perf4j.chart.StatisticsChartGenerator;
-import org.perf4j.chart.GoogleChartGenerator;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import org.perf4j.helpers.*;
+import org.perf4j.chart.GoogleChartGenerator;
+import org.perf4j.chart.StatisticsChartGenerator;
 
 /**
  * LogParser provides the main method for reading a log of StopWatch output and generating statistics and graphs
@@ -64,7 +64,7 @@ public class LogParser {
     /**
      * The formatter to use to print statistics.
      */
-    private GroupedTimingStatisticsFormatter statisticsFormatter;
+    private StatisticsFormatter statisticsFormatter;
 
     // --- Constructors ---
     /**
@@ -77,7 +77,7 @@ public class LogParser {
              null /* no graph output */,
              30000L,
              false /* don't create rollup statistics */,
-             new GroupedTimingStatisticsTextFormatter());
+             new DefaultStatisticsFormatter(new GroupedTimingStatisticsTextFormatter()));
     }
 
     /**
@@ -93,7 +93,7 @@ public class LogParser {
      */
     public LogParser(Reader inputLog, PrintStream statisticsOutput, PrintStream graphingOutput,
                      long timeSlice, boolean createRollupStatistics,
-                     GroupedTimingStatisticsFormatter statisticsFormatter) {
+                     StatisticsFormatter statisticsFormatter) {
         this.inputLog = inputLog;
         this.statisticsOutput = statisticsOutput;
         this.graphingOutput = graphingOutput;
@@ -113,6 +113,10 @@ public class LogParser {
      * to the output streams.
      */
     public void parseLog() {
+    	
+    	if (statisticsOutput != null) {
+            statisticsOutput.print(statisticsFormatter.header());
+        }
 
         Iterator<StopWatch> stopWatchIter = new StopWatchLogIterator(inputLog);
 
@@ -136,6 +140,10 @@ public class LogParser {
                 }
             }
         }
+        
+        if (statisticsOutput != null) {
+            statisticsOutput.print(statisticsFormatter.footer());
+        }
     }
 
     protected StatisticsChartGenerator newMeanTimeChartGenerator() {
@@ -158,28 +166,34 @@ public class LogParser {
     }
 
     public static int runMain(String[] args) {
-        try {
+    	try {
             List<String> argsList = new ArrayList<String>(Arrays.asList(args));
 
             if (printUsage(argsList)) {
                 return 0;
             }
-
-            PrintStream statisticsOutput = openStatisticsOutput(argsList);
-            PrintStream graphingOutput = openGraphingOutput(argsList);
-            long timeSlice = getTimeSlice(argsList);
-            boolean rollupStatistics = getRollupStatistics(argsList);
-            GroupedTimingStatisticsFormatter formatter = getStatisticsFormatter(argsList);
-            Reader input = openInput(argsList);
-
-            if (!argsList.isEmpty()) {
-                printUnknownArgs(argsList);
-                return 1;
-            }
-
-            new LogParser(input, statisticsOutput, graphingOutput, timeSlice, rollupStatistics, formatter).parseLog();
-
-            closeGraphingOutput(graphingOutput);
+            PrintStream statisticsOutput = null;
+        	PrintStream graphingOutput = null;
+        	Reader input = null;
+        	try {
+	            long timeSlice = getTimeSlice(argsList);
+	            boolean rollupStatistics = getRollupStatistics(argsList);
+	            StatisticsFormatter formatter = getStatisticsFormatter(argsList);
+	            statisticsOutput = openStatisticsOutput(argsList);
+	            graphingOutput = openGraphingOutput(argsList);
+	            input = openInput(argsList);
+	
+	            if (!argsList.isEmpty()) {
+	                printUnknownArgs(argsList);
+	                return 1;
+	            }
+	
+	            new LogParser(input, statisticsOutput, graphingOutput, timeSlice, rollupStatistics, formatter).parseLog();
+        	} finally {
+        		closeInput(input);
+        		closeStatisticsOutput(statisticsOutput);
+        		closeGraphingOutput(graphingOutput);
+        	}
         } catch ( Exception e ) {
             e.printStackTrace();
             return 1;
@@ -242,6 +256,23 @@ public class LogParser {
             return null;
         }
     }
+    
+    protected static void closeInput(Reader input) throws IOException {
+        if (input != null) {
+        	// InputStreamReader is used for stdin
+            if (!(input instanceof InputStreamReader)) {
+            	input.close();
+            }
+        }
+    }
+    
+    protected static void closeStatisticsOutput(PrintStream statisticsOutput) throws IOException {
+        if (statisticsOutput != null) {
+            if (statisticsOutput != System.out && statisticsOutput != System.err) {
+            	statisticsOutput.close();
+            }
+        }
+    }
 
     protected static void closeGraphingOutput(PrintStream graphingOutput) throws IOException {
         if (graphingOutput != null) {
@@ -273,20 +304,22 @@ public class LogParser {
         }
     }
 
-    protected static GroupedTimingStatisticsFormatter getStatisticsFormatter(List<String> argsList) {
+    protected static StatisticsFormatter getStatisticsFormatter(List<String> argsList) {
         int indexOfFormat = getIndexOfArg(argsList, true, "-f", "--format");
         if (indexOfFormat >= 0) {
             String formatString = argsList.remove(indexOfFormat + 1);
             argsList.remove(indexOfFormat);
             if ("text".equalsIgnoreCase(formatString)) {
-                return new GroupedTimingStatisticsTextFormatter();
+                return new DefaultStatisticsFormatter(new GroupedTimingStatisticsTextFormatter());
             } else if ("csv".equalsIgnoreCase(formatString)) {
-                return new GroupedTimingStatisticsCsvFormatter();
+                return new DefaultStatisticsFormatter(new GroupedTimingStatisticsCsvFormatter());
+            } else if (formatString.startsWith("json")) {
+                return new GroupedTimingStatisticsJsonFormatter(formatString);
             } else {
                 throw new IllegalArgumentException("Unknown format type: " + formatString);
             }
         } else {
-            return new GroupedTimingStatisticsTextFormatter();
+            return new DefaultStatisticsFormatter(new GroupedTimingStatisticsTextFormatter());
         }
     }
 

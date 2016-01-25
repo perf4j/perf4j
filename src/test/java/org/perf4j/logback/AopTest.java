@@ -15,15 +15,14 @@
  */
 package org.perf4j.logback;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import junit.framework.TestCase;
 import org.perf4j.StopWatch;
 import org.perf4j.aop.ProfiledObject;
 import org.slf4j.LoggerFactory;
-
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.classic.spi.LoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
-import junit.framework.TestCase;
 
 /**
  * 
@@ -44,7 +43,7 @@ public class AopTest extends TestCase {
 
         configurator.doConfigure(getClass().getResource("logback.xml"));
 
-        ListAppender<LoggingEvent> listAppender = (ListAppender<LoggingEvent>) lc
+        ListAppender<ILoggingEvent> listAppender = (ListAppender<ILoggingEvent>) lc
                 .getLogger(StopWatch.DEFAULT_LOGGER_NAME).getAppender(
                         "listAppender");
 

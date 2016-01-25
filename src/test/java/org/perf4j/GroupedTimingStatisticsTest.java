@@ -15,10 +15,11 @@
  */
 package org.perf4j;
 
+import junit.framework.TestCase;
+
+import java.util.Locale;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import junit.framework.TestCase;
 
 /**
  * PERFFORJ-55.
@@ -29,6 +30,10 @@ public class GroupedTimingStatisticsTest extends TestCase {
     private final long startTime = System.currentTimeMillis();
     private final long stopTime = startTime + 100;
     private final SortedMap<String, TimingStatistics> statisticsByTag = new TreeMap<String, TimingStatistics>();
+
+    static {
+        Locale.setDefault(Locale.UK);
+    }
 
     public void testOutputHasPaddingForTagHeadingWithEmptyGroupedTimingStatistics() throws Exception {
         GroupedTimingStatistics groupStatistics = new GroupedTimingStatistics(statisticsByTag, startTime, stopTime, createRollupStatistics);
@@ -63,9 +68,6 @@ public class GroupedTimingStatisticsTest extends TestCase {
         assertOutputContains(groupStatistics.toString(), "Tag     Avg(ms)         Min         Max     Std-Dev       Count       Total");
         assertOutputContains(groupStatistics.toString(), "a           1.1           4           3         0.2           5           6");
     }
-
-
-
 
     private void assertOutputContains(String output, String expectedToContain) {
         String message = "Expected toString() output to contain the given string, matching formatting.\n" + expectedToContain +

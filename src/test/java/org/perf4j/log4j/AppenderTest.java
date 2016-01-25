@@ -25,6 +25,7 @@ import org.perf4j.StopWatch;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
@@ -34,6 +35,11 @@ import java.lang.reflect.Field;
  * This class tests the log4j appenders.
  */
 public class AppenderTest extends TestCase {
+
+    static {
+        Locale.setDefault(Locale.UK);
+    }
+
     public void testAppenders() throws Exception {
         DOMConfigurator.configure(getClass().getResource("log4j.xml"));
 

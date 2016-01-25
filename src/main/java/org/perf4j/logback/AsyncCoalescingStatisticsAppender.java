@@ -15,19 +15,21 @@
  */
 package org.perf4j.logback;
 
-import java.io.Flushable;
-import java.util.Iterator;
-import org.perf4j.GroupedTimingStatistics;
-import org.perf4j.StopWatch;
-import org.perf4j.helpers.GenericAsyncCoalescingStatisticsAppender;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.spi.AppenderAttachable;
 import ch.qos.logback.core.spi.AppenderAttachableImpl;
+import org.perf4j.GroupedTimingStatistics;
+import org.perf4j.StopWatch;
+import org.perf4j.helpers.GenericAsyncCoalescingStatisticsAppender;
+
+import java.io.Flushable;
+import java.util.Iterator;
 
 /**
  * This logback Appender groups StopWatch log messages together to form GroupedTimingStatistics. At a scheduled interval
@@ -42,7 +44,7 @@ import ch.qos.logback.core.spi.AppenderAttachableImpl;
  * @author Alex Devine
  * @author Xu Huisheng
  */
-public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent> implements AppenderAttachable<LoggingEvent> {
+public class AsyncCoalescingStatisticsAppender extends AppenderBase<ILoggingEvent> implements AppenderAttachable<ILoggingEvent> {
     // --- configuration options ---
     // note most configuration options are provided by the GenericAsyncCoalescingStatisticsAppender
     /**
@@ -61,7 +63,7 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
     /**
      * The downstream appenders are contained in this AppenderAttachableImpl
      */
-    private final AppenderAttachableImpl<LoggingEvent> downstreamAppenders = new AppenderAttachableImpl<LoggingEvent>();
+    private final AppenderAttachableImpl<ILoggingEvent> downstreamAppenders = new AppenderAttachableImpl<>();
 
     // --- options ---
     /**
@@ -242,25 +244,25 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
     }
 
     // --- appender attachable methods ---
-    public void addAppender(Appender<LoggingEvent> newAppender) {
+    public void addAppender(Appender<ILoggingEvent> newAppender) {
         synchronized(downstreamAppenders) {
             downstreamAppenders.addAppender(newAppender);
         }
     }
 
-    public Iterator<Appender<LoggingEvent>> iteratorForAppenders() {
+    public Iterator<Appender<ILoggingEvent>> iteratorForAppenders() {
         synchronized(downstreamAppenders) {
             return downstreamAppenders.iteratorForAppenders();
         }
     }
 
-    public Appender<LoggingEvent> getAppender(String name) {
+    public Appender<ILoggingEvent> getAppender(String name) {
         synchronized(downstreamAppenders) {
             return downstreamAppenders.getAppender(name);
         }
     }
 
-    public boolean isAttached(Appender<LoggingEvent> appender) {
+    public boolean isAttached(Appender<ILoggingEvent> appender) {
         synchronized(downstreamAppenders) {
             return downstreamAppenders.isAttached(appender);
         }
@@ -272,7 +274,7 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
         }
     }
 
-    public boolean detachAppender(Appender<LoggingEvent> appender) {
+    public boolean detachAppender(Appender<ILoggingEvent> appender) {
         synchronized(downstreamAppenders) {
             return downstreamAppenders.detachAppender(appender);
         }
@@ -285,7 +287,7 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
     }
 
     // --- appender methods ---
-    protected void append(LoggingEvent event) {
+    protected void append(ILoggingEvent event) {
         baseImplementation.append(event.getFormattedMessage());
     }
 
@@ -298,9 +300,9 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
             //close in one loop because this breaks in the case of a "diamond" relationship between appenders, where,
             //say, this appender has 2 attached GraphingStatisticsAppenders that each write to a SINGLE attached
             //FileAppender.
-            for (Iterator<Appender<LoggingEvent>> iter = downstreamAppenders.iteratorForAppenders();
+            for (Iterator<Appender<ILoggingEvent>> iter = downstreamAppenders.iteratorForAppenders();
                  iter != null && iter.hasNext();) {
-                Appender<LoggingEvent> appender = iter.next();
+                Appender<ILoggingEvent> appender = iter.next();
                 if (appender instanceof Flushable) {
                     try {
                         ((Flushable)appender).flush();
@@ -309,7 +311,7 @@ public class AsyncCoalescingStatisticsAppender extends AppenderBase<LoggingEvent
             }
 
             //THEN close them
-            for (Iterator<Appender<LoggingEvent>> iter = downstreamAppenders.iteratorForAppenders();
+            for (Iterator<Appender<ILoggingEvent>> iter = downstreamAppenders.iteratorForAppenders();
                 iter != null && iter.hasNext();) {
                 iter.next().stop();
             }

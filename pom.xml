@@ -170,18 +170,6 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>Codehaus</id>
-            <url>http://repository.codehaus.org/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>Codehaus Mojo</id>
-            <url>http://repository.codehaus.org/org/codehaus/mojo/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>Codehaus Snapshots</id>
-            <url>http://snapshots.repository.codehaus.org/</url>
-        </pluginRepository>
-        <pluginRepository>
             <id>Maven2</id>
             <url>http://repo1.maven.org/maven2/</url>
         </pluginRepository>
@@ -208,7 +196,7 @@
                 </os>
             </activation>
             <properties>
-                <git.executable>git.cmd</git.executable>
+                <git.executable>git.exe</git.executable>
             </properties>
         </profile>
         <profile>

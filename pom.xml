@@ -148,46 +148,46 @@
     <repositories>
         <repository>
             <id>Apache iBiblio Mirror</id>
-            <url>http://people.apache.org/repo/m2-ibiblio-rsync-repository/</url>
+            <url>https://people.apache.org/repo/m2-ibiblio-rsync-repository/</url>
         </repository>
         <repository>
             <id>Maven2</id>
-            <url>http://repo1.maven.org/maven2/</url>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
         <repository>
             <id>Codehaus</id>
-            <url>http://repository.codehaus.org/</url>
+            <url>https://repository.codehaus.org/</url>
         </repository>
         <repository>
             <id>Apache Incubator</id>
-            <url>http://people.apache.org/repo/m2-incubating-repository/</url>
+            <url>https://people.apache.org/repo/m2-incubating-repository/</url>
         </repository>
         <repository>
             <id>java.net</id>
-            <url>http://download.java.net/maven/2/</url>
+            <url>https://download.java.net/maven/2/</url>
         </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
             <id>Codehaus</id>
-            <url>http://repository.codehaus.org/</url>
+            <url>https://repository.codehaus.org/</url>
         </pluginRepository>
         <pluginRepository>
             <id>Codehaus Mojo</id>
-            <url>http://repository.codehaus.org/org/codehaus/mojo/</url>
+            <url>https://repository.codehaus.org/org/codehaus/mojo/</url>
         </pluginRepository>
         <pluginRepository>
             <id>Codehaus Snapshots</id>
-            <url>http://snapshots.repository.codehaus.org/</url>
+            <url>https://snapshots.repository.codehaus.org/</url>
         </pluginRepository>
         <pluginRepository>
             <id>Maven2</id>
-            <url>http://repo1.maven.org/maven2/</url>
+            <url>https://repo1.maven.org/maven2/</url>
         </pluginRepository>
         <pluginRepository>
             <id>maven snapshots</id>
-            <url>http://people.apache.org/repo/m2-snapshot-repository/</url>
+            <url>https://people.apache.org/repo/m2-snapshot-repository/</url>
         </pluginRepository>
     </pluginRepositories>
 
